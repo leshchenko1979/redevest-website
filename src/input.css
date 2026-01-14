@@ -1,0 +1,197 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white text-gray-900 font-sans leading-relaxed;
+  }
+}
+
+@layer components {
+  /* Professional buttons */
+  .btn-primary {
+    @apply bg-primary hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-3 px-8 rounded-lg border border-gray-300 transition-all duration-200;
+  }
+
+  .btn-accent {
+    @apply bg-accent hover:bg-yellow-500 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg;
+  }
+
+  /* Layout utilities */
+  .section-padding {
+    @apply py-16 px-4;
+  }
+
+  .container {
+    @apply max-w-7xl mx-auto;
+  }
+
+  /* Hero section */
+  .hero-section {
+    @apply relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white;
+  }
+
+  .hero-content {
+    @apply text-center max-w-4xl mx-auto px-4;
+  }
+
+  .hero-title {
+    @apply text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight;
+  }
+
+  .hero-subtitle {
+    @apply text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed;
+  }
+
+  /* Section containers */
+  .section-container {
+    @apply container mx-auto px-4;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-5xl font-bold text-center mb-12 text-gray-900;
+  }
+
+  .section-subtitle {
+    @apply text-lg md:text-xl text-gray-600 text-center mb-16 max-w-3xl mx-auto;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-all duration-300;
+  }
+
+  .card-hover {
+    @apply hover:-translate-y-1;
+  }
+
+  /* Feature items */
+  .feature-icon {
+    @apply w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 text-primary text-2xl;
+  }
+
+  .feature-item {
+    @apply text-center;
+  }
+
+  .feature-title {
+    @apply text-xl font-bold text-gray-900 mb-3;
+  }
+
+  .feature-description {
+    @apply text-gray-600 leading-relaxed;
+  }
+
+  /* Statistics */
+  .stat-number {
+    @apply text-4xl md:text-5xl font-bold text-primary mb-2;
+  }
+
+  .stat-label {
+    @apply text-gray-600 font-medium uppercase text-sm tracking-wide;
+  }
+
+  /* Portfolio items */
+  .portfolio-card {
+    @apply card card-hover;
+  }
+
+  .portfolio-image {
+    @apply w-full h-48 object-cover rounded-xl mb-6;
+  }
+
+  .portfolio-title {
+    @apply text-xl font-bold text-gray-900 mb-3;
+  }
+
+  .portfolio-description {
+    @apply text-gray-600 mb-4;
+  }
+
+  .portfolio-meta {
+    @apply flex items-center justify-between text-sm text-gray-500;
+  }
+
+  /* Navigation */
+  .nav-link {
+    @apply text-gray-700 hover:text-primary transition-colors duration-200 font-medium;
+  }
+
+  .nav-link-active {
+    @apply text-primary font-semibold;
+  }
+
+  /* Testimonials */
+  .testimonial-card {
+    @apply bg-gray-50 rounded-2xl p-8 border border-gray-200;
+  }
+
+  .testimonial-quote {
+    @apply text-lg text-gray-700 mb-6 italic;
+  }
+
+  .testimonial-author {
+    @apply font-semibold text-gray-900;
+  }
+
+  .testimonial-role {
+    @apply text-gray-600 text-sm;
+  }
+
+  /* Contact form */
+  .form-input {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200;
+  }
+
+  .form-label {
+    @apply block text-gray-700 font-medium mb-2;
+  }
+
+  .form-textarea {
+    @apply form-input resize-none;
+  }
+
+  /* Footer */
+  .footer-section {
+    @apply bg-gray-900 text-white;
+  }
+
+  .footer-link {
+    @apply text-gray-400 hover:text-white transition-colors duration-200;
+  }
+
+  /* Utility classes */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Responsive utilities */
+  .mobile-menu {
+    @apply fixed inset-0 bg-white z-50 md:hidden;
+  }
+
+  /* Animation utilities */
+  .fade-in {
+    @apply animate-fade-in;
+  }
+
+  .slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

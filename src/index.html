@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redevest - Инвестиции в недвижимость | Алексей Лещенко</title>
+    <meta name="description" content="Инвестиционный фонд Redevest. Более 20 лет опыта в недвижимости. Доходность 30-80% годовых. Склады, редевелопмент, земельные активы.">
+    <meta name="keywords" content="инвестиции недвижимость, склады, редевелопмент, земельные участки, доходность">
+    <meta name="author" content="Алексей Лещенко, Redevest">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="canonical" href="https://redevest.ru">
+    <link href="output.css" rel="stylesheet">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://redevest.ru">
+    <meta property="og:title" content="Redevest - Инвестиции в недвижимость">
+    <meta property="og:description" content="Инвестиционный фонд с опытом более 20 лет. Доходность 30-80% годовых.">
+    <meta property="og:image" content="https://redevest.ru/og-image.jpg">
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://redevest.ru">
+    <meta property="twitter:title" content="Redevest - Инвестиции в недвижимость">
+    <meta property="twitter:description" content="Инвестиционный фонд с опытом более 20 лет. Доходность 30-80% годовых.">
+    <meta property="twitter:image" content="https://redevest.ru/og-image.jpg">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">R</span>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-900">Redevest</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#about" class="nav-link">О фонде</a>
+                    <a href="#expertise" class="nav-link">Экспертиза</a>
+                    <a href="#projects" class="nav-link">Проекты</a>
+                    <a href="#results" class="nav-link">Результаты</a>
+                    <a href="#materials" class="nav-link">Материалы</a>
+                    <a href="#contact" class="btn-primary">Связаться</a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button class="md:hidden p-2" onclick="toggleMobileMenu()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                Инвестиции в недвижимость<br>
+                <span class="text-primary">с доходностью 30-80%</span>
+            </h1>
+            <p class="hero-subtitle">
+                Более 20 лет опыта в сфере недвижимости. Фонд Redevest инвестирует в склады,
+                редевелопмент гостиниц, земельные активы и создает готовый арендный бизнес.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#projects" class="btn-primary text-lg">Посмотреть проекты</a>
+                <a href="#contact" class="btn-accent text-lg">Получить консультацию</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section-padding bg-gray-50">
+        <div class="container">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                        О фонде Redevest
+                    </h2>
+                    <p class="text-lg text-gray-600 mb-6">
+                        Redevest — это инвестиционный фонд, основанный Алексеем Лещенко,
+                        предпринимателем с более чем 20-летним опытом в сфере недвижимости.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                            <p class="text-gray-700">В 2023-2024 годах вложено более 1 млрд рублей</p>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                            <p class="text-gray-700">Доходность инвестиций от 30 до 80% годовых</p>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                            <p class="text-gray-700">Опыт работы в Тинькофф, Яндекс и других компаниях</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">Ключевые направления</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-primary text-xl">🏭</span>
+                            <span>Строительство складов Light Industrial</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-primary text-xl">🏨</span>
+                            <span>Редевелопмент гостиниц</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-primary text-xl">🏠</span>
+                            <span>Флиппинг квартир</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-primary text-xl">🌱</span>
+                            <span>Земельные активы</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-primary text-xl">💼</span>
+                            <span>Создание арендного бизнеса</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Expertise Section -->
+    <section id="expertise" class="section-padding">
+        <div class="container">
+            <h2 class="section-title">Экспертиза</h2>
+            <p class="section-subtitle">
+                Более 20 лет в сфере недвижимости и инвестиций
+            </p>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="card text-center">
+                    <div class="feature-icon mx-auto">
+                        📊
+                    </div>
+                    <h3 class="feature-title">Анализ и оценка</h3>
+                    <p class="feature-description">
+                        Структурирование инвестиционных сделок и комплексная оценка
+                        земельных участков для индустриального использования.
+                    </p>
+                </div>
+
+                <div class="card text-center">
+                    <div class="feature-icon mx-auto">
+                        🏗️
+                    </div>
+                    <h3 class="feature-title">Управление проектами</h3>
+                    <p class="feature-description">
+                        Полный цикл девелопмента: от поиска участка до сдачи объекта
+                        в эксплуатацию и создания арендного бизнеса.
+                    </p>
+                </div>
+
+                <div class="card text-center">
+                    <div class="feature-icon mx-auto">
+                        💰
+                    </div>
+                    <h3 class="feature-title">Инвестиционный портфель</h3>
+                    <p class="feature-description">
+                        Формирование и управление диверсифицированным портфелем
+                        с фокусом на стабильную доходность.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="section-padding bg-gray-900 text-white">
+        <div class="container">
+            <h2 class="section-title text-white">Результаты</h2>
+            <div class="grid md:grid-cols-3 gap-8 text-center">
+                <div>
+                    <div class="stat-number">1B+</div>
+                    <div class="stat-label">рублей инвестировано</div>
+                    <p class="text-gray-400 mt-2">2023-2024 годы</p>
+                </div>
+                <div>
+                    <div class="stat-number">30-80%</div>
+                    <div class="stat-label">годовая доходность</div>
+                    <p class="text-gray-400 mt-2">средневзвешенная</p>
+                </div>
+                <div>
+                    <div class="stat-number">20+</div>
+                    <div class="stat-label">лет опыта</div>
+                    <p class="text-gray-400 mt-2">в недвижимости</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="section-padding bg-gray-50">
+        <div class="container">
+            <h2 class="section-title">Текущие проекты</h2>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="portfolio-card">
+                    <div class="portfolio-image bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
+                        <span class="text-4xl">🏭</span>
+                    </div>
+                    <h3 class="portfolio-title">Лунёвские ворота</h3>
+                    <p class="portfolio-description">
+                        Комплекс Light Industrial площадью 40-42 тыс. м² на Ленинградском шоссе.
+                        Полный цикл девелопмента с редевелопментом категории земли.
+                    </p>
+                    <div class="portfolio-meta">
+                        <span class="text-primary font-medium">В разработке</span>
+                        <span>Химки, МО</span>
+                    </div>
+                </div>
+
+                <div class="portfolio-card">
+                    <div class="portfolio-image bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center">
+                        <span class="text-4xl">🌱</span>
+                    </div>
+                    <h3 class="portfolio-title">Фрязино</h3>
+                    <p class="portfolio-description">
+                        Складской комплекс 25 тыс. м² с инфраструктурой. Перевод сельхозземли
+                        в индустриальную категорию и редевелопмент.
+                    </p>
+                    <div class="portfolio-meta">
+                        <span class="text-primary font-medium">Подготовка</span>
+                        <span>Фрязино, МО</span>
+                    </div>
+                </div>
+
+                <div class="portfolio-card">
+                    <div class="portfolio-image bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center">
+                        <span class="text-4xl">🏨</span>
+                    </div>
+                    <h3 class="portfolio-title">Голубицкая</h3>
+                    <p class="portfolio-description">
+                        Редевелопмент малой гостиницы на Черноморском побережье.
+                        Перепрофилирование под современные требования рынка.
+                    </p>
+                    <div class="portfolio-meta">
+                        <span class="text-success font-medium">Строительство</span>
+                        <span>Краснодарский край</span>
+                    </div>
+                </div>
+
+                <div class="portfolio-card">
+                    <div class="portfolio-image bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl flex items-center justify-center">
+                        <span class="text-4xl">🏠</span>
+                    </div>
+                    <h3 class="portfolio-title">Лубёнки</h3>
+                    <p class="portfolio-description">
+                        Коттеджный посёлок с полной инфраструктурой. Редевелопмент территории
+                        с созданием готового арендного бизнеса.
+                    </p>
+                    <div class="portfolio-meta">
+                        <span class="text-success font-medium">Активный</span>
+                        <span>Московская область</span>
+                    </div>
+                </div>
+
+                <div class="portfolio-card">
+                    <div class="portfolio-image bg-gradient-to-br from-red-100 to-red-200 rounded-xl flex items-center justify-center">
+                        <span class="text-4xl">🏢</span>
+                    </div>
+                    <h3 class="portfolio-title">Мастермайнд девелоперов</h3>
+                    <p class="portfolio-description">
+                        Закрытый клуб для обмена опытом в складском и промышленном девелопменте.
+                        Свыше 100 участников из индустрии.
+                    </p>
+                    <div class="portfolio-meta">
+                        <span class="text-success font-medium">Работает</span>
+                        <span>Онлайн/Оффлайн</span>
+                    </div>
+                </div>
+
+                <div class="portfolio-card">
+                    <div class="portfolio-image bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-xl flex items-center justify-center">
+                        <span class="text-4xl">💼</span>
+                    </div>
+                    <h3 class="portfolio-title">Бизнес тиндер</h3>
+                    <p class="portfolio-description">
+                        Платформа для поиска партнёров по доходным проектам в недвижимости.
+                        Автоматизированное matching и верификация участников.
+                    </p>
+                    <div class="portfolio-meta">
+                        <span class="text-success font-medium">Запущен</span>
+                        <span>Онлайн-платформа</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Materials Section -->
+    <section id="materials" class="section-padding">
+        <div class="container">
+            <h2 class="section-title">Аналитические материалы</h2>
+            <p class="section-subtitle">
+                Исследования рынка, презентации и инвестиционные меморандумы
+            </p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-3">Оценка земельных участков</h3>
+                    <p class="text-gray-600 mb-4">
+                        Комплексный анализ стоимости ЗУ для индустриального использования.
+                        Методика оценки и примеры расчётов.
+                    </p>
+                    <a href="presentations/Презентация Жилконгресс - 2025-10-16/" class="text-primary font-medium hover:underline">
+                        Скачать презентацию →
+                    </a>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-3">Проект Фрязино</h3>
+                    <p class="text-gray-600 mb-4">
+                        Инвестиционный меморандум по складскому комплексу 25 тыс. м².
+                        Финансовая модель и анализ рынка.
+                    </p>
+                    <a href="presentations/Фрязино Инвесторам 2025-11-27/" class="text-primary font-medium hover:underline">
+                        Скачать меморандум →
+                    </a>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-3">Light Industrial анализ</h3>
+                    <p class="text-gray-600 mb-4">
+                        Исследование рынка складов Light Industrial на северо-западе Москвы.
+                        Анализ ценовой динамики и прогнозов.
+                    </p>
+                    <a href="assets/Анализ рынка Light Industrial 2025.pdf" class="text-primary font-medium hover:underline">
+                        Скачать анализ →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section-padding bg-primary text-white">
+        <div class="container">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                    Готовы обсудить возможности?
+                </h2>
+                <p class="text-xl text-blue-100 mb-8">
+                    Свяжитесь с нами для получения консультации по инвестициям
+                    или обсуждения партнёрских возможностей.
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="card bg-white text-gray-900">
+                        <h3 class="text-xl font-bold mb-4">Контакты</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-primary text-xl">👤</span>
+                                <div>
+                                    <div class="font-semibold">Алексей Лещенко</div>
+                                    <div class="text-gray-600">Основатель Redevest</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span class="text-primary text-xl">📧</span>
+                                <div>
+                                    <div class="font-semibold">Email</div>
+                                    <div class="text-gray-600">info@redevest.ru</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span class="text-primary text-xl">📱</span>
+                                <div>
+                                    <div class="font-semibold">Telegram</div>
+                                    <div class="text-gray-600">@leshchenko</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-white text-gray-900">
+                        <h3 class="text-xl font-bold mb-4">Узнать больше</h3>
+                        <p class="text-gray-600 mb-4">
+                            Получите доступ к инвестиционным предложениям и аналитике рынка.
+                        </p>
+                        <a href="https://t.me/leshchenko" class="btn-primary w-full text-center">
+                            Написать в Telegram
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer-section py-12">
+        <div class="container">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                            <span class="text-white font-bold">R</span>
+                        </div>
+                        <span class="text-xl font-bold">Redevest</span>
+                    </div>
+                    <p class="text-gray-400">
+                        Инвестиционный фонд с фокусом на недвижимость и девелопмент.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Проекты</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#projects" class="footer-link">Лунёвские ворота</a></li>
+                        <li><a href="#projects" class="footer-link">Фрязино</a></li>
+                        <li><a href="#projects" class="footer-link">Голубицкая</a></li>
+                        <li><a href="#projects" class="footer-link">Лубёнки</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Материалы</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#materials" class="footer-link">Аналитика рынка</a></li>
+                        <li><a href="#materials" class="footer-link">Инвестиционные меморандумы</a></li>
+                        <li><a href="#materials" class="footer-link">Презентации</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Связь</h4>
+                    <ul class="space-y-2">
+                        <li><a href="https://t.me/leshchenko" class="footer-link">Telegram</a></li>
+                        <li><a href="mailto:info@redevest.ru" class="footer-link">Email</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-400">
+                    © 2025 Redevest. Все права защищены.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMobileMenu() {
+            // Mobile menu toggle functionality
+            console.log('Mobile menu toggle');
+        }
+    </script>
+</body>
+</html>

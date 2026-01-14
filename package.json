@@ -1,0 +1,17 @@
+{
+    "name": "redevest-website",
+    "version": "1.0.0",
+    "description": "Corporate website for Redevest - Real Estate Investment and Development",
+    "scripts": {
+        "build": "node build.js",
+        "watch": "tailwindcss build src/input.css -o dist/output.css --content \"src/**/*.{html,js}\" --watch",
+        "dev": "npm run watch",
+        "preview": "cd dist && python3 -m http.server 8080"
+    },
+    "devDependencies": {
+        "autoprefixer": "^10.4.19",
+        "fs-extra": "^11.2.0",
+        "postcss": "^8.4.38",
+        "tailwindcss": "^3.4.4"
+    }
+}

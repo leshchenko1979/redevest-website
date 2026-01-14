@@ -85,5 +85,10 @@ const headersContent = `/*
 
 fs.writeFileSync('dist/_headers', headersContent);
 
+// Copy CNAME file for GitHub Pages custom domain
+if (fs.existsSync('CNAME')) {
+    fs.copySync('CNAME', 'dist/CNAME');
+}
+
 console.log(`Built successfully! CSS hash: ${cssHash}`);
 console.log(`CSS file: ${hashedCssFilename}`);

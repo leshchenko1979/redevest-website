@@ -7,10 +7,9 @@
     <title>Redevest - Инвестиции в недвижимость | Алексей Лещенко</title>
     <meta name="description"
         content="Инвестиционный фонд Redevest. Более 20 лет опыта в недвижимости. Доходность 30-80% годовых. Склады, редевелопмент, земельные активы.">
-    <meta name="keywords" content="инвестиции недвижимость, склады, редевелопмент, земельные участки, доходность">
     <meta name="author" content="Алексей Лещенко, Redevest">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="canonical" href="https://redevest.ru">
+    <link rel="preload" href="assets/logo.png" as="image">
     <link href="output.css" rel="stylesheet">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -28,7 +27,11 @@
 </head>
 
 <body>
+    <!-- Skip to main content -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-white px-4 py-2 rounded-sm z-50">Перейти к основному содержимому</a>
+
     <!-- Navigation -->
+    <header>
     <nav class="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
         <div class="container mx-auto px-6">
             <div class="flex justify-between items-center h-20">
@@ -53,8 +56,10 @@
                 </div>
 
                 <!-- Mobile Menu Button -->
-                <button class="md:hidden p-2 text-gray-600 hover:text-primary transition-colors"
-                    onclick="toggleMobileMenu()">
+                <button class="md:hidden p-2 text-gray-600 hover:text-primary focus:text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-sm transition-colors"
+                    onclick="toggleMobileMenu()"
+                    aria-label="Открыть мобильное меню"
+                    aria-expanded="false">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16M4 18h16"></path>
@@ -93,8 +98,10 @@
             </div>
         </div>
     </div>
+    </header>
 
     <!-- Hero Section -->
+    <main id="main-content">
     <section class="relative bg-surface hero-pattern py-24 md:py-32 overflow-hidden">
         <!-- Abstract Decoration -->
         <div
@@ -284,7 +291,7 @@
             </div>
 
             <div class="grid md:grid-cols-3 gap-8">
-                <div
+                <a href="https://t.me/FlippingInvestBot?start=c1707842038691-ds" target="_blank"
                     class="group bg-white p-8 rounded-sm shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary/20">
                     <div
                         class="w-14 h-14 bg-blue-50 group-hover:bg-primary group-hover:text-white flex items-center justify-center rounded-sm mb-6 text-2xl transition-colors duration-300">
@@ -292,8 +299,8 @@
                     <h3 class="text-xl font-serif font-bold text-primary mb-3">Склады Light Industrial</h3>
                     <p class="text-sm text-gray-500 leading-relaxed">Строительство и управление современными складскими
                         комплексами.</p>
-                </div>
-                <div
+                </a>
+                <a href="https://clck.ru/363bJ2" target="_blank"
                     class="group bg-white p-8 rounded-sm shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary/20">
                     <div
                         class="w-14 h-14 bg-blue-50 group-hover:bg-primary group-hover:text-white flex items-center justify-center rounded-sm mb-6 text-2xl transition-colors duration-300">
@@ -301,7 +308,7 @@
                     <h3 class="text-xl font-serif font-bold text-primary mb-3">Редевелопмент гостиниц</h3>
                     <p class="text-sm text-gray-500 leading-relaxed">Преобразование устаревших объектов в современные
                         отели.</p>
-                </div>
+                </a>
                 <div
                     class="group bg-white p-8 rounded-sm shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary/20">
                     <div
@@ -328,7 +335,7 @@
                     <h3 class="text-xl font-serif font-bold text-primary mb-3">Флиппинг квартир</h3>
                     <p class="text-sm text-gray-500 leading-relaxed">Быстрый цикл инвестиций в жилую недвижимость.</p>
                 </div>
-                <div
+                <a href="https://t.me/FlippingInvestBot?start=c1731502858283-ds" target="_blank"
                     class="group bg-white p-8 rounded-sm shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary/20">
                     <div
                         class="w-14 h-14 bg-blue-50 group-hover:bg-primary group-hover:text-white flex items-center justify-center rounded-sm mb-6 text-2xl transition-colors duration-300">
@@ -336,7 +343,7 @@
                     <h3 class="text-xl font-serif font-bold text-primary mb-3">Коттеджные посёлки</h3>
                     <p class="text-sm text-gray-500 leading-relaxed">Девелопмент загородной недвижимости полного цикла.
                     </p>
-                </div>
+                </a>
             </div>
         </div>
     </section>
@@ -360,8 +367,8 @@
                 <div
                     class="group bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-gray-100 hover:border-primary/20">
                     <div class="relative aspect-video overflow-hidden">
-                        <img src="assets/lubenki.png" alt="Лубёнки"
-                            class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                        <img src="assets/lubenki.png" alt="Коттеджный посёлок Лубёнки - современная загородная недвижимость"
+                            class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" loading="lazy">
                         <div
                             class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary shadow-sm">
                             Коттеджный посёлок
@@ -387,7 +394,7 @@
                             </div>
                         </div>
 
-                        <a href="#contact"
+                        <a href="https://t.me/FlippingInvestBot?start=c1731502858283-ds" target="_blank"
                             class="w-full inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-primary border border-primary hover:bg-primary hover:text-white transition-all rounded-sm uppercase tracking-wider">
                             Узнать подробности
                         </a>
@@ -398,8 +405,8 @@
                 <div
                     class="group bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-gray-100 hover:border-primary/20">
                     <div class="relative aspect-video overflow-hidden">
-                        <img src="assets/lunevskie-vorota.png" alt="Лунёвские ворота"
-                            class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                        <img src="assets/lunevskie-vorota.png" alt="Складской комплекс Лунёвские ворота - современные складские помещения Light Industrial"
+                            class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" loading="lazy">
                         <div
                             class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary shadow-sm">
                             Складской комплекс
@@ -425,7 +432,7 @@
                             </div>
                         </div>
 
-                        <a href="#contact"
+                        <a href="https://t.me/FlippingInvestBot?start=c1707842038691-ds" target="_blank"
                             class="w-full inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-primary border border-primary hover:bg-primary hover:text-white transition-all rounded-sm uppercase tracking-wider">
                             Узнать подробности
                         </a>
@@ -507,7 +514,7 @@
                         <div class="absolute inset-0 bg-accent/5 transform translate-x-4 translate-y-4 rounded-sm">
                         </div>
                         <img src="assets/founder.png" alt="Алексей Лещенко"
-                            class="relative w-full rounded-sm shadow-xl grayscale hover:grayscale-0 transition-all duration-700">
+                            class="relative w-full rounded-sm shadow-xl grayscale hover:grayscale-0 transition-all duration-700" loading="lazy">
                     </div>
 
                     <!-- Content -->
@@ -570,6 +577,8 @@
         </div>
     </section>
 
+    </main>
+
     <!-- Footer -->
     <footer id="contact" class="bg-primary text-white pt-20 pb-10">
         <div class="container mx-auto px-6">
@@ -617,19 +626,28 @@
                 class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
                 <p>&copy; 2025 Redevest. Все права защищены.</p>
                 <div class="mt-4 md:mt-0 space-x-6">
-                    <a href="#" class="hover:text-white transition-colors">Политика конфиденциальности</a>
+                    <span class="text-gray-500">Политика конфиденциальности</span>
                 </div>
             </div>
         </div>
     </footer>
 
-    <script>
+    <script defer>
         function toggleMobileMenu() {
             const overlay = document.getElementById('mobile-menu-overlay');
             const panel = document.getElementById('mobile-menu-panel');
+            const button = document.querySelector('button[aria-label="Открыть мобильное меню"]');
+
+            const isOpen = overlay.classList.contains('active');
+
             overlay.classList.toggle('active');
             panel.classList.toggle('active');
             document.body.classList.toggle('overflow-hidden');
+
+            // Update aria-expanded
+            if (button) {
+                button.setAttribute('aria-expanded', !isOpen);
+            }
         }
     </script>
 </body>

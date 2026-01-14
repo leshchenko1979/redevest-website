@@ -17,7 +17,7 @@ if (fs.existsSync(distDir)) {
 
 // Build CSS with Tailwind
 console.log('Building CSS...');
-execSync('tailwindcss build src/input.css -o dist/temp.css --content "src/**/*.{html,js}" --minify', { stdio: 'inherit' });
+execSync('tailwindcss -i src/input.css -o dist/temp.css --content "src/**/*.{html,js}" --minify', { stdio: 'inherit' });
 
 // Read the built CSS file
 const cssContent = fs.readFileSync('dist/temp.css');

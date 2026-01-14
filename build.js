@@ -7,12 +7,12 @@ const path = require('path');
 console.log('Cleaning up old CSS files...');
 const distDir = path.join(__dirname, 'dist');
 if (fs.existsSync(distDir)) {
-    const files = fs.readdirSync(distDir);
-    files.forEach(file => {
-        if (file.startsWith('output.') && file.endsWith('.css') && file !== 'output.css') {
-            fs.removeSync(path.join(distDir, file));
-        }
-    });
+  const files = fs.readdirSync(distDir);
+  files.forEach(file => {
+    if (file.startsWith('output.') && file.endsWith('.css') && file !== 'output.css') {
+      fs.removeSync(path.join(distDir, file));
+    }
+  });
 }
 
 // Build CSS with Tailwind
@@ -32,8 +32,8 @@ let htmlContent = fs.readFileSync('src/index.html', 'utf8');
 
 // Replace CSS link with hashed version
 htmlContent = htmlContent.replace(
-    /href="output\.css"/g,
-    `href="${hashedCssFilename}"`
+  /href="output\.css"/g,
+  `href="${hashedCssFilename}"`
 );
 
 // Add cache control meta tags for HTML
@@ -45,8 +45,8 @@ const cacheControlMeta = `
 
 // Insert cache control meta tags after the charset meta tag
 htmlContent = htmlContent.replace(
-    /(<meta charset="UTF-8">)/,
-    `$1${cacheControlMeta}`
+  /(<meta charset="UTF-8">)/,
+  `$1${cacheControlMeta}`
 );
 
 // Write updated HTML to dist
@@ -58,7 +58,7 @@ const srcAssetsDir = path.join(__dirname, 'src/assets');
 const distAssetsDir = path.join(__dirname, 'dist/assets');
 
 if (fs.existsSync(srcAssetsDir)) {
-    fs.copySync(srcAssetsDir, distAssetsDir);
+  fs.copySync(srcAssetsDir, distAssetsDir);
 }
 
 // Create _headers file for GitHub Pages cache control
@@ -87,7 +87,7 @@ fs.writeFileSync('dist/_headers', headersContent);
 
 // Copy CNAME file for GitHub Pages custom domain
 if (fs.existsSync('CNAME')) {
-    fs.copySync('CNAME', 'dist/CNAME');
+  fs.copySync('CNAME', 'dist/CNAME');
 }
 
 console.log(`Built successfully! CSS hash: ${cssHash}`);

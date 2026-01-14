@@ -52,6 +52,15 @@ htmlContent = htmlContent.replace(
 // Write updated HTML to dist
 fs.writeFileSync('dist/index.html', htmlContent);
 
+// Copy assets to dist
+console.log('Copying assets...');
+const srcAssetsDir = path.join(__dirname, 'src/assets');
+const distAssetsDir = path.join(__dirname, 'dist/assets');
+
+if (fs.existsSync(srcAssetsDir)) {
+    fs.copySync(srcAssetsDir, distAssetsDir);
+}
+
 // Create _headers file for GitHub Pages cache control
 const headersContent = `/*
   Cache-Control: no-cache, no-store, must-revalidate

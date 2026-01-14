@@ -5,16 +5,20 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                primary: '#1e40af', // Professional blue
-                secondary: '#1f2937', // Dark gray
-                accent: '#f59e0b', // Gold accent for premium feel
-                success: '#10b981', // Green for positive results
-                danger: '#ef4444', // Red for warnings
+                primary: '#0f172a', // Deep Navy (Classic Premium)
+                secondary: '#334155', // Slate
+                accent: '#b45309', // Elegant Gold
+                success: '#059669', // Emerald
+                danger: '#dc2626', // Red
+                surface: '#f8fafc', // Very light slate for backgrounds
             },
             fontFamily: {
                 sans: ['Inter', 'system-ui', 'sans-serif'],
-                serif: ['Georgia', 'serif'], // For elegant headings
+                serif: ['"Playfair Display"', 'Georgia', 'serif'], // Premium serif
             },
+            backgroundImage: {
+                'hero-pattern': "radial-gradient(#0f172a08 1px, transparent 1px)", // Updated to match primary color
+            }
         },
     },
     plugins: [],

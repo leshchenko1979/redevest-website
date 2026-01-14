@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -46,6 +48,44 @@
 
   .hero-subtitle {
     @apply text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed;
+  }
+
+  /* Callout box */
+  .notion-callout {
+    @apply flex p-4 bg-gray-50 border border-gray-200 rounded-xl mb-8 items-start;
+  }
+
+  .notion-callout-icon {
+    @apply mr-4 text-2xl flex-shrink-0;
+  }
+
+  .notion-callout-content {
+    @apply text-gray-800;
+  }
+
+  /* Pill Tags */
+  .pill-tag {
+    @apply inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full border border-gray-200 transition-colors hover:bg-gray-200;
+  }
+
+  /* Hero Pattern */
+  .hero-pattern {
+    background-image: radial-gradient(#1e40af05 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* Mobile Menu */
+  .mobile-menu-overlay {
+    @apply fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-[60] opacity-0 pointer-events-none transition-opacity duration-300;
+  }
+  .mobile-menu-overlay.active {
+    @apply opacity-100 pointer-events-auto;
+  }
+  .mobile-menu-panel {
+    @apply fixed top-0 right-0 w-4/5 max-w-sm h-full bg-white z-[70] translate-x-full transition-transform duration-300 shadow-2xl flex flex-col;
+  }
+  .mobile-menu-panel.active {
+    @apply translate-x-0;
   }
 
   /* Section containers */

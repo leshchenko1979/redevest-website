@@ -221,7 +221,7 @@
 
   /* Project image overlay */
   .project-image-overlay {
-    @apply absolute bottom-2 right-2 md:bottom-4 md:right-4 bg-white/95 backdrop-blur-md rounded-lg shadow-xl border border-white/20 flex items-center justify-center p-3 md:p-5;
+    @apply absolute bottom-4 right-4 md:bottom-4 md:right-4 bg-white/95 backdrop-blur-md rounded-lg shadow-xl border border-white/20 flex items-center justify-center p-3;
     /* Width and aspect-ratio removed to let text define the size with padding */
   }
 

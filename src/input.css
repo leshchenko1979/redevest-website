@@ -11,6 +11,7 @@
 }
 
 @layer components {
+
   /* Professional buttons */
   .btn-primary {
     @apply bg-primary hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg;
@@ -78,12 +79,15 @@
   .mobile-menu-overlay {
     @apply fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-[60] opacity-0 pointer-events-none transition-opacity duration-300;
   }
+
   .mobile-menu-overlay.active {
     @apply opacity-100 pointer-events-auto;
   }
+
   .mobile-menu-panel {
     @apply fixed top-0 right-0 w-4/5 max-w-sm h-full bg-white z-[70] translate-x-full transition-transform duration-300 shadow-2xl flex flex-col;
   }
+
   .mobile-menu-panel.active {
     @apply translate-x-0;
   }
@@ -217,14 +221,13 @@
 
   /* Project image overlay */
   .project-image-overlay {
-    @apply absolute bottom-2 right-2 md:bottom-4 md:right-4 bg-white/95 backdrop-blur-sm rounded-lg px-2 py-1 md:px-3 md:py-2 shadow-lg border border-white/20;
-    width: 25%;
-    min-width: 60px;
-    max-width: 80px;
+    @apply absolute bottom-2 right-2 md:bottom-4 md:right-4 bg-white/95 backdrop-blur-md rounded-lg shadow-xl border border-white/20 flex items-center justify-center p-3 md:p-5;
+    /* Width and aspect-ratio removed to let text define the size with padding */
   }
 
   .project-yield-text {
-    @apply text-black font-bold text-sm md:text-lg leading-none text-center block;
+    @apply text-black font-bold text-xl sm:text-2xl md:text-3xl lg:text-5xl block text-center leading-none;
+    margin-top: 0.1em;
   }
 
   /* Animation utilities */
@@ -241,6 +244,7 @@
       opacity: 0;
       transform: translateY(30px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);

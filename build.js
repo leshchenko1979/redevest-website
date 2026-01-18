@@ -2,6 +2,7 @@ const { execSync } = require('child_process');
 const fs = require('fs-extra');
 const crypto = require('crypto');
 const path = require('path');
+const sharp = require('sharp');
 
 // Clean up old hashed CSS files
 console.log('Cleaning up old CSS files...');
@@ -59,6 +60,39 @@ const distAssetsDir = path.join(__dirname, 'dist/assets');
 
 if (fs.existsSync(srcAssetsDir)) {
   fs.copySync(srcAssetsDir, distAssetsDir);
+}
+
+// Generate favicons from the main logo
+console.log('Generating favicons...');
+const sourceFavicon = path.join(srcAssetsDir, 'Редевест [Логотип] [Знак] [100x100].png');
+const distFaviconDir = distAssetsDir;
+
+if (fs.existsSync(sourceFavicon)) {
+  (async () => {
+    try {
+      // Create 16x16 favicon
+      await sharp(sourceFavicon)
+        .resize(16, 16)
+        .png()
+        .toFile(path.join(distFaviconDir, 'favicon-16x16.png'));
+
+      // Create 32x32 favicon
+      await sharp(sourceFavicon)
+        .resize(32, 32)
+        .png()
+        .toFile(path.join(distFaviconDir, 'favicon-32x32.png'));
+
+      // Create Apple touch icon (180x180)
+      await sharp(sourceFavicon)
+        .resize(180, 180)
+        .png()
+        .toFile(path.join(distFaviconDir, 'apple-touch-icon.png'));
+
+      console.log('Favicons generated successfully');
+    } catch (error) {
+      console.log('Error generating favicons:', error.message);
+    }
+  })();
 }
 
 // Create _headers file for GitHub Pages cache control

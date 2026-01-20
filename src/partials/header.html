@@ -1,0 +1,64 @@
+<!-- Navigation -->
+<header>
+    <nav class="nav-container">
+        <div class="nav-content">
+            <div class="nav-flex">
+                <a href="index.html" class="flex items-center space-x-3 group">
+                    <img src="assets/favicon.png" alt="Редевест" class="h-10 w-auto">
+                    <span
+                        class="text-2xl font-sans text-primary hidden md:block group-hover:text-accent transition-colors tracking-tight">Редевест</span>
+                </a>
+                <!-- Mobile hamburger menu button -->
+                <button onclick="toggleMobileMenu()" aria-label="Открыть мобильное меню" class="md:hidden text-primary hover:text-accent transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+
+                <div class="hidden md:flex items-center space-x-10">
+                    <a href="index.html#about" class="nav-link">О компании</a>
+                    <a href="index.html#projects" class="nav-link">Проекты</a>
+                    <a href="index.html#results" class="nav-link">Инвесторам</a>
+                    <a href="https://t.me/flipping_invest" class="nav-btn">
+                        Тг-канал Алексея
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Elements -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+    <div id="mobile-menu-panel" class="mobile-menu-panel">
+        <div class="p-6 flex justify-between items-center border-b border-gray-100">
+            <div class="flex items-center space-x-3">
+                <img src="assets/favicon.png" alt="Редевест" class="h-8 w-auto">
+                <span class="text-xl font-sans text-primary tracking-tight">Редевест</span>
+            </div>
+            <button onclick="toggleMobileMenu()" class="text-gray-500 hover:text-primary">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        <div class="flex-grow p-8 space-y-8">
+            <nav class="space-y-6">
+                <a href="#about" class="block text-2xl font-sans text-primary" onclick="toggleMobileMenu()">О
+                    компании</a>
+                <a href="#projects" class="block text-2xl font-sans text-primary"
+                    onclick="toggleMobileMenu()">Проекты</a>
+                <a href="#results" class="block text-2xl font-sans text-primary"
+                    onclick="toggleMobileMenu()">Инвесторам</a>
+            </nav>
+            <div class="pt-8 border-t border-gray-100">
+                <a href="https://t.me/flipping_invest"
+                    class="w-full flex items-center justify-center px-6 py-4 text-base font-medium text-white bg-primary hover:bg-secondary rounded-sm transition-colors">
+                    Тг-канал Алексея
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<script src="common.js" defer></script>

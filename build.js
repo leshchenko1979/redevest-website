@@ -18,7 +18,7 @@ if (fs.existsSync(distDir)) {
 
 // Build CSS with Tailwind
 console.log('Building CSS...');
-execSync('tailwindcss -i src/input.css -o dist/temp.css --content "src/**/*.{html,js}" --minify', { stdio: 'inherit' });
+execSync('npx tailwindcss -i src/input.css -o dist/temp.css --content "src/**/*.{html,js}" --minify', { stdio: 'inherit' });
 
 // Read the built CSS file
 const cssContent = fs.readFileSync('dist/temp.css');
@@ -28,30 +28,62 @@ const hashedCssFilename = `output.${cssHash}.css`;
 // Rename CSS file with hash
 fs.renameSync('dist/temp.css', `dist/${hashedCssFilename}`);
 
-// Read HTML template and update CSS reference
-let htmlContent = fs.readFileSync('src/index.html', 'utf8');
+// Read HTML templates and update CSS references
+const srcDir = path.join(__dirname, 'src');
+const partialsDir = path.join(srcDir, 'partials');
+const htmlFiles = fs.readdirSync(srcDir).filter(file => file.endsWith('.html'));
 
-// Replace CSS link with hashed version
-htmlContent = htmlContent.replace(
-  /href="output\.css"/g,
-  `href="${hashedCssFilename}"`
-);
+// Read partials
+const partials = {};
+if (fs.existsSync(partialsDir)) {
+  const partialFiles = fs.readdirSync(partialsDir).filter(file => file.endsWith('.html'));
+  partialFiles.forEach(partialFile => {
+    const partialName = path.parse(partialFile).name;
+    partials[partialName] = fs.readFileSync(path.join(partialsDir, partialFile), 'utf8');
+  });
+}
 
-// Add cache control meta tags for HTML
-const cacheControlMeta = `
+htmlFiles.forEach(file => {
+  let htmlContent = fs.readFileSync(path.join(srcDir, file), 'utf8');
+
+  // Process HTML inclusions
+  htmlContent = htmlContent.replace(
+    /<!-- @include (\w+) -->/g,
+    (match, partialName) => {
+      if (partials[partialName]) {
+        return partials[partialName];
+      } else {
+        console.warn(`Warning: Partial "${partialName}" not found`);
+        return match;
+      }
+    }
+  );
+
+  // Replace CSS link with hashed version
+  htmlContent = htmlContent.replace(
+    /href="output\.css"/g,
+    `href="${hashedCssFilename}"`
+  );
+
+  // Add cache control meta tags for HTML
+  const cacheControlMeta = `
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
 `;
 
-// Insert cache control meta tags after the charset meta tag
-htmlContent = htmlContent.replace(
-  /(<meta charset="UTF-8">)/,
-  `$1${cacheControlMeta}`
-);
+  // Insert cache control meta tags after the charset meta tag if not already present
+  if (!htmlContent.includes('http-equiv="Cache-Control"')) {
+    htmlContent = htmlContent.replace(
+      /(<meta charset="UTF-8">)/,
+      `$1${cacheControlMeta}`
+    );
+  }
 
-// Write updated HTML to dist
-fs.writeFileSync('dist/index.html', htmlContent);
+  // Write updated HTML to dist
+  fs.writeFileSync(path.join(distDir, file), htmlContent);
+  console.log(`Processed ${file}`);
+});
 
 // Copy assets to dist
 console.log('Copying assets...');
@@ -61,6 +93,14 @@ const distAssetsDir = path.join(__dirname, 'dist/assets');
 if (fs.existsSync(srcAssetsDir)) {
   fs.copySync(srcAssetsDir, distAssetsDir);
 }
+
+// Copy JavaScript files to dist
+console.log('Copying JavaScript files...');
+const jsFiles = fs.readdirSync(srcDir).filter(file => file.endsWith('.js'));
+jsFiles.forEach(jsFile => {
+  fs.copySync(path.join(srcDir, jsFile), path.join(distDir, jsFile));
+  console.log(`Copied ${jsFile}`);
+});
 
 // Generate favicons from the main logo
 console.log('Generating favicons...');

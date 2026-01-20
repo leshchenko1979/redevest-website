@@ -18,7 +18,7 @@ if (fs.existsSync(distDir)) {
 
 // Build CSS with Tailwind
 console.log('Building CSS...');
-execSync('npx tailwindcss -i src/input.css -o dist/temp.css --content "src/**/*.{html,js}" --minify', { stdio: 'inherit' });
+execSync('./node_modules/.bin/tailwindcss -i src/input.css -o dist/temp.css --content "src/**/*.{html,js}" --minify', { stdio: 'inherit' });
 
 // Read the built CSS file
 const cssContent = fs.readFileSync('dist/temp.css');
@@ -104,7 +104,7 @@ jsFiles.forEach(jsFile => {
 
 // Generate favicons from the main logo
 console.log('Generating favicons...');
-const sourceFavicon = path.join(srcAssetsDir, 'Редевест [Логотип] [Знак] [100x100].png');
+const sourceFavicon = path.join(srcAssetsDir, 'favicon.png');
 const distFaviconDir = distAssetsDir;
 
 if (fs.existsSync(sourceFavicon)) {

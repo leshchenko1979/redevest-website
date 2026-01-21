@@ -33,27 +33,40 @@ const srcDir = path.join(__dirname, 'src');
 const partialsDir = path.join(srcDir, 'partials');
 const htmlFiles = fs.readdirSync(srcDir).filter(file => file.endsWith('.html'));
 
-// Read partials
+// Read partials recursively
 const partials = {};
-if (fs.existsSync(partialsDir)) {
-  const partialFiles = fs.readdirSync(partialsDir).filter(file => file.endsWith('.html'));
-  partialFiles.forEach(partialFile => {
-    const partialName = path.parse(partialFile).name;
-    partials[partialName] = fs.readFileSync(path.join(partialsDir, partialFile), 'utf8');
+
+function readPartialsRecursively(dir, basePath = '') {
+  if (!fs.existsSync(dir)) return;
+
+  const items = fs.readdirSync(dir);
+  items.forEach(item => {
+    const fullPath = path.join(dir, item);
+    const stat = fs.statSync(fullPath);
+
+    if (stat.isDirectory()) {
+      readPartialsRecursively(fullPath, basePath ? `${basePath}/${item}` : item);
+    } else if (item.endsWith('.html')) {
+      const partialName = basePath ? `${basePath}-${path.parse(item).name}` : path.parse(item).name;
+      partials[partialName] = fs.readFileSync(fullPath, 'utf8');
+    }
   });
 }
+
+readPartialsRecursively(partialsDir);
 
 htmlFiles.forEach(file => {
   let htmlContent = fs.readFileSync(path.join(srcDir, file), 'utf8');
 
   // Process HTML inclusions
   htmlContent = htmlContent.replace(
-    /<!-- @include (\w+) -->/g,
-    (match, partialName) => {
+    /<!-- @include ([^>]+) -->/g,
+    (match, partialPath) => {
+      const partialName = partialPath.replace(/\//g, '-').replace(/\.html$/, '');
       if (partials[partialName]) {
         return partials[partialName];
       } else {
-        console.warn(`Warning: Partial "${partialName}" not found`);
+        console.warn(`Warning: Partial "${partialName}" not found for path "${partialPath}"`);
         return match;
       }
     }

@@ -23,30 +23,30 @@
    * .btn - обязательный базовый класс для всех кнопок
    *
    * РАЗМЕРЫ (выберите один):
-   * .btn--lg  - большой (px-10 py-4 text-lg) - для основных CTA
-   * .btn--md  - средний (px-8 py-4 text-base) - для второстепенных действий
-   * .btn--sm  - маленький (px-6 py-4 text-base) - для компактных кнопок
+   * .btn-lg  - большой (px-10 py-4 text-lg) - для основных CTA
+   * .btn-md  - средний (px-8 py-4 text-base) - для второстепенных действий
+   * .btn-sm  - маленький (px-6 py-4 text-base) - для компактных кнопок
    *
    * ВАРИАНТЫ СТИЛЕЙ (выберите один):
-   * .btn--primary    - синяя кнопка с белым текстом
-   * .btn--secondary  - белая кнопка с рамкой
-   * .btn--outline    - белая с синей рамкой (hover на синий фон)
+   * .btn-primary    - синяя кнопка с белым текстом
+   * .btn-secondary  - белая кнопка с рамкой
+   * .btn-outline    - белая с синей рамкой (hover на синий фон)
    *
    * МОДИФИКАТОРЫ ШИРИНЫ (опционально):
-   * .btn--full       - кнопка на всю ширину контейнера
+   * .btn-full       - кнопка на всю ширину контейнера
    *
    * СПЕЦИАЛЬНЫЕ ВАРИАНТЫ (альтернатива комбинациям выше):
-   * .btn--accent-bold    - желтая кнопка с жирным текстом (для партнеров)
-   * .btn--disabled       - disabled кнопка (серая с рамкой)
-   * .btn--disabled-primary - disabled синяя кнопка
+   * .btn-accent-bold    - желтая кнопка с жирным текстом (для партнеров)
+   * .btn-disabled       - disabled кнопка (серая с рамкой)
+   * .btn-disabled-primary - disabled синяя кнопка
    *
    * ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
    *
-   * Основная кнопка:     <a class="btn btn--lg btn--primary">Смотреть проекты</a>
-   * Кнопка в карточке:   <a class="btn btn--full btn--sm btn--primary">Получить презентацию</a>
-   * Ссылка на схему:     <a class="btn btn--md btn--outline">Подробная схема</a>
-   * Специальная кнопка:  <a class="btn--accent-bold">Вступить в клуб</a>
-   * Disabled кнопка:     <a class="btn--disabled">Скоро будет доступно</a>
+   * Основная кнопка:     <a class="btn btn-lg btn-primary">Смотреть проекты</a>
+   * Кнопка в карточке:   <a class="btn btn-full btn-sm btn-primary">Получить презентацию</a>
+   * Ссылка на схему:     <a class="btn btn-md btn-outline">Подробная схема</a>
+   * Специальная кнопка:  <a class="btn-accent-bold">Вступить в клуб</a>
+   * Disabled кнопка:     <a class="btn-disabled">Скоро будет доступно</a>
    *
    * ===========================================
    */
@@ -57,36 +57,36 @@
   }
 
   /* Button sizes */
-  .btn--lg { @apply px-10 py-4 text-lg font-medium; }
-  .btn--md { @apply px-8 py-4 text-base font-medium; }
-  .btn--sm { @apply px-6 py-4 text-base font-medium; }
+  .btn-lg { @apply px-10 py-4 text-lg font-medium; }
+  .btn-md { @apply px-8 py-4 text-base font-medium; }
+  .btn-sm { @apply px-6 py-4 text-base font-medium; }
 
   /* Button variants */
-  .btn--primary {
+  .btn-primary {
     @apply text-white bg-primary hover:bg-secondary shadow-lg hover:shadow-xl hover:-translate-y-0.5;
   }
 
-  .btn--secondary {
+  .btn-secondary {
     @apply text-primary bg-white border border-gray-200 hover:border-primary/50 hover:bg-gray-50;
   }
 
-  .btn--outline {
+  .btn-outline {
     @apply text-primary bg-white border border-primary hover:bg-primary hover:text-white shadow-md hover:shadow-lg hover:-translate-y-0.5;
   }
 
   /* Button width modifiers */
-  .btn--full { @apply w-full; }
+  .btn-full { @apply w-full; }
 
   /* Special button variants */
-  .btn--accent-bold {
+  .btn-accent-bold {
     @apply inline-flex items-center justify-center rounded-sm transition-all px-8 py-4 text-base font-bold text-primary bg-accent hover:bg-white shadow-lg hover:shadow-accent/50 hover:-translate-y-0.5;
   }
 
-  .btn--disabled {
+  .btn-disabled {
     @apply inline-flex items-center justify-center rounded-sm transition-all px-8 py-4 text-base font-medium text-primary bg-blue-50 hover:bg-blue-100 border border-primary cursor-not-allowed opacity-70;
   }
 
-  .btn--disabled-primary {
+  .btn-disabled-primary {
     @apply inline-flex items-center justify-center rounded-sm transition-all px-8 py-4 text-base font-medium text-white bg-primary hover:bg-blue-800 cursor-not-allowed opacity-70;
   }
 

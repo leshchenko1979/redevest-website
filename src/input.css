@@ -37,8 +37,6 @@
    *
    * СПЕЦИАЛЬНЫЕ ВАРИАНТЫ (альтернатива комбинациям выше):
    * .btn-accent-bold    - желтая кнопка с жирным текстом (для партнеров)
-   * .btn-disabled       - disabled кнопка (серая с рамкой)
-   * .btn-disabled-primary - disabled синяя кнопка
    *
    * ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
    *
@@ -46,7 +44,6 @@
    * Кнопка в карточке:   <a class="btn btn-full btn-sm btn-primary">Получить презентацию</a>
    * Ссылка на схему:     <a class="btn btn-md btn-outline">Подробная схема</a>
    * Специальная кнопка:  <a class="btn-accent-bold">Вступить в клуб</a>
-   * Disabled кнопка:     <a class="btn-disabled">Скоро будет доступно</a>
    *
    * ===========================================
    */
@@ -82,14 +79,6 @@
     @apply inline-flex items-center justify-center rounded-sm transition-all px-8 py-4 text-base font-bold text-primary bg-accent hover:bg-white shadow-lg hover:shadow-accent/50 hover:-translate-y-0.5;
   }
 
-  .btn-disabled {
-    @apply inline-flex items-center justify-center rounded-sm transition-all px-8 py-4 text-base font-medium text-primary bg-blue-50 hover:bg-blue-100 border border-primary cursor-not-allowed opacity-70;
-  }
-
-  .btn-disabled-primary {
-    @apply inline-flex items-center justify-center rounded-sm transition-all px-8 py-4 text-base font-medium text-white bg-primary hover:bg-blue-800 cursor-not-allowed opacity-70;
-  }
-
   /* Navigation */
   .nav-container {
     @apply bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50;
@@ -112,13 +101,6 @@
   }
 
   /* Cards */
-  .card-base {
-    @apply bg-white p-8 rounded-sm shadow-sm border border-gray-100 text-center;
-  }
-
-  .card-hover {
-    @apply hover:shadow-md transition-shadow;
-  }
 
   .card-section {
     @apply bg-white p-8 rounded-sm shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow;
@@ -126,10 +108,6 @@
 
   .card-info {
     @apply bg-blue-50 border-l-4 border-primary p-8 md:p-10 rounded-r-sm;
-  }
-
-  .card-detail {
-    @apply bg-white rounded-sm border border-gray-200 p-10 text-center mb-20;
   }
 
   .card-faq {
@@ -220,18 +198,6 @@
   /* Sections */
   .section-main {
     @apply py-20 md:py-24;
-  }
-
-  .section-content {
-    @apply container mx-auto px-6 max-w-4xl;
-  }
-
-  .section-title {
-    @apply text-3xl md:text-4xl font-serif font-bold text-primary mb-12 text-center;
-  }
-
-  .section-subtitle {
-    @apply text-lg text-gray-600 text-center mb-16 max-w-3xl mx-auto leading-relaxed;
   }
 
   /*
@@ -349,79 +315,21 @@
   }
 
   /* Typography */
-  .text-hero {
-    @apply text-4xl md:text-6xl font-serif font-bold text-primary mb-6 leading-tight;
-  }
-
-  .text-subtitle {
-    @apply text-xl md:text-2xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed font-light;
-  }
-
-  .text-body {
-    @apply text-gray-700 leading-relaxed;
-  }
-
-  .text-caption {
-    @apply text-sm text-gray-500 italic;
-  }
 
   /* Layout */
-  .content-main {
-    @apply container mx-auto px-6 max-w-4xl;
-  }
-
-  .content-section {
-    @apply mb-20;
-  }
-
-  .content-centered {
-    @apply text-center mb-16;
-  }
 
 
   /* Layout utilities */
-  .section-padding {
-    @apply py-16 px-4;
-  }
 
   .container {
     @apply max-w-7xl mx-auto;
   }
 
   /* Hero section */
-  .hero-section {
-    @apply relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white;
-  }
-
-  .hero-content {
-    @apply text-center max-w-4xl mx-auto px-4;
-  }
-
-  .hero-title {
-    @apply text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight;
-  }
-
-  .hero-subtitle {
-    @apply text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed;
-  }
 
   /* Callout box */
-  .notion-callout {
-    @apply flex p-4 bg-gray-50 border border-gray-200 rounded-xl mb-8 items-start;
-  }
-
-  .notion-callout-icon {
-    @apply mr-4 text-2xl flex-shrink-0;
-  }
-
-  .notion-callout-content {
-    @apply text-gray-800;
-  }
 
   /* Pill Tags */
-  .pill-tag {
-    @apply inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full border border-gray-200 transition-colors hover:bg-gray-200;
-  }
 
   /* Hero Pattern */
   .hero-pattern {
@@ -451,127 +359,28 @@
     @apply container mx-auto px-4;
   }
 
-  .section-title {
-    @apply text-3xl md:text-5xl font-bold text-center mb-12 text-gray-900;
-  }
-
-  .section-subtitle {
-    @apply text-lg md:text-xl text-gray-600 text-center mb-16 max-w-3xl mx-auto;
-  }
-
   /* Modern Cards */
-  .card {
-    @apply bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-all duration-300;
-  }
-
-  .card-hover {
-    @apply hover:-translate-y-1;
-  }
 
   /* Feature items */
-  .feature-icon {
-    @apply w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 text-primary text-2xl;
-  }
-
-  .feature-item {
-    @apply text-center;
-  }
-
-  .feature-title {
-    @apply text-xl font-bold text-gray-900 mb-3;
-  }
-
-  .feature-description {
-    @apply text-gray-600 leading-relaxed;
-  }
 
   /* Statistics */
-  .stat-number {
-    @apply text-4xl md:text-5xl font-bold text-primary mb-2;
-  }
-
-  .stat-label {
-    @apply text-gray-600 font-medium uppercase text-sm tracking-wide;
-  }
 
   /* Portfolio items */
-  .portfolio-card {
-    @apply card card-hover;
-  }
-
-  .portfolio-image {
-    @apply w-full h-48 object-cover rounded-xl mb-6;
-  }
-
-  .portfolio-title {
-    @apply text-xl font-bold text-gray-900 mb-3;
-  }
-
-  .portfolio-description {
-    @apply text-gray-600 mb-4;
-  }
-
-  .portfolio-meta {
-    @apply flex items-center justify-between text-sm text-gray-500;
-  }
 
   /* Content Navigation */
   .nav-link {
     @apply text-gray-700 hover:text-primary transition-colors duration-200 font-medium;
   }
 
-  .nav-link-active {
-    @apply text-primary font-semibold;
-  }
-
   /* Testimonials */
-  .testimonial-card {
-    @apply bg-gray-50 rounded-2xl p-8 border border-gray-200;
-  }
-
-  .testimonial-quote {
-    @apply text-lg text-gray-700 mb-6 italic;
-  }
-
-  .testimonial-author {
-    @apply font-semibold text-gray-900;
-  }
-
-  .testimonial-role {
-    @apply text-gray-600 text-sm;
-  }
 
   /* Contact form */
-  .form-input {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200;
-  }
-
-  .form-label {
-    @apply block text-gray-700 font-medium mb-2;
-  }
-
-  .form-textarea {
-    @apply form-input resize-none;
-  }
 
   /* Footer Components */
-  .footer-section {
-    @apply bg-gray-900 text-white;
-  }
-
-  .footer-link {
-    @apply text-gray-400 hover:text-white transition-colors duration-200;
-  }
 
   /* Utility classes */
-  .text-balance {
-    text-wrap: balance;
-  }
 
   /* Responsive utilities */
-  .mobile-menu {
-    @apply fixed inset-0 bg-white z-50 md:hidden;
-  }
 
   /* Project image overlay */
   .project-image-overlay {
@@ -625,9 +434,6 @@
    * Пример: <h1 class="section-text-title">...</h1>
    * Эффект: Создает крупный заголовок с акцентом на ключевые слова
    */
-  .section-text-title {
-    @apply text-3xl md:text-4xl font-serif font-bold text-primary mb-6;
-  }
 
   /*
    * Стиль для подзаголовков секций в scheme.html
@@ -636,9 +442,6 @@
    * Пример: <p class="section-text-subtitle">...</p>
    * Эффект: Создает подзаголовок среднего размера с серым цветом
    */
-  .section-text-subtitle {
-    @apply text-xl md:text-2xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed font-light;
-  }
 
   /*
    * Стиль для 3-колоночной сетки в scheme.html
@@ -735,13 +538,6 @@
   }
 
   /* Animation utilities */
-  .fade-in {
-    @apply animate-fade-in;
-  }
-
-  .slide-up {
-    animation: slideUp 0.6s ease-out;
-  }
 
   @keyframes slideUp {
     from {

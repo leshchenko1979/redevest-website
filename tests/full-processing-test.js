@@ -8,7 +8,7 @@ const { processCustomBlocks } = require('../build-markdown');
  * Test the full processing pipeline on lubenki.md
  */
 
-async function testFullProcessing() {
+function testFullProcessing() {
   const filePath = path.join(__dirname, '../src/projects/lubenki/lubenki.md');
 
   // Read file
@@ -22,7 +22,7 @@ async function testFullProcessing() {
   console.log(content.substring(300, 400) + '...'); // Show around the problematic area
 
   // Process custom blocks
-  const processedContent = await processCustomBlocks(content);
+  const processedContent = processCustomBlocks(content);
   console.log('\n=== Content after custom block processing ===');
   console.log(processedContent.substring(400, 600) + '...'); // Show around the problematic area
 
@@ -69,12 +69,8 @@ async function testFullProcessing() {
 
 // Run test
 if (require.main === module) {
-  testFullProcessing().then(success => {
-    process.exit(success ? 0 : 1);
-  }).catch(error => {
-    console.error('Test failed:', error);
-    process.exit(1);
-  });
+  const success = testFullProcessing();
+  process.exit(success ? 0 : 1);
 }
 
 module.exports = {

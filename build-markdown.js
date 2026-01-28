@@ -1,28 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const matter = require('gray-matter').default || require('gray-matter');
-
-// Cache for marked module
-let markedInstance = null;
-
-/**
- * Lazy load marked module
- * @returns {Promise<marked>}
- */
-async function getMarked() {
-  if (!markedInstance) {
-    markedInstance = await import('marked');
-  }
-  return markedInstance;
-}
+const marked = require('marked');
 
 /**
  * Обрабатывает кастомные блоки в markdown перед конвертацией
  * @param {string} content - Markdown контент
- * @returns {Promise<string>} Обработанный контент
+ * @returns {string} Обработанный контент
  */
-async function processCustomBlocks(content) {
-  const marked = await getMarked();
+function processCustomBlocks(content) {
   let processed = content;
 
   // Обработка toggle блоков (сначала, чтобы не конфликтовать с другими блоками)
@@ -108,10 +94,9 @@ async function processMarkdownFile(filePath, projectSlug) {
     const { data: metadata, content } = matter(fileContent);
 
     // Обрабатываем кастомные блоки перед markdown
-    let processedContent = await processCustomBlocks(content);
+    let processedContent = processCustomBlocks(content);
 
     // Конвертируем markdown в HTML с помощью marked
-    const marked = await getMarked();
     let html = marked.parse(processedContent);
 
     // Добавляем классы к таблицам

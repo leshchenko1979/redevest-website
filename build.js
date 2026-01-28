@@ -17,6 +17,9 @@ if (fs.existsSync(distDir)) {
   });
 }
 
+// Ensure dist directory exists
+fs.ensureDirSync(distDir);
+
 // Read HTML templates and update CSS references
 const srcDir = path.join(__dirname, 'src');
 const partialsDir = path.join(srcDir, 'partials');

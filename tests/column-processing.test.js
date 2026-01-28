@@ -30,7 +30,7 @@ Some other content`;
 
   // Check if the heading is properly separated from the columns
   const hasCleanHeading = result.includes('## Преимущества для инвестора') &&
-                         !result.includes('## Преимущества для инвестора</div>');
+    !result.includes('## Преимущества для инвестора</div>');
 
   if (!hasCleanHeading) {
     console.error('❌ Test FAILED: Heading is not properly separated from columns');
@@ -41,7 +41,7 @@ Some other content`;
 
   // Check if columns are properly formed
   const hasProperColumns = result.includes('<div class="notion-columns">') &&
-                          result.includes('<div class="notion-column">');
+    result.includes('<div class="notion-column">');
 
   if (!hasProperColumns) {
     console.error('❌ Test FAILED: Columns are not properly formed');

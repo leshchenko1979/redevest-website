@@ -54,9 +54,17 @@
   }
 
   /* Button sizes */
-  .btn-lg { @apply px-10 py-4 text-lg font-medium; }
-  .btn-md { @apply px-8 py-4 text-base font-medium; }
-  .btn-sm { @apply px-6 py-4 text-base font-medium; }
+  .btn-lg {
+    @apply px-10 py-4 text-lg font-medium;
+  }
+
+  .btn-md {
+    @apply px-8 py-4 text-base font-medium;
+  }
+
+  .btn-sm {
+    @apply px-6 py-4 text-base font-medium;
+  }
 
   /* Button variants */
   .btn-primary {
@@ -72,7 +80,9 @@
   }
 
   /* Button width modifiers */
-  .btn-full { @apply w-full; }
+  .btn-full {
+    @apply w-full;
+  }
 
   /* Special button variants */
   .btn-accent-bold {
@@ -315,7 +325,7 @@
    * Контекст: Секции "Материалы" и "Связь" в футере.
    * Когда применять: Когда ссылка содержит эмодзи и текст.
    * Пример: <a href="..." class="footer-nav-icon-link"><span>📢</span><span>Текст</span></a>
-   * Эффект: Выравнивает иконку по первой строке текста, предотвращает сжатие иконки 
+   * Эффект: Выравнивает иконку по первой строке текста, предотвращает сжатие иконки
    * и корректно обрабатывает многострочный текст (без эффекта "таблицы").
    */
   .footer-nav-icon-link {
@@ -727,7 +737,7 @@
     content: '▼';
   }
 
-  .notion-toggle > div {
+  .notion-toggle>div {
     @apply p-4 pt-0 border-t border-gray-200;
   }
 

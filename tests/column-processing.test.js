@@ -3,8 +3,7 @@ const { processCustomBlocks } = require('../build-markdown');
 /**
  * Unit test for column processing functionality
  */
-
-function testColumnProcessing() {
+async function testColumnProcessing() {
   console.log('Running column processing tests...');
 
   // Test the problematic case from lubenki.md
@@ -22,7 +21,7 @@ function testColumnProcessing() {
 
 Some other content`;
 
-  const result = processCustomBlocks(testMarkdown);
+  const result = await processCustomBlocks(testMarkdown);
 
   console.log('Input:');
   console.log(testMarkdown);
@@ -56,8 +55,12 @@ Some other content`;
 
 // Run tests
 if (require.main === module) {
-  const success = testColumnProcessing();
-  process.exit(success ? 0 : 1);
+  testColumnProcessing().then(success => {
+    process.exit(success ? 0 : 1);
+  }).catch(error => {
+    console.error('Test failed:', error);
+    process.exit(1);
+  });
 }
 
 module.exports = {

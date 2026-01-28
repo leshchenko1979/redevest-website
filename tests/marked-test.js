@@ -1,10 +1,9 @@
-const marked = require('marked');
-
 /**
  * Test if marked is working correctly
  */
 
-function testMarked() {
+async function testMarked() {
+  const marked = await import('marked');
   console.log('Testing marked library...');
 
   const testMarkdown = `## Test Heading
@@ -36,8 +35,12 @@ This is a paragraph.
 
 // Run test
 if (require.main === module) {
-  const success = testMarked();
-  process.exit(success ? 0 : 1);
+  testMarked().then(success => {
+    process.exit(success ? 0 : 1);
+  }).catch(error => {
+    console.error('Test failed:', error);
+    process.exit(1);
+  });
 }
 
 module.exports = {

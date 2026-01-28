@@ -1,10 +1,9 @@
-const marked = require('marked');
-
 /**
  * Test if marked processes markdown correctly when it contains HTML
  */
 
-function testMarkedWithHTML() {
+async function testMarkedWithHTML() {
+  const marked = await import('marked');
   // Test case similar to what happens in the processing
   const testContent = `Some text here.
 
@@ -48,8 +47,12 @@ More text.`;
 
 // Run test
 if (require.main === module) {
-  const success = testMarkedWithHTML();
-  process.exit(success ? 0 : 1);
+  testMarkedWithHTML().then(success => {
+    process.exit(success ? 0 : 1);
+  }).catch(error => {
+    console.error('Test failed:', error);
+    process.exit(1);
+  });
 }
 
 module.exports = {

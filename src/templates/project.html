@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} | Редевест</title>
+    <meta name="description" content="Инвестиционный проект {{title}} от Редевест">
+    <meta name="author" content="Алексей Лещенко, Редевест">
+    <link rel="canonical" href="https://redevest.ru/projects/{{slug}}.html">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
+    <link href="output.css" rel="stylesheet">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://redevest.ru/projects/{{slug}}.html">
+    <meta property="og:title" content="{{title}} | Редевест">
+    <meta property="og:description" content="Инвестиционный проект {{title}} от Редевест">
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://redevest.ru/projects/{{slug}}.html">
+    <meta property="twitter:title" content="{{title}} | Редевест">
+    <meta property="twitter:description" content="Инвестиционный проект {{title}} от Редевест">
+
+    <!-- @include head-analytics.html -->
+</head>
+
+<body>
+    <!-- Skip to main content -->
+    <a href="#main-content"
+        class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-white px-4 py-2 rounded-sm z-50">Перейти
+        к основному содержимому</a>
+
+    <!-- @include header -->
+
+    <!-- Hero Section -->
+    <main id="main-content">
+        <section class="relative bg-surface hero-pattern section-main overflow-hidden">
+            <!-- Abstract Decoration -->
+            <div
+                class="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-gray-100/50 to-transparent pointer-events-none">
+            </div>
+
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="max-w-4xl mx-auto text-center">
+                    <div
+                        class="inline-flex items-center px-3 py-1 mb-8 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-medium uppercase tracking-wider">
+                        Инвестиционный проект
+                    </div>
+                    <h1 class="text-4xl md:text-6xl font-serif font-medium text-primary mb-8 leading-tight">
+                        {{title}}
+                    </h1>
+                    <div class="flex flex-col sm:flex-row gap-5 justify-center">
+                        <a href="{{bot_link}}" target="_blank" class="btn btn-lg btn-primary">
+                            Получить презентацию
+                        </a>
+                        <a href="https://t.me/leshchenko1979" target="_blank" class="btn btn-lg btn-secondary">
+                            Связаться с основателем
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Project Content Section -->
+        <section class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto">
+                    <article class="prose prose-lg prose-gray max-w-none notion-typography">
+                        {{content}}
+                    </article>
+
+                    <div class="mt-16 text-center">
+                        <div class="bg-surface p-8 rounded-sm border border-gray-100">
+                            <h3 class="text-2xl font-serif font-bold text-primary mb-4">Интересно узнать больше?</h3>
+                            <p class="text-gray-600 mb-6">Получите подробную презентацию проекта с финансовой моделью и условиями инвестирования.</p>
+                            <a href="{{bot_link}}" target="_blank" class="btn btn-lg btn-primary">
+                                Получить презентацию проекта
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- @include footer -->
+</body>
+
+</html>

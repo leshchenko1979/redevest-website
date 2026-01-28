@@ -3,6 +3,7 @@ const fs = require('fs-extra');
 const crypto = require('crypto');
 const path = require('path');
 const sharp = require('sharp');
+const { processMarkdownFile, findProjects } = require('./build-markdown');
 
 // Clean up old hashed CSS files
 console.log('Cleaning up old CSS files...');
@@ -15,18 +16,6 @@ if (fs.existsSync(distDir)) {
     }
   });
 }
-
-// Build CSS with Tailwind
-console.log('Building CSS...');
-execSync('./node_modules/.bin/tailwindcss -i src/input.css -o dist/temp.css --content "src/**/*.{html,js}" --minify', { stdio: 'inherit' });
-
-// Read the built CSS file
-const cssContent = fs.readFileSync('dist/temp.css');
-const cssHash = crypto.createHash('md5').update(cssContent).digest('hex').substring(0, 8);
-const hashedCssFilename = `output.${cssHash}.css`;
-
-// Rename CSS file with hash
-fs.renameSync('dist/temp.css', `dist/${hashedCssFilename}`);
 
 // Read HTML templates and update CSS references
 const srcDir = path.join(__dirname, 'src');
@@ -72,10 +61,10 @@ htmlFiles.forEach(file => {
     }
   );
 
-  // Replace CSS link with hashed version
+  // Replace CSS link with placeholder (will be updated after CSS build)
   htmlContent = htmlContent.replace(
     /href="output\.css"/g,
-    `href="${hashedCssFilename}"`
+    `href="output.PLACEHOLDER.css"`
   );
 
   // Add cache control meta tags for HTML
@@ -106,6 +95,114 @@ const distAssetsDir = path.join(__dirname, 'dist/assets');
 if (fs.existsSync(srcAssetsDir)) {
   fs.copySync(srcAssetsDir, distAssetsDir);
 }
+
+// Process projects
+console.log('Processing projects...');
+const projectsDir = path.join(distDir, 'projects');
+const projectsAssetsDir = path.join(distAssetsDir, 'projects');
+
+// Create directories
+fs.ensureDirSync(projectsDir);
+fs.ensureDirSync(projectsAssetsDir);
+
+// Find and process all projects
+const projects = findProjects();
+
+(async () => {
+  for (const project of projects) {
+    console.log(`Processing project: ${project.slug}`);
+
+    try {
+      // Process markdown file
+      const { html, metadata } = await processMarkdownFile(project.mdPath, project.slug);
+
+      // Read project template
+      const templatePath = path.join(srcDir, 'templates', 'project.html');
+      if (!fs.existsSync(templatePath)) {
+        console.warn(`Template not found: ${templatePath}. Skipping project ${project.slug}`);
+        continue;
+      }
+
+      let templateContent = fs.readFileSync(templatePath, 'utf8');
+
+      // Process template inclusions (header, footer)
+      templateContent = templateContent.replace(
+        /<!-- @include ([^>]+) -->/g,
+        (match, partialPath) => {
+          const partialName = partialPath.replace(/\//g, '-').replace(/\.html$/, '');
+          if (partials[partialName]) {
+            return partials[partialName];
+          } else {
+            console.warn(`Warning: Partial "${partialName}" not found for path "${partialPath}" in project ${project.slug}`);
+            return match;
+          }
+        }
+      );
+
+      // Replace placeholders with content and metadata
+      templateContent = templateContent.replace(/{{title}}/g, metadata.title || project.slug);
+      templateContent = templateContent.replace('{{content}}', html);
+      templateContent = templateContent.replace(/{{slug}}/g, project.slug);
+      templateContent = templateContent.replace(/{{bot_link}}/g, metadata.bot_link || '');
+      templateContent = templateContent.replace(/{{date}}/g, metadata.date || '');
+
+      // Replace CSS link with hashed version
+      templateContent = templateContent.replace(
+        /href="output\.css"/g,
+        `href="../${hashedCssFilename}"`
+      );
+
+      // Fix navigation links for project pages (add ../ prefix)
+      templateContent = templateContent.replace(
+        /href="index\.html/g,
+        'href="../index.html'
+      );
+      templateContent = templateContent.replace(
+        /href="scheme\.html/g,
+        'href="../scheme.html'
+      );
+
+      // Fix asset paths for project pages (add ../ prefix)
+      templateContent = templateContent.replace(
+        /src="assets\//g,
+        'src="../assets/'
+      );
+      templateContent = templateContent.replace(
+        /src="common\.js/g,
+        'src="../common.js'
+      );
+
+      // Add cache control meta tags for project pages
+      const cacheControlMeta = `
+      <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+      <meta http-equiv="Pragma" content="no-cache">
+      <meta http-equiv="Expires" content="0">
+`;
+      if (!templateContent.includes('http-equiv="Cache-Control"')) {
+        templateContent = templateContent.replace(
+          /(<meta charset="UTF-8">)/,
+          `$1${cacheControlMeta}`
+        );
+      }
+
+      // Save processed HTML
+      const outputPath = path.join(projectsDir, `${project.slug}.html`);
+      fs.writeFileSync(outputPath, templateContent);
+      console.log(`Generated: projects/${project.slug}.html`);
+
+      // Copy images if they exist
+      if (fs.existsSync(project.imagesPath)) {
+        const destImagesPath = path.join(projectsAssetsDir, project.slug, 'images');
+        fs.ensureDirSync(destImagesPath);
+        fs.copySync(project.imagesPath, destImagesPath);
+        console.log(`Copied images for project: ${project.slug}`);
+      }
+
+    } catch (error) {
+      console.error(`Error processing project ${project.slug}:`, error.message);
+    }
+  }
+})();
 
 // Copy JavaScript files to dist
 console.log('Copying JavaScript files...');
@@ -171,6 +268,28 @@ const headersContent = `/*
 `;
 
 fs.writeFileSync('dist/_headers', headersContent);
+
+// Build CSS with Tailwind after HTML generation (so it can scan the generated HTML)
+console.log('Building CSS...');
+execSync('./node_modules/.bin/tailwindcss -i src/input.css -o dist/temp.css --content "src/**/*.{html,js}" "dist/**/*.html" --minify', { stdio: 'inherit' });
+
+// Read the built CSS file
+const cssContent = fs.readFileSync('dist/temp.css');
+const cssHash = crypto.createHash('md5').update(cssContent).digest('hex').substring(0, 8);
+const hashedCssFilename = `output.${cssHash}.css`;
+
+// Rename CSS file with hash
+fs.renameSync('dist/temp.css', `dist/${hashedCssFilename}`);
+
+// Update CSS references in generated HTML files
+console.log('Updating CSS references in HTML files...');
+const generatedHtmlFiles = fs.readdirSync(distDir).filter(file => file.endsWith('.html'));
+generatedHtmlFiles.forEach(file => {
+  const filePath = path.join(distDir, file);
+  let content = fs.readFileSync(filePath, 'utf8');
+  content = content.replace(/href="output\.PLACEHOLDER\.css"/g, `href="${hashedCssFilename}"`);
+  fs.writeFileSync(filePath, content);
+});
 
 // Copy CNAME file for GitHub Pages custom domain
 if (fs.existsSync('CNAME')) {

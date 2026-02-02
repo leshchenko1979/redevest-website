@@ -88,7 +88,11 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 <p align="center"><small>Голубицкая, Азовское море</small></p>
 [[/columns]]
 
-![Пляж Голубицкая 2](images/пляж%20голуб.jpg)
+<div style="max-width: 800px; margin: 0 auto;">
+
+![Пляж Голубицкая 2](images/пляж_голуб_small.jpg)
+
+</div>
 
 Сейчас в Анапе и окрестностях происходит рост цен на недвижимость на 44%, что подтверждают эксперты рынка:
 

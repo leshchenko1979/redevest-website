@@ -274,7 +274,7 @@ fs.writeFileSync('dist/_headers', headersContent);
 
 // Build CSS with Tailwind after HTML generation (so it can scan the generated HTML)
 console.log('Building CSS...');
-execSync('./node_modules/.bin/tailwindcss -i src/input.css -o dist/temp.css --content "src/**/*.{html,js}" "dist/**/*.html" --minify', { stdio: 'inherit' });
+execSync('npx tailwindcss -i src/input.css -o dist/temp.css --content "src/**/*.{html,js}" "dist/**/*.html" --minify', { stdio: 'inherit' });
 
 // Read the built CSS file
 const cssContent = fs.readFileSync('dist/temp.css');

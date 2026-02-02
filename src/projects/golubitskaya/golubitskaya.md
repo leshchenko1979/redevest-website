@@ -110,7 +110,7 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 - Полная сумма в ДКП
 - **За перепродажи отвечает отдел продаж с сетью более 1,5 тысяч агентов**
 
-<div style="max-width: 900px; margin: 0 auto;">
+<div style="max-width: 900px; margin: 40px auto 0;">
 
 ![СМА](images/сма_final.png)
 

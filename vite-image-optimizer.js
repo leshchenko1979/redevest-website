@@ -7,7 +7,7 @@ import { glob } from 'glob';
 const CACHE_DIR = '.image-cache';
 const LARGE_FILE_THRESHOLD = 500 * 1024; // 500KB
 const CACHE_MAX_AGE = 60 * 60 * 1000; // 1 hour
-const SUPPORTED_FORMATS = ['.jpg', '.jpeg', '.png'];
+const SUPPORTED_FORMATS = ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG'];
 const PROJECT_SIZES = [800, 1200, 1600];
 const HERO_SIZES = [400, 800, 1200, 1600];
 
@@ -354,11 +354,11 @@ async function processImageFile(file, srcDir, distDir, cacheDir, isDev, emitFile
 
   try {
     // Process based on image format
-    if (['.jpg', '.jpeg'].includes(ext)) {
+    if (['.jpg', '.jpeg', '.JPG', '.JPEG'].includes(ext)) {
       optimizedSize = await processJpegImage(inputPath, outputPath, cacheFileDir, baseName, isDev, distDir, emitFile);
-    } else if (ext === '.png') {
+    } else if (['.png', '.PNG'].includes(ext)) {
       optimizedSize = await processPngImage(inputPath, outputPath, cacheFileDir, baseName, isDev, distDir, emitFile);
-    } else if (ext === '.webp') {
+    } else if (['.webp', '.WEBP'].includes(ext)) {
       optimizedSize = await processWebpImage(inputPath, outputPath, cacheFileDir, baseName, isDev, distDir, emitFile);
     }
 
@@ -537,8 +537,8 @@ async function optimizeImages(isDev, emitFile = null) {
 
   // Find all images
   const imagePatterns = [
-    'src/assets/**/*.{jpg,jpeg,png,gif,webp}',
-    'src/projects/*/images/*.{jpg,jpeg,png,gif,webp}'
+    'src/assets/**/*.{jpg,jpeg,JPG,JPEG,png,PNG,gif,GIF,webp,WEBP}',
+    'src/projects/*/images/*.{jpg,jpeg,JPG,JPEG,png,PNG,gif,GIF,webp,WEBP}'
   ];
 
   let totalOriginalSize = 0;

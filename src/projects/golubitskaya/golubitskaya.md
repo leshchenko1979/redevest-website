@@ -72,9 +72,9 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 
 [[columns]]
 [[column]]
-![Винозавод](images/винзавод_fixed.webp)
+![Винозавод](images/винзавод_full.webp)
 [[column]]
-![Винодельня](images/вин_fixed.webp)
+![Винодельня](images/вин_full.webp)
 [[/columns]]
 
 Азовское море очень любят семьи с детьми за пологий вход и песчаные пляжи из ракушечника. Пляжи в Голубицкой сравнимы с лучшими пляжами Черного моря.

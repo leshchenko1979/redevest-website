@@ -51,7 +51,7 @@ function processCustomBlocks(content) {
   });
 
   // Обработка callout блоков
-  processed = processed.replace(/\[\[callout\s*\|\s*(\w+)\]\]\n([\s\S]*?)(?=\n(?:\[\[|##|---|!|$))/g, (match, type, content) => {
+  processed = processed.replace(/\[\[callout\s*\|\s*(\w+)\]\]\r?\n([\s\S]*?)(?=\r?\n(?:\[\[|##|---|$))/g, (match, type, content) => {
     // Очищаем содержимое от | в начале строк
     const cleanContent = content.replace(/^\|\s*/gm, '').trim();
     const textHtml = marked.parse(cleanContent);

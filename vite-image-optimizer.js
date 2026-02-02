@@ -1,165 +1,30 @@
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
-import { glob } from 'glob';
 
 // Constants
 const CACHE_DIR = '.image-cache';
 const LARGE_FILE_THRESHOLD = 500 * 1024; // 500KB
 const CACHE_MAX_AGE = 60 * 60 * 1000; // 1 hour
-const SUPPORTED_FORMATS = ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG'];
+const SUPPORTED_FORMATS = ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG', '.webp', '.WEBP'];
 const PROJECT_SIZES = [800, 1200, 1600];
 const HERO_SIZES = [400, 800, 1200, 1600];
 
 /**
  * Checks if optimized files need to be regenerated based on modification times
- * @param {string} sourcePath - Path to source file
- * @param {string} optimizedPath - Path to optimized file
- * @returns {boolean} True if regeneration is needed
  */
 function needsRegeneration(sourcePath, optimizedPath) {
   if (!fs.existsSync(optimizedPath)) return true;
 
-  const isCi = process.env.CI || process.env.GITHUB_ACTIONS;
-  if (isCi) {
-    try {
-      const sourceStats = fs.statSync(sourcePath);
-      const optimizedStats = fs.statSync(optimizedPath);
-      return sourceStats.mtime > optimizedStats.mtime;
-    } catch (error) {
-      return true;
-    }
-  }
-
-  const sourceStats = fs.statSync(sourcePath);
-  const optimizedStats = fs.statSync(optimizedPath);
-  return sourceStats.mtime > optimizedStats.mtime;
-}
-
-/**
- * Checks if any images need optimization by examining cache state
- */
-async function needsOptimization(isDev) {
-  const cacheDir = path.join(process.cwd(), CACHE_DIR);
-  if (!fs.existsSync(cacheDir)) return true;
-
   try {
-    const cacheStats = fs.statSync(cacheDir);
-    const cacheAge = Date.now() - cacheStats.mtime.getTime();
-
-    if (cacheAge > CACHE_MAX_AGE) return await needsDetailedOptimization();
-
-    const mainAssets = ['src/assets/lunevo_new.jpg', 'src/assets/golubitskaya.jpg', 'src/assets/lubenki_new.jpg'];
-    for (const asset of mainAssets) {
-      if (fs.existsSync(path.join(process.cwd(), asset))) {
-        const assetName = path.basename(asset, path.extname(asset));
-        const avifCachePath = path.join(cacheDir, 'assets', `${assetName}.avif`);
-        if (!fs.existsSync(avifCachePath)) return true;
-      }
-    }
-    return false;
+    const sourceStats = fs.statSync(sourcePath);
+    const optimizedStats = fs.statSync(optimizedPath);
+    
+    // Add 1-second tolerance to prevent false positives from filesystem timestamp resolution differences
+    // or rounding issues. 1000ms is safe for most filesystems (even FAT32).
+    return sourceStats.mtimeMs > (optimizedStats.mtimeMs + 1000);
   } catch (error) {
     return true;
-  }
-}
-
-/**
- * Performs detailed optimization check for key files
- */
-async function needsDetailedOptimization() {
-  const srcDir = path.join(process.cwd(), 'src');
-  const cacheDir = path.join(process.cwd(), CACHE_DIR);
-
-  const checkFiles = [
-    'src/assets/lunevo_new.jpg',
-    'src/assets/golubitskaya.jpg',
-    'src/projects/golubitskaya/images/hero.jpg'
-  ];
-
-  for (const file of checkFiles) {
-    const fullPath = path.join(process.cwd(), file);
-    if (!fs.existsSync(fullPath)) continue;
-
-    const ext = path.extname(file).toLowerCase();
-    if (!SUPPORTED_FORMATS.includes(ext)) continue;
-
-    const relativePath = path.relative(srcDir, fullPath);
-    const cacheFileDir = path.join(cacheDir, path.dirname(relativePath));
-    const baseName = path.basename(file, ext);
-
-    const webpCachePath = path.join(cacheFileDir, `${baseName}.webp`);
-    const avifCachePath = path.join(cacheFileDir, `${baseName}.avif`);
-
-    if (!fs.existsSync(webpCachePath) || !fs.existsSync(avifCachePath)) return true;
-    if (needsRegeneration(fullPath, webpCachePath) || needsRegeneration(fullPath, avifCachePath)) return true;
-  }
-  return false;
-}
-
-/**
- * Finds all large project images that need responsive versions
- */
-async function findLargeProjectImages() {
-  const projectFiles = await glob('src/projects/*/images/*.{jpg,jpeg,png}', { cwd: process.cwd() });
-  const largeProjectImages = [];
-
-  for (const file of projectFiles) {
-    try {
-      const inputPath = path.join(process.cwd(), file);
-      const stats = fs.statSync(inputPath);
-      if (stats.size > LARGE_FILE_THRESHOLD) largeProjectImages.push(file);
-    } catch (error) {}
-  }
-  return largeProjectImages;
-}
-
-/**
- * Generates responsive images for development mode
- */
-async function generateResponsiveDevImages() {
-  const srcDir = path.join(process.cwd(), 'src');
-  const cacheDir = path.join(process.cwd(), CACHE_DIR);
-  const largeProjectImages = await findLargeProjectImages();
-
-  for (const projectImage of largeProjectImages) {
-    const inputPath = path.join(process.cwd(), projectImage);
-    const relativePath = path.relative(srcDir, inputPath);
-    const relativeDir = path.dirname(relativePath);
-    const cacheProjectDir = path.join(cacheDir, relativeDir);
-    const baseName = path.basename(projectImage, path.extname(projectImage));
-
-    ensureDirectoryExists(cacheProjectDir);
-
-    try {
-      await generateResponsiveVersions(inputPath, cacheProjectDir, srcDir, relativeDir, baseName, PROJECT_SIZES, true, null);
-    } catch (error) {
-      console.warn(`⚠️  Failed to generate responsive images for ${projectImage}:`, error.message);
-    }
-  }
-}
-
-/**
- * Generates responsive versions for an image at multiple sizes
- */
-async function generateResponsiveVersions(inputPath, cacheDir, distDir, relativeDir, baseName, sizes, isDev, emitFile) {
-  for (const size of sizes) {
-    const formats = [
-      { ext: 'webp', quality: 85, generator: (img) => img.webp({ quality: 85, effort: 4 }) },
-      { ext: 'avif', quality: 80, generator: (img) => img.avif({ quality: 80, effort: 4 }) }
-    ];
-
-    for (const format of formats) {
-      const cachePath = path.join(cacheDir, `${baseName}-${size}.${format.ext}`);
-      const relativeOutputPath = path.join(relativeDir, `${baseName}-${size}.${format.ext}`);
-
-      if (needsRegeneration(inputPath, cachePath)) {
-        await sharp(inputPath)
-          .resize(size, null, { withoutEnlargement: true, fit: 'inside' })
-          [format.ext]({ quality: format.quality, effort: 4 })
-          .toFile(cachePath);
-      }
-      copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile);
-    }
   }
 }
 
@@ -171,56 +36,55 @@ function ensureDirectoryExists(dirPath) {
 }
 
 /**
- * Generates responsive project images for production or development
+ * Copies a cached file to the output location or emits it to Vite bundle
+ * In dev mode, optimized files are served via middleware - originals only copied on failure
  */
-async function generateResponsiveProjectImages(isDev, largeProjectImages, srcDir, distDir, cacheDir, emitFile = null) {
-  for (const projectImage of largeProjectImages) {
-    const inputPath = path.join(process.cwd(), projectImage);
-    const relativePath = path.relative(srcDir, inputPath);
-    const relativeDir = path.dirname(relativePath);
-    const cacheProjectDir = path.join(cacheDir, relativeDir);
-    const baseName = path.basename(projectImage, path.extname(projectImage));
+function copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile, isOriginalFallback = false) {
+  // Handle original file fallback (when optimization fails)
+  if (isOriginalFallback) {
+    const originalPath = path.join(process.cwd(), 'src', relativeOutputPath);
 
-    ensureDirectoryExists(cacheProjectDir);
-
-    try {
-      await generateResponsiveVersionsForBuild(inputPath, cacheProjectDir, relativeDir, baseName, PROJECT_SIZES, isDev, distDir, emitFile);
-    } catch (error) {
-      console.warn(`⚠️  Failed to generate responsive images for ${projectImage}:`, error.message);
+    if (!fs.existsSync(originalPath)) {
+      console.warn(`⚠️  Original file not found: ${originalPath}`);
+      return false;
     }
-  }
-}
 
-/**
- * Generates responsive versions for build mode
- */
-async function generateResponsiveVersionsForBuild(inputPath, cacheDir, relativeDir, baseName, sizes, isDev, distDir, emitFile) {
-  const formats = [
-    { ext: 'webp', quality: 85, generator: (img) => img.webp({ quality: 85, effort: 4 }) },
-    { ext: 'avif', quality: 80, generator: (img) => img.avif({ quality: 80, effort: 4 }) }
-  ];
-
-  for (const format of formats) {
-    for (const size of sizes) {
-      const cachePath = path.join(cacheDir, `${baseName}-${size}.${format.ext}`);
-      const relativeOutputPath = path.join(relativeDir, `${baseName}-${size}.${format.ext}`);
-
-      if (needsRegeneration(inputPath, cachePath)) {
-        await sharp(inputPath)
-          .resize(size, null, { withoutEnlargement: true, fit: 'inside' })
-          [format.ext]({ quality: format.quality, effort: 4 })
-          .toFile(cachePath);
+    if (isDev) {
+      // In dev mode, copy original to src/assets so Vite can serve it
+      const devOutputPath = path.join(distDir, relativeOutputPath);
+      ensureDirectoryExists(path.dirname(devOutputPath));
+      fs.copyFileSync(originalPath, devOutputPath);
+      return true;
+    } else {
+      // In production, emit original file to bundle
+      if (emitFile) {
+        try {
+          const fileContent = fs.readFileSync(originalPath);
+          emitFile({
+            type: 'asset',
+            fileName: relativeOutputPath,
+            source: fileContent
+          });
+          return true;
+        } catch (error) {
+          console.warn(`❌ Failed to read or emit original file ${originalPath}: ${error.message}`);
+          return false;
+        }
       }
-      copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile);
     }
+    return false;
   }
-}
 
-/**
- * Copies a cached file to the output location
- */
-function copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile) {
-  if (!isDev && emitFile) {
+  // Handle optimized/cached files
+  if (!fs.existsSync(cachePath)) return false;
+
+  // In dev mode, optimized files are served via middleware - no copying needed
+  if (isDev) {
+    return true; // File exists in cache, ready to be served via middleware
+  }
+
+  // Production mode: emit to Vite bundle
+  if (emitFile) {
     try {
       const fileContent = fs.readFileSync(cachePath);
       emitFile({
@@ -228,123 +92,66 @@ function copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile) {
         fileName: relativeOutputPath,
         source: fileContent
       });
+      return true;
     } catch (error) {
       console.warn(`❌ Failed to read or emit file ${cachePath}: ${error.message}`);
-    }
-  } else {
-    try {
-      const outputPath = path.join(distDir, relativeOutputPath);
-      ensureDirectoryExists(path.dirname(outputPath));
-      fs.copyFileSync(cachePath, outputPath);
-    } catch (error) {
-      console.warn(`⚠️ Failed to copy file: ${error.message}`);
+      return false;
     }
   }
+
+  return false;
 }
 
 /**
- * Processes a single image file
+ * Vite middleware to serve optimized images from cache during development
  */
-async function processImageFile(file, srcDir, distDir, cacheDir, isDev, emitFile) {
-  const inputPath = path.join(process.cwd(), file);
-  const relativePath = path.relative(srcDir, inputPath);
-  const outputPath = path.join(distDir, relativePath);
-  const cachePath = path.join(cacheDir, relativePath);
+function serveFromCacheMiddleware() {
+  const cacheDir = path.join(process.cwd(), CACHE_DIR);
 
-  const cacheFileDir = path.dirname(cachePath);
-  ensureDirectoryExists(cacheFileDir);
+  return {
+    name: 'serve-optimized-images',
+    configureServer(server) {
+      server.middlewares.use('/assets', async (req, res, next) => {
+        const url = req.url;
 
-  const originalStats = fs.statSync(inputPath);
-  const originalSize = originalStats.size;
-  let optimizedSize = 0;
+        // Only intercept requests for optimized formats
+        const isOptimizedFormat = url.endsWith('.webp') || url.endsWith('.avif');
 
-  const ext = path.extname(file).toLowerCase();
-  const baseName = path.basename(file, path.extname(file));
+        if (!isOptimizedFormat) {
+          return next();
+        }
 
-  try {
-    if (['.jpg', '.jpeg', '.JPG', '.JPEG'].includes(ext)) {
-      optimizedSize = await processJpegImage(inputPath, relativePath, cacheFileDir, baseName, isDev, distDir, emitFile);
-    } else if (['.png', '.PNG'].includes(ext)) {
-      optimizedSize = await processPngImage(inputPath, relativePath, cacheFileDir, baseName, isDev, distDir, emitFile);
-    } else if (['.webp', '.WEBP'].includes(ext)) {
-      optimizedSize = await processWebpImage(inputPath, relativePath, cacheFileDir, baseName, isDev, distDir, emitFile);
+        // Construct cache path from request URL
+        // e.g., /assets/founder.webp -> .image-cache/assets/founder.webp
+        const relativePath = url.startsWith('/assets/') ? url.substring(8) : url.substring(1); // Remove /assets/ or leading /
+        const cachePath = path.join(cacheDir, 'assets', relativePath);
+
+        try {
+          if (fs.existsSync(cachePath)) {
+            const contentType = url.endsWith('.webp') ? 'image/webp' : 'image/avif';
+            res.setHeader('Content-Type', contentType);
+
+            // Set cache headers for development
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+
+            fs.createReadStream(cachePath).pipe(res);
+            return;
+          }
+        } catch (error) {
+          console.warn(`⚠️ Error serving cached image ${cachePath}:`, error.message);
+        }
+
+        // If not found in cache, let Vite handle it (will fall back to original or 404)
+        next();
+      });
     }
-
-    if (!isDev && optimizedSize === 0) optimizedSize = originalSize;
-    return { originalSize, optimizedSize };
-  } catch (error) {
-    console.warn(`⚠️  Failed to optimize ${file}:`, error.message);
-    if (!isDev) copyToOutput(inputPath, relativePath, isDev, distDir, emitFile);
-    return { originalSize, optimizedSize: originalSize };
-  }
+  };
 }
 
 /**
- * Processes JPEG images
- */
-async function processJpegImage(inputPath, relativePath, cacheFileDir, baseName, isDev, distDir, emitFile) {
-  let optimizedSize = 0;
-  const relativeDir = path.dirname(relativePath);
-
-  if (!isDev) {
-    const cachedJpeg = path.join(cacheFileDir, `${baseName}.jpg`);
-    if (needsRegeneration(inputPath, cachedJpeg)) {
-      await sharp(inputPath)
-        .jpeg({ quality: 85, progressive: true, mozjpeg: true })
-        .toFile(cachedJpeg);
-    }
-    copyToOutput(cachedJpeg, relativePath, isDev, distDir, emitFile);
-    optimizedSize += fs.existsSync(cachedJpeg) ? fs.statSync(cachedJpeg).size : 0;
-  }
-
-  optimizedSize += await generateWebpVersion(inputPath, cacheFileDir, relativeDir, baseName, isDev, distDir, emitFile);
-  optimizedSize += await generateAvifVersion(inputPath, cacheFileDir, relativeDir, baseName, isDev, distDir, emitFile);
-  return optimizedSize;
-}
-
-/**
- * Processes PNG images
- */
-async function processPngImage(inputPath, relativePath, cacheFileDir, baseName, isDev, distDir, emitFile) {
-  let optimizedSize = 0;
-  const relativeDir = path.dirname(relativePath);
-
-  if (!isDev) {
-    const cachedPng = path.join(cacheFileDir, `${baseName}.png`);
-    if (needsRegeneration(inputPath, cachedPng)) {
-      await sharp(inputPath)
-        .png({ quality: 90, compressionLevel: 6, palette: true })
-        .toFile(cachedPng);
-    }
-    copyToOutput(cachedPng, relativePath, isDev, distDir, emitFile);
-    optimizedSize += fs.existsSync(cachedPng) ? fs.statSync(cachedPng).size : 0;
-  }
-
-  optimizedSize += await generateWebpVersion(inputPath, cacheFileDir, relativeDir, baseName, isDev, distDir, emitFile);
-  optimizedSize += await generateAvifVersion(inputPath, cacheFileDir, relativeDir, baseName, isDev, distDir, emitFile);
-  return optimizedSize;
-}
-
-/**
- * Processes WebP images
- */
-async function processWebpImage(inputPath, relativePath, cacheFileDir, baseName, isDev, distDir, emitFile) {
-  let optimizedSize = 0;
-  const relativeDir = path.dirname(relativePath);
-
-  if (!isDev) {
-    const cachedWebp = path.join(cacheFileDir, `${baseName}.webp`);
-    if (needsRegeneration(inputPath, cachedWebp)) fs.copyFileSync(inputPath, cachedWebp);
-    copyToOutput(cachedWebp, relativePath, isDev, distDir, emitFile);
-    optimizedSize += fs.existsSync(cachedWebp) ? fs.statSync(cachedWebp).size : 0;
-  }
-
-  optimizedSize += await generateAvifVersion(inputPath, cacheFileDir, relativeDir, baseName, isDev, distDir, emitFile);
-  return optimizedSize;
-}
-
-/**
- * Generates WebP version
+ * Generates WebP version of an image
  */
 async function generateWebpVersion(inputPath, cacheDir, relativeDir, baseName, isDev, distDir, emitFile) {
   const cachePath = path.join(cacheDir, `${baseName}.webp`);
@@ -352,13 +159,16 @@ async function generateWebpVersion(inputPath, cacheDir, relativeDir, baseName, i
 
   if (needsRegeneration(inputPath, cachePath)) {
     await sharp(inputPath).webp({ quality: 85, effort: 4 }).toFile(cachePath);
+    console.log(`✨ Generated WebP: ${relativeOutputPath}`);
+  } else {
+    // console.log(`⏭️  Skipping WebP (up to date): ${relativeOutputPath}`);
   }
+
   copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile);
-  return fs.existsSync(cachePath) ? fs.statSync(cachePath).size : 0;
 }
 
 /**
- * Generates AVIF version
+ * Generates AVIF version of an image
  */
 async function generateAvifVersion(inputPath, cacheDir, relativeDir, baseName, isDev, distDir, emitFile) {
   const cachePath = path.join(cacheDir, `${baseName}.avif`);
@@ -367,41 +177,126 @@ async function generateAvifVersion(inputPath, cacheDir, relativeDir, baseName, i
   if (needsRegeneration(inputPath, cachePath)) {
     try {
       await sharp(inputPath).avif({ quality: 80, effort: 4 }).toFile(cachePath);
+      console.log(`✨ Generated AVIF: ${relativeOutputPath}`);
     } catch (error) {
-      return 0;
+      return;
     }
+  } else {
+    // console.log(`⏭️  Skipping AVIF (up to date): ${relativeOutputPath}`);
   }
 
-  if (fs.existsSync(cachePath)) {
-    copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile);
-    return fs.statSync(cachePath).size;
-  }
-  return 0;
+  copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile);
 }
 
 /**
- * Generates responsive hero images
+ * Processes a single image file
  */
-async function generateResponsiveHeroImages(srcDir, distDir, cacheDir, isDev, emitFile) {
-  const heroImages = ['src/assets/founder.png', 'src/assets/golubitskaya.jpg', 'src/assets/lubenki_new.jpg', 'src/assets/lunevo_new.jpg'];
-  for (const heroImage of heroImages) {
-    if (fs.existsSync(path.join(process.cwd(), heroImage))) {
-      const relativePath = path.relative(srcDir, heroImage);
-      const relativeDir = path.dirname(relativePath);
-      const cacheHeroDir = path.join(cacheDir, relativeDir);
-      const baseName = path.basename(heroImage, path.extname(heroImage));
+async function processImageFile(file, srcDir, distDir, cacheDir, isDev, emitFile) {
+  const inputPath = path.join(process.cwd(), file);
+  const relativePath = path.relative(srcDir, inputPath);
+  const relativeDir = path.dirname(relativePath);
+  const cacheFileDir = path.join(cacheDir, relativeDir);
+  const baseName = path.basename(file, path.extname(file));
+  const ext = path.extname(file).toLowerCase();
 
-      ensureDirectoryExists(cacheHeroDir);
-      try {
-        const inputPath = path.join(process.cwd(), heroImage);
-        await generateResponsiveVersions(inputPath, cacheHeroDir, distDir, relativeDir, baseName, HERO_SIZES, isDev, emitFile);
-      } catch (error) {}
+  ensureDirectoryExists(cacheFileDir);
+
+  try {
+    if (['.jpg', '.jpeg', '.JPG', '.JPEG'].includes(ext)) {
+      if (!isDev) {
+        const cachedJpeg = path.join(cacheFileDir, `${baseName}.jpg`);
+        if (needsRegeneration(inputPath, cachedJpeg)) {
+          await sharp(inputPath)
+            .jpeg({ quality: 85, progressive: true, mozjpeg: true })
+            .toFile(cachedJpeg);
+          console.log(`✨ Optimized JPEG: ${relativePath}`);
+        } else {
+          // console.log(`⏭️  Skipping JPEG (up to date): ${relativePath}`);
+        }
+        copyToOutput(cachedJpeg, relativePath, isDev, distDir, emitFile);
+      }
+      await generateWebpVersion(inputPath, cacheFileDir, relativeDir, baseName, isDev, distDir, emitFile);
+      await generateAvifVersion(inputPath, cacheFileDir, relativeDir, baseName, isDev, distDir, emitFile);
+    } else if (['.png', '.PNG'].includes(ext)) {
+      if (!isDev) {
+        const cachedPng = path.join(cacheFileDir, `${baseName}.png`);
+        if (needsRegeneration(inputPath, cachedPng)) {
+          await sharp(inputPath)
+            .png({ quality: 90, compressionLevel: 6, palette: true })
+            .toFile(cachedPng);
+          console.log(`✨ Optimized PNG: ${relativePath}`);
+        } else {
+          // console.log(`⏭️  Skipping PNG (up to date): ${relativePath}`);
+        }
+        copyToOutput(cachedPng, relativePath, isDev, distDir, emitFile);
+      }
+      await generateWebpVersion(inputPath, cacheFileDir, relativeDir, baseName, isDev, distDir, emitFile);
+      await generateAvifVersion(inputPath, cacheFileDir, relativeDir, baseName, isDev, distDir, emitFile);
+    } else if (['.webp', '.WEBP'].includes(ext)) {
+      if (!isDev) {
+        const cachedWebp = path.join(cacheFileDir, `${baseName}.webp`);
+        if (needsRegeneration(inputPath, cachedWebp)) {
+          fs.copyFileSync(inputPath, cachedWebp);
+        }
+        copyToOutput(cachedWebp, relativePath, isDev, distDir, emitFile);
+      }
+      await generateAvifVersion(inputPath, cacheFileDir, relativeDir, baseName, isDev, distDir, emitFile);
+    }
+  } catch (error) {
+    console.warn(`⚠️  Failed to process ${file}:`, error.message);
+    // Always copy original file for failed processing (both dev and prod)
+    copyToOutput(null, relativePath, isDev, distDir, emitFile, true);
+  }
+}
+
+/**
+ * Generates responsive versions
+ */
+async function generateResponsiveVersions(inputPath, cacheDir, distDir, relativeDir, baseName, sizes, isDev, emitFile) {
+  for (const size of sizes) {
+    const formats = [
+      { ext: 'webp', method: 'webp', options: { quality: 85, effort: 4 } },
+      { ext: 'avif', method: 'avif', options: { quality: 80, effort: 4 } }
+    ];
+
+    for (const format of formats) {
+      const cachePath = path.join(cacheDir, `${baseName}-${size}.${format.ext}`);
+      const relativeOutputPath = path.join(relativeDir, `${baseName}-${size}.${format.ext}`);
+
+      if (needsRegeneration(inputPath, cachePath)) {
+        await sharp(inputPath)
+          .resize(size, null, { withoutEnlargement: true, fit: 'inside' })
+          [format.method](format.options)
+          .toFile(cachePath);
+        console.log(`✨ Generated responsive ${format.ext.toUpperCase()} (${size}w): ${relativeOutputPath}`);
+      }
+      copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile);
     }
   }
 }
 
 /**
- * Main image optimization function
+ * Finds files matching patterns using fs.readdirSync recursive
+ */
+function findFiles(dir, patterns) {
+  const files = [];
+  if (!fs.existsSync(dir)) return files;
+
+  const allFiles = fs.readdirSync(dir, { recursive: true });
+  for (const file of allFiles) {
+    const fullPath = path.join(dir, file);
+    if (fs.statSync(fullPath).isFile()) {
+      const ext = path.extname(file).toLowerCase();
+      if (patterns.some(p => ext === p || (p === '.jpg' && ext === '.jpeg') || (p === '.jpeg' && ext === '.jpg'))) {
+        files.push(fullPath);
+      }
+    }
+  }
+  return files;
+}
+
+/**
+ * Main optimization entry point
  */
 async function optimizeImages(isDev, emitFile = null) {
   const srcDir = path.join(process.cwd(), 'src');
@@ -410,78 +305,119 @@ async function optimizeImages(isDev, emitFile = null) {
 
   ensureDirectoryExists(cacheDir);
 
-  const imagePatterns = [
-    'src/assets/**/*.{jpg,jpeg,JPG,JPEG,png,PNG,gif,GIF,webp,WEBP}',
-    'src/projects/*/images/*.{jpg,jpeg,JPG,JPEG,png,PNG,gif,GIF,webp,WEBP}'
-  ];
-
-  let totalOriginalSize = 0;
-  let totalOptimizedSize = 0;
-  let processedCount = 0;
+  const formats = ['.jpg', '.jpeg', '.png', '.webp'];
+  const assetFiles = findFiles(path.join(srcDir, 'assets'), formats);
+  const projectFiles = findFiles(path.join(srcDir, 'projects'), formats).filter(f => f.includes('/images/'));
+  
+  const allFiles = [...assetFiles, ...projectFiles];
   const largeProjectImages = [];
 
-  for (const pattern of imagePatterns) {
-    const files = await glob(pattern, { cwd: process.cwd() });
-    for (const file of files) {
-      const inputPath = path.join(process.cwd(), file);
-      if (file.includes('src/projects/')) {
-        const stats = fs.statSync(inputPath);
-        if (stats.size > LARGE_FILE_THRESHOLD) largeProjectImages.push(file);
+  for (const fullPath of allFiles) {
+    const file = path.relative(process.cwd(), fullPath);
+    if (file.includes('src/projects/')) {
+      const stats = fs.statSync(fullPath);
+      if (stats.size > LARGE_FILE_THRESHOLD) {
+        largeProjectImages.push(file);
       }
-      const stats = await processImageFile(file, srcDir, distDir, cacheDir, isDev, emitFile);
-      totalOriginalSize += stats.originalSize;
-      totalOptimizedSize += stats.optimizedSize;
-      processedCount++;
+    }
+    await processImageFile(file, srcDir, distDir, cacheDir, isDev, emitFile);
+  }
+
+  // Hero images responsive versions
+  const heroImages = ['src/assets/founder.png', 'src/assets/golubitskaya.jpg', 'src/assets/lubenki_new.jpg', 'src/assets/lunevo_new.jpg'];
+  for (const heroImage of heroImages) {
+    const fullHeroPath = path.join(process.cwd(), heroImage);
+    if (fs.existsSync(fullHeroPath)) {
+      const relativePath = path.relative(srcDir, fullHeroPath);
+      const relativeDir = path.dirname(relativePath);
+      const cacheHeroDir = path.join(cacheDir, relativeDir);
+      const baseName = path.basename(heroImage, path.extname(heroImage));
+      await generateResponsiveVersions(fullHeroPath, cacheHeroDir, distDir, relativeDir, baseName, HERO_SIZES, isDev, emitFile);
     }
   }
 
-  await generateResponsiveHeroImages(srcDir, distDir, cacheDir, isDev, emitFile);
-  await generateResponsiveProjectImages(isDev, largeProjectImages, srcDir, distDir, cacheDir, emitFile);
-
-  printOptimizationStats(processedCount, totalOriginalSize, totalOptimizedSize, isDev);
-}
-
-function printOptimizationStats(processedCount, totalOriginalSize, totalOptimizedSize, isDev) {
-  console.log(`\n📊 Image Optimization Complete:`);
-  console.log(`   Processed: ${processedCount} images`);
-  console.log(`   Original size: ${(totalOriginalSize / 1024 / 1024).toFixed(2)} MB`);
-  if (!isDev) {
-    const savings = totalOriginalSize - totalOptimizedSize;
-    const savingsPercentage = totalOriginalSize > 0 ? ((savings / totalOriginalSize) * 100).toFixed(2) : 0;
-    console.log(`   Final build size: ${(totalOptimizedSize / 1024 / 1024).toFixed(2)} MB`);
-    console.log(`   Space saved: ${(savings / 1024 / 1024).toFixed(2)} MB (${savingsPercentage}%)`);
+  // Large project images responsive versions
+  for (const projectImage of largeProjectImages) {
+    const fullPath = path.join(process.cwd(), projectImage);
+    const relativePath = path.relative(srcDir, fullPath);
+    const relativeDir = path.dirname(relativePath);
+    const cacheProjectDir = path.join(cacheDir, relativeDir);
+    const baseName = path.basename(projectImage, path.extname(projectImage));
+    await generateResponsiveVersions(fullPath, cacheProjectDir, distDir, relativeDir, baseName, PROJECT_SIZES, isDev, emitFile);
   }
 }
+
+let optimizationPromise = null;
 
 export function imageOptimizerPlugin() {
   let isDev = false;
   let emitFile = null;
 
-  return {
-    name: 'image-optimizer',
-    config(config, { command }) {
-      isDev = command === 'serve';
-    },
-    buildStart() {
-      console.log('🔍 Starting image optimization process...');
-    },
-    configureServer(server) {
-      if (isDev) {
-        needsOptimization(isDev).then(needsOpt => {
-          if (needsOpt) {
-            console.log('🖼️  Generating optimized images for development...');
-            optimizeImages(isDev).then(async () => {
-              await generateResponsiveDevImages();
-            });
-          } else {
-            console.log('🖼️  Optimized images are up to date, skipping generation');
+  return [
+    // Main optimizer plugin
+    {
+      name: 'image-optimizer',
+      config(config, { command }) {
+        isDev = command === 'serve';
+      },
+      buildStart() {
+        console.log('🔍 Starting image optimization process...');
+      },
+      configureServer(server) {
+        if (isDev) {
+          // Initial optimization on server start
+          if (!optimizationPromise) {
+            optimizationPromise = optimizeImages(true)
+              .then(() => {
+                console.log('✅ Dev image optimization complete.');
+              })
+              .catch(err => {
+                console.error('❌ Error in dev image optimization:', err);
+              })
+              .finally(() => {
+                optimizationPromise = null;
+              });
           }
-        }).catch(() => {});
+
+          // Watch for changes to source images and re-optimize
+          server.watcher.on('change', async (filePath) => {
+            const isAssetImage = filePath.includes('src/assets/') &&
+                (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg') ||
+                 filePath.endsWith('.png') || filePath.endsWith('.webp'));
+
+            const isProjectImage = filePath.includes('src/projects/') &&
+                filePath.includes('/images/') &&
+                (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg') ||
+                 filePath.endsWith('.png') || filePath.endsWith('.webp'));
+
+            if (isAssetImage || isProjectImage) {
+              console.log(`📸 Source image changed: ${filePath}, re-optimizing...`);
+
+              // Prevent multiple simultaneous optimizations
+              if (!optimizationPromise) {
+                optimizationPromise = optimizeImages(true)
+                  .then(() => {
+                    console.log('✅ Re-optimization complete.');
+                  })
+                  .catch(err => {
+                    console.error('❌ Error in re-optimization:', err);
+                  })
+                  .finally(() => {
+                    optimizationPromise = null;
+                  });
+              }
+            }
+          });
+        }
+      },
+      async generateBundle() {
+        emitFile = this.emitFile.bind(this);
+        console.log('📦 Emitting optimized images to bundle...');
+        await optimizeImages(false, emitFile);
+        console.log('✅ Image emission complete.');
       }
     },
-    async generateBundle(options, bundle) {
-      emitFile = this.emitFile.bind(this);
-      await optimizeImages(isDev, emitFile);
-    }
-  };
+    // Middleware plugin for serving from cache
+    serveFromCacheMiddleware()
+  ];
 }

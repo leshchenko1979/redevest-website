@@ -21,6 +21,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore Timestamps
+        uses: chetan/git-restore-mtime-action@v2
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

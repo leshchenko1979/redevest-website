@@ -114,6 +114,9 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 
 ![СМА](images/сма_final.png)
 
+[[callout | tip]]
+**ВАЖНО!** Стоимость номера в нашем проекте не имеет аналогов среди конкурентов.
+
 </div>
 
 ## Как будет выглядеть
@@ -193,14 +196,11 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 
 ## Контакты
 
-[[columns]]
-[[column]]
-<img src="images/BeautyPlus_20210922154159771_save.jpg" alt="Ксения Дорофеева" class="person-photo" >
-[[column]]
+<img src="images/BeautyPlus_20210922154159771_save.jpg" alt="Ксения Дорофеева" style="width: 200px; height: auto; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+
 ### Ксения Дорофеева
 Менеджер по продажам
 Telegram: [@redevest](https://t.me/redevest)
 
 ### Телеграм-канал проекта
 [Голубицкая — редевелопмент](https://t.me/newgolybitskaya)
-[[/columns]]

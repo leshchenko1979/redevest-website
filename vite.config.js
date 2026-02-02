@@ -364,29 +364,40 @@ export default defineConfig({
 
         // Update favicon references
         const faviconFiles = Object.keys(bundle).filter(key =>
-          key.includes('favicon') && (key.endsWith('.png') || key.endsWith('.ico'))
+          (key.includes('favicon') || key.includes('apple-touch-icon')) &&
+          (key.endsWith('.png') || key.endsWith('.ico'))
         );
 
-        // Update preload link
-        const mainFavicon = faviconFiles.find(key => key.includes('favicon') && !key.includes('-'));
+        // Update preload link - find the main favicon (not size-specific ones)
+        const mainFavicon = faviconFiles.find(key =>
+          key.includes('favicon') &&
+          !key.includes('-16x16') &&
+          !key.includes('-32x32') &&
+          !key.includes('apple-touch-icon')
+        );
         if (mainFavicon) {
-          content = content.replace(/href="assets\/favicon\.png"/g, `href="assets/${mainFavicon}"`);
+          content = content.replace(/href="assets\/favicon\.png"/g, `href="${mainFavicon}"`);
         }
 
         // Update icon links
         const favicon16 = faviconFiles.find(key => key.includes('favicon-16x16'));
         if (favicon16) {
-          content = content.replace(/href="assets\/favicon-16x16\.png"/g, `href="assets/${favicon16}"`);
+          content = content.replace(/href="assets\/favicon-16x16\.png"/g, `href="${favicon16}"`);
         }
 
         const favicon32 = faviconFiles.find(key => key.includes('favicon-32x32'));
         if (favicon32) {
-          content = content.replace(/href="assets\/favicon-32x32\.png"/g, `href="assets/${favicon32}"`);
+          content = content.replace(/href="assets\/favicon-32x32\.png"/g, `href="${favicon32}"`);
         }
 
         const appleTouch = faviconFiles.find(key => key.includes('apple-touch-icon'));
         if (appleTouch) {
-          content = content.replace(/href="assets\/apple-touch-icon\.png"/g, `href="assets/${appleTouch}"`);
+          content = content.replace(/href="assets\/apple-touch-icon\.png"/g, `href="${appleTouch}"`);
+        }
+
+        // Update img src references for favicons in header
+        if (mainFavicon) {
+          content = content.replace(/src="assets\/favicon\.png"/g, `src="${mainFavicon}"`);
         }
 
         fs.writeFileSync(indexPath, content);

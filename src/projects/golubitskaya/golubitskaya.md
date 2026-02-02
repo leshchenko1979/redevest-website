@@ -72,9 +72,9 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 
 [[columns]]
 [[column]]
-![Винозавод](images/винзавод.webp)
+![Винозавод](images/винзавод_full.webp)
 [[column]]
-![Винодельня](images/вин.webp)
+![Винодельня](images/вин_full.webp)
 [[/columns]]
 
 Азовское море очень любят семьи с детьми за пологий вход и песчаные пляжи из ракушечника. Пляжи в Голубицкой сравнимы с лучшими пляжами Черного моря.
@@ -88,12 +88,18 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 <p align="center"><small>Голубицкая, Азовское море</small></p>
 [[/columns]]
 
-![Пляж Голубицкая 2](images/пляж%20голуб.jpg)
+<div style="max-width: 800px; margin: 0 auto;">
+
+![Пляж Голубицкая 2](images/пляж_голуб_small.jpg)
+
+</div>
 
 Сейчас в Анапе и окрестностях происходит рост цен на недвижимость на 44%, что подтверждают эксперты рынка:
 
-<div style="max-width: 600px; margin: 0 auto;">
-![Экспертное мнение](images/роп.jpg)
+<div style="max-width: 400px; margin: 0 auto;">
+
+![Экспертное мнение](images/роп_mini.jpg)
+
 </div>
 
 ## Инвестиционные преимущества
@@ -106,7 +112,11 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 
 ### Сравнительный маркетинговый анализ
 
-![СМА](images/сма.png)
+<div style="max-width: 900px; margin: 0 auto;">
+
+![СМА](images/сма_large.png)
+
+</div>
 
 ## Как будет выглядеть
 

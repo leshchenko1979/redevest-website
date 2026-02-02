@@ -112,7 +112,11 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 
 ### Сравнительный маркетинговый анализ
 
-![СМА](images/сма.png)
+<div style="max-width: 900px; margin: 0 auto;">
+
+![СМА](images/сма_large.png)
+
+</div>
 
 ## Как будет выглядеть
 

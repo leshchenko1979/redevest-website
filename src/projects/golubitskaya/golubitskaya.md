@@ -195,12 +195,13 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 - 🎙️ [Запись эфира о проекте](https://youtu.be/YDyR-ruaEMg)
 
 ## Контакты
-
+[[columns]]
+[[column]]
 <img src="images/BeautyPlus_20210922154159771_save.jpg" alt="Ксения Дорофеева" class="person-photo">
-
+[[column]]
 ### Ксения Дорофеева
 Менеджер по продажам
 Telegram: [@redevest](https://t.me/redevest)
-
 ### Телеграм-канал проекта
 [Голубицкая — редевелопмент](https://t.me/newgolybitskaya)
+[[/columns]]

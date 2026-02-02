@@ -11,6 +11,192 @@ function needsRegeneration(sourcePath, formatPath) {
   return sourceStats.mtime > optimizedStats.mtime;
 }
 
+// Helper function to check if any images need optimization
+async function needsOptimization(isDev) {
+  // Simple check: see if the cache directory exists and has been modified recently
+  // If cache exists and is recent, assume optimization has run
+  const cacheDir = path.join(process.cwd(), '.image-cache');
+
+  if (!fs.existsSync(cacheDir)) {
+    return true; // No cache directory, need optimization
+  }
+
+  try {
+    const cacheStats = fs.statSync(cacheDir);
+    const now = Date.now();
+    const cacheAge = now - cacheStats.mtime.getTime();
+
+    // If cache is older than 1 hour, assume we need to check
+    if (cacheAge > 60 * 60 * 1000) {
+      return await needsDetailedOptimization();
+    }
+
+    // For recent cache, do a quick check of main assets
+    const mainAssets = ['src/assets/lunevo_new.jpg', 'src/assets/golubitskaya.jpg', 'src/assets/lubenki_new.jpg'];
+    for (const asset of mainAssets) {
+      if (fs.existsSync(path.join(process.cwd(), asset))) {
+        const assetName = path.basename(asset, path.extname(asset));
+        const avifCachePath = path.join(cacheDir, 'assets', `${assetName}.avif`);
+        if (!fs.existsSync(avifCachePath)) {
+          return true;
+        }
+      }
+    }
+
+    return false; // Cache exists and is recent, assume optimization is up to date
+
+  } catch (error) {
+    return true; // If we can't check, assume optimization is needed
+  }
+}
+
+// Detailed optimization check for when we need to be thorough
+async function needsDetailedOptimization() {
+  const srcDir = path.join(process.cwd(), 'src');
+  const cacheDir = path.join(process.cwd(), '.image-cache');
+
+  // Only check a few representative files instead of all files
+  const checkFiles = [
+    'src/assets/lunevo_new.jpg',
+    'src/assets/golubitskaya.jpg',
+    'src/projects/golubitskaya/images/hero.jpg'
+  ];
+
+  for (const file of checkFiles) {
+    const fullPath = path.join(process.cwd(), file);
+    if (!fs.existsSync(fullPath)) continue;
+
+    const ext = path.extname(file).toLowerCase();
+    if (!['.jpg', '.jpeg', '.png'].includes(ext)) continue;
+
+    const relativePath = path.relative(srcDir, fullPath);
+    const cacheFileDir = path.join(cacheDir, path.dirname(relativePath));
+    const baseName = path.basename(file, ext);
+
+    const webpCachePath = path.join(cacheFileDir, `${baseName}.webp`);
+    const avifCachePath = path.join(cacheFileDir, `${baseName}.avif`);
+
+    if (!fs.existsSync(webpCachePath) || !fs.existsSync(avifCachePath)) {
+      return true;
+    }
+
+    if (needsRegeneration(fullPath, webpCachePath) || needsRegeneration(fullPath, avifCachePath)) {
+      return true;
+    }
+  }
+
+  return false; // Optimization appears to be up to date
+}
+
+// Legacy function - keeping for compatibility but not used
+async function oldNeedsOptimization(isDev) {
+  const srcDir = path.join(process.cwd(), 'src');
+  const cacheDir = path.join(process.cwd(), '.image-cache');
+
+  // Find all images in src directory
+  const imagePatterns = [
+    'src/assets/**/*.{jpg,jpeg,png,gif,webp}',
+    'src/projects/*/images/*.{jpg,jpeg,png,gif,webp}'
+  ];
+
+  console.log('🔍 Checking if images need optimization...');
+
+  for (const pattern of imagePatterns) {
+    const files = await glob(pattern, { cwd: process.cwd() });
+    console.log(`🔍 Found ${files.length} files for pattern: ${pattern}`);
+
+    for (const file of files) {
+      const inputPath = path.join(process.cwd(), file);
+      const relativePath = path.relative(srcDir, inputPath);
+      const cachePath = path.join(cacheDir, relativePath);
+
+      // Ensure directories exist for cache path
+      const cacheFileDir = path.dirname(cachePath);
+      if (!fs.existsSync(cacheFileDir)) {
+        return true; // Cache directory doesn't exist, need optimization
+      }
+
+      // Get file extension to determine what formats to check
+      const ext = path.extname(file).toLowerCase();
+
+      // Only check optimization for original source formats (jpg, jpeg, png)
+      // Skip webp and other already-optimized formats
+      if (!['.jpg', '.jpeg', '.png'].includes(ext)) {
+        continue; // Skip this file, it's already optimized or not a source format
+      }
+
+      // Check if optimized versions exist and are up to date
+      const webpCachePath = path.join(cacheFileDir, path.basename(file, ext) + '.webp');
+      const avifCachePath = path.join(cacheFileDir, path.basename(file, ext) + '.avif');
+
+      // Skip files that are known to fail optimization (like unsupported formats)
+      // We'll assume if the file has been processed before and failed, it will fail again
+      try {
+        // Quick check if the file can be processed by sharp
+        const stats = fs.statSync(inputPath);
+        if (stats.size === 0) {
+          console.log(`🔍 Skipping empty file: ${file}`);
+          continue; // Skip empty files
+        }
+      } catch (error) {
+        console.log(`🔍 Skipping unreadable file: ${file}`);
+        continue; // Skip files we can't read
+      }
+
+      if (!fs.existsSync(webpCachePath) || !fs.existsSync(avifCachePath)) {
+        console.log(`🔍 Missing optimized versions for ${file}`);
+        return true; // Missing optimized versions
+      }
+
+      if (needsRegeneration(inputPath, webpCachePath) || needsRegeneration(inputPath, avifCachePath)) {
+        console.log(`🔍 Optimized versions outdated for ${file}`);
+        return true; // Optimized versions are outdated
+      }
+    }
+  }
+
+  // Check for large project images that need responsive versions
+  const largeProjectImages = [];
+  const largeImageFiles = await glob('src/projects/*/images/*.{jpg,jpeg,png,gif,webp}', { cwd: process.cwd() });
+
+  for (const file of largeImageFiles) {
+    try {
+      const inputPath = path.join(process.cwd(), file);
+      const stats = fs.statSync(inputPath);
+      if (stats.size > 500 * 1024) {
+        largeProjectImages.push(file);
+      }
+    } catch (error) {
+      // Skip files we can't read
+    }
+  }
+
+  // Check if responsive versions exist for large images
+  for (const projectImage of largeProjectImages) {
+    const inputPath = path.join(process.cwd(), projectImage);
+    const relativePath = path.relative(srcDir, inputPath);
+    const cacheProjectDir = path.join(cacheDir, path.dirname(relativePath));
+    const baseName = path.basename(projectImage, path.extname(projectImage));
+
+    const projectSizes = [800, 1200, 1600];
+
+    for (const size of projectSizes) {
+      const webpCachePath = path.join(cacheProjectDir, `${baseName}-${size}.webp`);
+      const avifCachePath = path.join(cacheProjectDir, `${baseName}-${size}.avif`);
+
+      if (!fs.existsSync(webpCachePath) || !fs.existsSync(avifCachePath)) {
+        return true; // Missing responsive versions
+      }
+
+      if (needsRegeneration(inputPath, webpCachePath) || needsRegeneration(inputPath, avifCachePath)) {
+        return true; // Responsive versions are outdated
+      }
+    }
+  }
+
+  return false; // No optimization needed
+}
+
 
 async function generateResponsiveDevImages() {
   const srcDir = path.join(process.cwd(), 'src');
@@ -99,7 +285,7 @@ async function generateResponsiveDevImages() {
   }
 }
 
-async function generateResponsiveProjectImages(isDev, largeProjectImages, srcDir, distDir, cacheDir) {
+async function generateResponsiveProjectImages(isDev, largeProjectImages, srcDir, distDir, cacheDir, emitFile = null) {
   for (const projectImage of largeProjectImages) {
     const inputPath = path.join(process.cwd(), projectImage);
     const relativePath = path.relative(srcDir, inputPath);
@@ -139,7 +325,23 @@ async function generateResponsiveProjectImages(isDev, largeProjectImages, srcDir
           console.log(`⏭️  Skipped responsive project image (cached): ${cachePath}`);
         }
         // Copy cached version to output
-        fs.copyFileSync(cachePath, outputPath);
+        if (!isDev && emitFile) {
+          // In production, emit the file through Vite
+          const relativeOutputPath = path.relative(distDir, outputPath);
+          const fileContent = fs.readFileSync(cachePath);
+          emitFile({
+            type: 'asset',
+            fileName: relativeOutputPath,
+            source: fileContent
+          });
+        } else {
+          // In dev mode, copy directly
+          try {
+            fs.copyFileSync(cachePath, outputPath);
+          } catch (error) {
+            console.warn(`Failed to copy WebP file: ${error.message}`);
+          }
+        }
       }
 
       // Also generate AVIF versions
@@ -162,7 +364,23 @@ async function generateResponsiveProjectImages(isDev, largeProjectImages, srcDir
           console.log(`⏭️  Skipped responsive project AVIF (cached): ${cachePath}`);
         }
         // Copy cached version to output
-        fs.copyFileSync(cachePath, outputPath);
+        if (!isDev && emitFile) {
+          // In production, emit the file through Vite
+          const relativeOutputPath = path.relative(distDir, outputPath);
+          const fileContent = fs.readFileSync(cachePath);
+          emitFile({
+            type: 'asset',
+            fileName: relativeOutputPath,
+            source: fileContent
+          });
+        } else {
+          // In dev mode, copy directly
+          try {
+            fs.copyFileSync(cachePath, outputPath);
+          } catch (error) {
+            console.warn(`Failed to copy AVIF file: ${error.message}`);
+          }
+        }
       }
 
       console.log(`📱 Generated responsive images for: ${projectImage}`);
@@ -172,7 +390,7 @@ async function generateResponsiveProjectImages(isDev, largeProjectImages, srcDir
   }
 }
 
-async function optimizeImages(isDev) {
+async function optimizeImages(isDev, emitFile = null) {
   const srcDir = path.join(process.cwd(), 'src');
   const distDir = isDev ? srcDir : path.join(process.cwd(), 'dist');
   const cacheDir = path.join(process.cwd(), '.image-cache');
@@ -289,7 +507,23 @@ async function optimizeImages(isDev) {
           }
           // Copy cached version to output
           if (fs.existsSync(avifCachePath)) {
-            fs.copyFileSync(avifCachePath, avifOutputPath);
+            if (!isDev && emitFile) {
+              // In production, emit the file through Vite
+              const relativeOutputPath = path.relative(distDir, avifOutputPath);
+              const fileContent = fs.readFileSync(avifCachePath);
+              emitFile({
+                type: 'asset',
+                fileName: relativeOutputPath,
+                source: fileContent
+              });
+            } else {
+              // In dev mode, copy directly
+              try {
+                fs.copyFileSync(avifCachePath, avifOutputPath);
+              } catch (error) {
+                console.warn(`Failed to copy AVIF file: ${error.message}`);
+              }
+            }
           }
 
         } else if (ext === '.png') {
@@ -342,7 +576,23 @@ async function optimizeImages(isDev) {
             console.log(`⏭️  Skipped AVIF (cached): ${avifCachePathPng}`);
           }
           // Copy cached version to output
-          fs.copyFileSync(avifCachePathPng, avifOutputPathPng);
+          if (!isDev && emitFile) {
+            // In production, emit the file through Vite
+            const relativeOutputPath = path.relative(distDir, avifOutputPathPng);
+            const fileContent = fs.readFileSync(avifCachePathPng);
+            emitFile({
+              type: 'asset',
+              fileName: relativeOutputPath,
+              source: fileContent
+            });
+          } else {
+            // In dev mode, copy directly
+            try {
+              fs.copyFileSync(avifCachePathPng, avifOutputPathPng);
+            } catch (error) {
+              console.warn(`Failed to copy AVIF file: ${error.message}`);
+            }
+          }
 
         } else if (ext === '.webp') {
           // Copy WebP as-is (only in build mode)
@@ -371,7 +621,23 @@ async function optimizeImages(isDev) {
             console.log(`⏭️  Skipped AVIF (cached): ${avifCachePathWebp}`);
           }
           // Copy cached version to output
-          fs.copyFileSync(avifCachePathWebp, avifOutputPathWebp);
+          if (!isDev && emitFile) {
+            // In production, emit the file through Vite
+            const relativeOutputPath = path.relative(distDir, avifOutputPathWebp);
+            const fileContent = fs.readFileSync(avifCachePathWebp);
+            emitFile({
+              type: 'asset',
+              fileName: relativeOutputPath,
+              source: fileContent
+            });
+          } else {
+            // In dev mode, copy directly
+            try {
+              fs.copyFileSync(avifCachePathWebp, avifOutputPathWebp);
+            } catch (error) {
+              console.warn(`Failed to copy AVIF file: ${error.message}`);
+            }
+          }
         }
 
         // Get optimized file size (for build mode statistics)
@@ -468,7 +734,7 @@ async function optimizeImages(isDev) {
   }
 
   // Generate responsive images for large project images
-  await generateResponsiveProjectImages(isDev, largeProjectImages, srcDir, distDir, cacheDir);
+  await generateResponsiveProjectImages(isDev, largeProjectImages, srcDir, distDir, cacheDir, emitFile);
 
   console.log(`\n📊 Image Optimization Complete:`);
   console.log(`   Processed: ${processedCount} images`);
@@ -487,6 +753,7 @@ async function optimizeImages(isDev) {
 
 export function imageOptimizerPlugin() {
   let isDev = false;
+  let emitFile = null;
 
   return {
     name: 'image-optimizer',
@@ -499,10 +766,18 @@ export function imageOptimizerPlugin() {
     configureServer(server) {
       // In dev mode, generate optimized images when server starts
       if (isDev) {
-        console.log('🖼️  Generating optimized images for development...');
-        optimizeImages(isDev).then(async () => {
-          // After basic optimization, generate responsive project images
-          await generateResponsiveDevImages();
+        needsOptimization(isDev).then(needsOpt => {
+          if (needsOpt) {
+            console.log('🖼️  Generating optimized images for development...');
+            optimizeImages(isDev).then(async () => {
+              // After basic optimization, generate responsive project images
+              await generateResponsiveDevImages();
+            });
+          } else {
+            console.log('🖼️  Optimized images are up to date, skipping generation');
+          }
+        }).catch(error => {
+          console.log('❌ Error checking optimization needs:', error.message);
         });
 
         // Watch for changes to source images and regenerate optimized versions
@@ -519,7 +794,8 @@ export function imageOptimizerPlugin() {
     },
 
     async generateBundle(options, bundle) {
-      await optimizeImages(isDev);
+      emitFile = this.emitFile.bind(this);
+      await optimizeImages(isDev, emitFile);
     }
   };
 }

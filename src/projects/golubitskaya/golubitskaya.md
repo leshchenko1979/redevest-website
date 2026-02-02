@@ -94,7 +94,7 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 
 <div style="max-width: 600px; margin: 0 auto;">
 
-![Экспертное мнение](images/роп_small.jpg)
+![Экспертное мнение](images/роп_shorter.jpg)
 
 </div>
 

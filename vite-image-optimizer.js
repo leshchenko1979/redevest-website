@@ -6,6 +6,16 @@ import { glob } from 'glob';
 // Helper function to check if optimized files need to be regenerated
 function needsRegeneration(sourcePath, formatPath) {
   if (!fs.existsSync(formatPath)) return true;
+
+  // In CI/CD environments, cached files might have older timestamps than source files
+  // due to cache restoration, but if the cache was hit based on source file hashes,
+  // we can trust the cached files are valid
+  const isCi = process.env.CI || process.env.GITHUB_ACTIONS;
+  if (isCi) {
+    // In CI, if the optimized file exists, assume it's valid (cache hit means source unchanged)
+    return false;
+  }
+
   const sourceStats = fs.statSync(sourcePath);
   const optimizedStats = fs.statSync(formatPath);
   return sourceStats.mtime > optimizedStats.mtime;

@@ -11,6 +11,167 @@ function needsRegeneration(sourcePath, formatPath) {
   return sourceStats.mtime > optimizedStats.mtime;
 }
 
+
+async function generateResponsiveDevImages() {
+  const srcDir = path.join(process.cwd(), 'src');
+  const cacheDir = path.join(process.cwd(), '.image-cache');
+
+  // Find all project images
+  const projectFiles = await glob('src/projects/*/images/*.{jpg,jpeg,png}', { cwd: process.cwd() });
+  const largeProjectImages = [];
+
+  // Find large images
+  for (const file of projectFiles) {
+    try {
+      const inputPath = path.join(process.cwd(), file);
+      const stats = fs.statSync(inputPath);
+      if (stats.size > 500 * 1024) {
+        largeProjectImages.push(file);
+      }
+    } catch (error) {
+      // Skip files we can't read
+    }
+  }
+
+  // Generate responsive versions for large project images
+  for (const projectImage of largeProjectImages) {
+    const inputPath = path.join(process.cwd(), projectImage);
+    const relativePath = path.relative(srcDir, inputPath);
+    const outputDir = path.join(srcDir, path.dirname(relativePath));
+    const cacheProjectDir = path.join(cacheDir, path.dirname(relativePath));
+    const baseName = path.basename(projectImage, path.extname(projectImage));
+
+    // Ensure directories exist
+    if (!fs.existsSync(cacheProjectDir)) {
+      fs.mkdirSync(cacheProjectDir, { recursive: true });
+    }
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    try {
+      // Generate responsive sizes for project images
+      const projectSizes = [800, 1200, 1600];
+
+      for (const size of projectSizes) {
+        const cachePath = path.join(cacheProjectDir, `${baseName}-${size}.webp`);
+        const outputPath = path.join(outputDir, `${baseName}-${size}.webp`);
+        if (needsRegeneration(inputPath, cachePath)) {
+          await sharp(inputPath)
+            .resize(size, null, {
+              withoutEnlargement: true,
+              fit: 'inside'
+            })
+            .webp({
+              quality: 85,
+              effort: 4
+            })
+            .toFile(cachePath);
+          console.log(`✅ Generated dev responsive project image: ${cachePath}`);
+        }
+        fs.copyFileSync(cachePath, outputPath);
+      }
+
+      // Also generate AVIF versions
+      for (const size of projectSizes) {
+        const cachePath = path.join(cacheProjectDir, `${baseName}-${size}.avif`);
+        const outputPath = path.join(outputDir, `${baseName}-${size}.avif`);
+        if (needsRegeneration(inputPath, cachePath)) {
+          await sharp(inputPath)
+            .resize(size, null, {
+              withoutEnlargement: true,
+              fit: 'inside'
+            })
+            .avif({
+              quality: 80,
+              effort: 4
+            })
+            .toFile(cachePath);
+          console.log(`✅ Generated dev responsive project AVIF: ${cachePath}`);
+        }
+        fs.copyFileSync(cachePath, outputPath);
+      }
+
+      console.log(`📱 Generated responsive images for: ${projectImage}`);
+    } catch (error) {
+      console.warn(`⚠️  Failed to generate responsive images for ${projectImage}:`, error.message);
+    }
+  }
+}
+
+async function generateResponsiveProjectImages(isDev, largeProjectImages, srcDir, distDir, cacheDir) {
+  for (const projectImage of largeProjectImages) {
+    const inputPath = path.join(process.cwd(), projectImage);
+    const relativePath = path.relative(srcDir, inputPath);
+    const outputDirPath = isDev ? srcDir : distDir;
+    const outputDirFull = path.join(outputDirPath, path.dirname(relativePath));
+    const cacheProjectDir = path.join(cacheDir, path.dirname(relativePath));
+    const baseName = path.basename(projectImage, path.extname(projectImage));
+
+    // Ensure directories exist
+    if (!fs.existsSync(cacheProjectDir)) {
+      fs.mkdirSync(cacheProjectDir, { recursive: true });
+    }
+    if (!fs.existsSync(outputDirFull)) {
+      fs.mkdirSync(outputDirFull, { recursive: true });
+    }
+
+    try {
+      // Generate responsive sizes for project images
+      const projectSizes = [800, 1200, 1600]; // Smaller sizes for project images
+
+      for (const size of projectSizes) {
+        const cachePath = path.join(cacheProjectDir, `${baseName}-${size}.webp`);
+        const outputPath = path.join(outputDirFull, `${baseName}-${size}.webp`);
+        if (needsRegeneration(inputPath, cachePath)) {
+          await sharp(inputPath)
+            .resize(size, null, {
+              withoutEnlargement: true,
+              fit: 'inside'
+            })
+            .webp({
+              quality: 85,
+              effort: 4
+            })
+            .toFile(cachePath);
+          console.log(`✅ Generated cached responsive project image: ${cachePath}`);
+        } else {
+          console.log(`⏭️  Skipped responsive project image (cached): ${cachePath}`);
+        }
+        // Copy cached version to output
+        fs.copyFileSync(cachePath, outputPath);
+      }
+
+      // Also generate AVIF versions
+      for (const size of projectSizes) {
+        const cachePath = path.join(cacheProjectDir, `${baseName}-${size}.avif`);
+        const outputPath = path.join(outputDirFull, `${baseName}-${size}.avif`);
+        if (needsRegeneration(inputPath, cachePath)) {
+          await sharp(inputPath)
+            .resize(size, null, {
+              withoutEnlargement: true,
+              fit: 'inside'
+            })
+            .avif({
+              quality: 80,
+              effort: 4
+            })
+            .toFile(cachePath);
+          console.log(`✅ Generated cached responsive project AVIF: ${cachePath}`);
+        } else {
+          console.log(`⏭️  Skipped responsive project AVIF (cached): ${cachePath}`);
+        }
+        // Copy cached version to output
+        fs.copyFileSync(cachePath, outputPath);
+      }
+
+      console.log(`📱 Generated responsive images for: ${projectImage}`);
+    } catch (error) {
+      console.warn(`⚠️  Failed to generate responsive images for ${projectImage}:`, error.message);
+    }
+  }
+}
+
 async function optimizeImages(isDev) {
   const srcDir = path.join(process.cwd(), 'src');
   const distDir = isDev ? srcDir : path.join(process.cwd(), 'dist');
@@ -30,6 +191,7 @@ async function optimizeImages(isDev) {
   let totalOriginalSize = 0;
   let totalOptimizedSize = 0;
   let processedCount = 0;
+  const largeProjectImages = [];
 
   for (const pattern of imagePatterns) {
     const files = await glob(pattern, { cwd: process.cwd() });
@@ -54,6 +216,11 @@ async function optimizeImages(isDev) {
         // Get original file size
         const originalStats = fs.statSync(inputPath);
         totalOriginalSize += originalStats.size;
+
+        // Track large project images for responsive generation
+        if (file.includes('src/projects/') && originalStats.size > 500 * 1024) {
+          largeProjectImages.push(file);
+        }
 
         const ext = path.extname(file).toLowerCase();
         const originalExt = path.extname(file);
@@ -300,6 +467,9 @@ async function optimizeImages(isDev) {
     }
   }
 
+  // Generate responsive images for large project images
+  await generateResponsiveProjectImages(isDev, largeProjectImages, srcDir, distDir, cacheDir);
+
   console.log(`\n📊 Image Optimization Complete:`);
   console.log(`   Processed: ${processedCount} images`);
   console.log(`   Original size: ${(totalOriginalSize / 1024 / 1024).toFixed(2)} MB`);
@@ -330,7 +500,10 @@ export function imageOptimizerPlugin() {
       // In dev mode, generate optimized images when server starts
       if (isDev) {
         console.log('🖼️  Generating optimized images for development...');
-        optimizeImages(isDev);
+        optimizeImages(isDev).then(async () => {
+          // After basic optimization, generate responsive project images
+          await generateResponsiveDevImages();
+        });
 
         // Watch for changes to source images and regenerate optimized versions
         const watcher = server.watcher;

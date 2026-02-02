@@ -277,20 +277,6 @@ export default defineConfig({
               source: templateContent
             });
 
-            // Copy project images
-            if (fs.existsSync(project.imagesPath)) {
-              const images = fs.readdirSync(project.imagesPath);
-              for (const image of images) {
-                const imagePath = path.join(project.imagesPath, image);
-                const imageContent = fs.readFileSync(imagePath);
-                this.emitFile({
-                  type: 'asset',
-                  fileName: `assets/projects/${project.slug}/images/${image}`,
-                  source: imageContent
-                });
-              }
-            }
-
           } catch (error) {
             console.error(`Error processing project ${project.slug}:`, error.message);
           }

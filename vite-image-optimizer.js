@@ -25,8 +25,16 @@ function needsRegeneration(sourcePath, optimizedPath) {
   // we can trust the cached files are valid
   const isCi = process.env.CI || process.env.GITHUB_ACTIONS;
   if (isCi) {
-    // In CI, if the optimized file exists, assume it's valid (cache hit means source unchanged)
-    return false;
+    // In CI, still check if the source file is newer than cached file
+    // The cache hit logic should prevent most unnecessary processing
+    try {
+      const sourceStats = fs.statSync(sourcePath);
+      const optimizedStats = fs.statSync(optimizedPath);
+      return sourceStats.mtime > optimizedStats.mtime;
+    } catch (error) {
+      // If we can't check timestamps, assume regeneration is needed
+      return true;
+    }
   }
 
   const sourceStats = fs.statSync(sourcePath);

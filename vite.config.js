@@ -13,8 +13,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'src/index.html'),
-        scheme: resolve(__dirname, 'src/scheme.html'),
-        css: resolve(__dirname, 'src/input.css')
+        scheme: resolve(__dirname, 'src/scheme.html')
       }
     }
   },
@@ -67,6 +66,15 @@ export default defineConfig({
         }
       },
       configureServer(server) {
+        // Watch markdown files and images in dev mode
+        const projects = findProjects();
+        for (const project of projects) {
+          server.watcher.add(project.mdPath);
+          if (fs.existsSync(project.imagesPath)) {
+            server.watcher.add(project.imagesPath);
+          }
+        }
+
         // Handle project pages in dev mode
         server.middlewares.use('/projects', async (req, res, next) => {
           const slug = req.url.replace('/', '').replace('.html', '');
@@ -100,22 +108,10 @@ export default defineConfig({
               templateContent = templateContent.replace(/{{bot_link}}/g, metadata.bot_link || '');
               templateContent = templateContent.replace(/{{date}}/g, metadata.date || '');
 
-              // Fix paths for project pages
-              templateContent = templateContent.replace(
-                /href="index\.html/g,
-                'href="../index.html'
-              );
-              templateContent = templateContent.replace(
-                /href="scheme\.html/g,
-                'href="../scheme.html'
-              );
+              // Fix paths for project pages (dev mode)
               templateContent = templateContent.replace(
                 /src="assets\//g,
-                'src="../assets/'
-              );
-              templateContent = templateContent.replace(
-                /src="common\.js/g,
-                'src="../common.js'
+                'src="/assets/'
               );
 
               // Add cache control meta tags
@@ -150,7 +146,7 @@ export default defineConfig({
           const urlParts = req.url.split('/');
           if (urlParts.length >= 4 && urlParts[2] === 'images') {
             const projectSlug = urlParts[1];
-            const imageName = urlParts[3];
+            const imageName = decodeURIComponent(urlParts[3]); // Decode URL-encoded filenames
 
             const imagePath = path.join(__dirname, 'src', 'projects', projectSlug, 'images', imageName);
             if (fs.existsSync(imagePath)) {
@@ -291,48 +287,20 @@ export default defineConfig({
         }
       }
     },
-    // Plugin for CSS hashing and HTML updates
+    // Plugin to update CSS links in project pages after hashing
     {
-      name: 'css-hash-rewriter',
-      async generateBundle(options, bundle) {
-        // Find CSS file and add hash
+      name: 'update-project-css-links',
+      async writeBundle(options, bundle) {
+        // Find the hashed CSS file
         const cssFile = Object.keys(bundle).find(key => key.endsWith('.css'));
         if (cssFile) {
-          const cssAsset = bundle[cssFile];
-          if (cssAsset.type === 'asset' && typeof cssAsset.source === 'string') {
-            const crypto = await import('crypto');
-            const hash = crypto.default.createHash('md5').update(cssAsset.source).digest('hex').substring(0, 8);
-            const hashedName = `output.${hash}.css`;
-
-            // Rename the CSS file
-            cssAsset.fileName = hashedName;
-
-            // Store the hashed name for later use
-            this.hashedCssName = hashedName;
-          }
-        }
-      },
-      async writeBundle(options, bundle) {
-        // After all files are written, update HTML files
-        if (this.hashedCssName) {
-          const distDir = options.dir || path.join(__dirname, 'dist');
-          const htmlFiles = fs.readdirSync(distDir).filter(file => file.endsWith('.html'));
-
-          for (const htmlFile of htmlFiles) {
-            const filePath = path.join(distDir, htmlFile);
-            let content = fs.readFileSync(filePath, 'utf8');
-            content = content.replace(/href="output\.css"/g, `href="${this.hashedCssName}"`);
-            fs.writeFileSync(filePath, content);
-          }
-
-          // Also update project HTML files
-          const projectsDir = path.join(distDir, 'projects');
+          const projectsDir = path.join(options.dir || path.join(__dirname, 'dist'), 'projects');
           if (fs.existsSync(projectsDir)) {
             const projectFiles = fs.readdirSync(projectsDir).filter(file => file.endsWith('.html'));
             for (const projectFile of projectFiles) {
               const filePath = path.join(projectsDir, projectFile);
               let content = fs.readFileSync(filePath, 'utf8');
-              content = content.replace(/href="output\.css"/g, `href="../${this.hashedCssName}"`);
+              content = content.replace(/href="\.\.\/input\.css"/g, `href="../${cssFile}"`);
               fs.writeFileSync(filePath, content);
             }
           }

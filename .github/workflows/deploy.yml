@@ -32,10 +32,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            dist/assets/**/*.webp
-            dist/assets/**/*.avif
-            dist/assets/projects/**/*.webp
-            dist/assets/projects/**/*.avif
+            .image-cache/**/*.webp
+            .image-cache/**/*.avif
           key: optimized-images-${{ runner.os }}-${{ hashFiles('src/assets/**', 'src/projects/**/images/**') }}
           restore-keys: |
             optimized-images-${{ runner.os }}-

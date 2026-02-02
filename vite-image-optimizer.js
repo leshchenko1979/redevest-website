@@ -14,6 +14,12 @@ function needsRegeneration(sourcePath, formatPath) {
 async function optimizeImages(isDev) {
   const srcDir = path.join(process.cwd(), 'src');
   const distDir = isDev ? srcDir : path.join(process.cwd(), 'dist');
+  const cacheDir = path.join(process.cwd(), '.image-cache');
+
+  // Ensure cache directory exists
+  if (!fs.existsSync(cacheDir)) {
+    fs.mkdirSync(cacheDir, { recursive: true });
+  }
 
   // Find all images in src directory
   const imagePatterns = [
@@ -33,11 +39,16 @@ async function optimizeImages(isDev) {
         const inputPath = path.join(process.cwd(), file);
         const relativePath = path.relative(srcDir, inputPath);
         const outputPath = path.join(distDir, relativePath);
+        const cachePath = path.join(cacheDir, relativePath);
 
-        // Ensure output directory exists
+        // Ensure directories exist
         const outputDir = path.dirname(outputPath);
+        const cacheFileDir = path.dirname(cachePath);
         if (!fs.existsSync(outputDir)) {
           fs.mkdirSync(outputDir, { recursive: true });
+        }
+        if (!fs.existsSync(cacheFileDir)) {
+          fs.mkdirSync(cacheFileDir, { recursive: true });
         }
 
         // Get original file size
@@ -58,118 +69,142 @@ async function optimizeImages(isDev) {
         if (['.jpg', '.jpeg'].includes(ext)) {
           // Generate optimized JPEG (only in build mode)
           if (!isDev) {
-            await sharp(inputPath)
-              .jpeg({
-                quality: 85,
-                progressive: true,
-                mozjpeg: true
-              })
-              .toFile(outputPath);
+            const cachedJpeg = path.join(cacheFileDir, `${baseName}${originalExt}`);
+            if (needsRegeneration(inputPath, cachedJpeg)) {
+              await sharp(inputPath)
+                .jpeg({
+                  quality: 85,
+                  progressive: true,
+                  mozjpeg: true
+                })
+                .toFile(cachedJpeg);
+              console.log(`✅ Generated cached JPEG: ${cachedJpeg}`);
+            }
+            // Copy cached version to output
+            fs.copyFileSync(cachedJpeg, outputPath);
           }
 
-          // Generate WebP version (only if needed)
-          const webpPath = path.join(outputDir, `${baseName}.webp`);
-          if (needsRegeneration(inputPath, webpPath)) {
+          // Generate WebP version
+          const webpCachePath = path.join(cacheFileDir, `${baseName}.webp`);
+          const webpOutputPath = path.join(outputDir, `${baseName}.webp`);
+          if (needsRegeneration(inputPath, webpCachePath)) {
             await sharp(inputPath)
               .webp({
                 quality: 85,
                 effort: 4
               })
-              .toFile(webpPath);
-            console.log(`✅ Generated WebP: ${webpPath}`);
+              .toFile(webpCachePath);
+            console.log(`✅ Generated cached WebP: ${webpCachePath}`);
           } else {
-            console.log(`⏭️  Skipped WebP (cached): ${webpPath}`);
+            console.log(`⏭️  Skipped WebP (cached): ${webpCachePath}`);
           }
+          // Copy cached version to output
+          fs.copyFileSync(webpCachePath, webpOutputPath);
 
-          // Generate AVIF version (only if needed)
-          const avifPath = `${outputDir}/${baseName}.avif`;
-          if (needsRegeneration(inputPath, avifPath)) {
-            console.log(`📝 Generating AVIF: ${baseName} -> ${avifPath}`);
+          // Generate AVIF version
+          const avifCachePath = path.join(cacheFileDir, `${baseName}.avif`);
+          const avifOutputPath = path.join(outputDir, `${baseName}.avif`);
+          if (needsRegeneration(inputPath, avifCachePath)) {
+            console.log(`📝 Generating cached AVIF: ${baseName} -> ${avifCachePath}`);
             try {
-              // Use the full path as-is - sharp should respect the extension
               await sharp(inputPath)
                 .avif({
                   quality: 80,
                   effort: 4
                 })
-                .toFile(avifPath);
-
-              // Verify the file was created with correct name
-              if (fs.existsSync(avifPath)) {
-                console.log(`✅ Generated AVIF: ${avifPath}`);
-              } else {
-                console.error(`❌ AVIF file not found after creation: ${avifPath}`);
-                // Check if it was created with wrong name
-                const dirFiles = fs.readdirSync(outputDir);
-                const avifFiles = dirFiles.filter(f => f.endsWith('.avif') || !f.includes('.'));
-                console.log(`Files in output dir: ${avifFiles.join(', ')}`);
-              }
+                .toFile(avifCachePath);
+              console.log(`✅ Generated cached AVIF: ${avifCachePath}`);
             } catch (error) {
-              console.error(`❌ Error generating AVIF ${avifPath}:`, error.message);
+              console.error(`❌ Error generating AVIF ${avifCachePath}:`, error.message);
             }
           } else {
-            console.log(`⏭️  Skipped AVIF (cached): ${avifPath}`);
+            console.log(`⏭️  Skipped AVIF (cached): ${avifCachePath}`);
+          }
+          // Copy cached version to output
+          if (fs.existsSync(avifCachePath)) {
+            fs.copyFileSync(avifCachePath, avifOutputPath);
           }
 
         } else if (ext === '.png') {
           // Generate optimized PNG (only in build mode)
           if (!isDev) {
-            await sharp(inputPath)
-              .png({
-                quality: 90,
-                compressionLevel: 6,
-                palette: true
-              })
-              .toFile(outputPath);
+            const cachedPng = path.join(cacheFileDir, `${baseName}${originalExt}`);
+            if (needsRegeneration(inputPath, cachedPng)) {
+              await sharp(inputPath)
+                .png({
+                  quality: 90,
+                  compressionLevel: 6,
+                  palette: true
+                })
+                .toFile(cachedPng);
+              console.log(`✅ Generated cached PNG: ${cachedPng}`);
+            }
+            // Copy cached version to output
+            fs.copyFileSync(cachedPng, outputPath);
           }
 
-          // Generate WebP version (only if needed)
-          const webpPathPng = path.join(outputDir, `${baseName}.webp`);
-          if (needsRegeneration(inputPath, webpPathPng)) {
+          // Generate WebP version
+          const webpCachePathPng = path.join(cacheFileDir, `${baseName}.webp`);
+          const webpOutputPathPng = path.join(outputDir, `${baseName}.webp`);
+          if (needsRegeneration(inputPath, webpCachePathPng)) {
             await sharp(inputPath)
               .webp({
                 quality: 90,
                 effort: 4
               })
-              .toFile(webpPathPng);
-            console.log(`✅ Generated WebP: ${webpPathPng}`);
+              .toFile(webpCachePathPng);
+            console.log(`✅ Generated cached WebP: ${webpCachePathPng}`);
           } else {
-            console.log(`⏭️  Skipped WebP (cached): ${webpPathPng}`);
+            console.log(`⏭️  Skipped WebP (cached): ${webpCachePathPng}`);
           }
+          // Copy cached version to output
+          fs.copyFileSync(webpCachePathPng, webpOutputPathPng);
 
-          // Generate AVIF version (only if needed)
-          const avifPathPng = path.join(outputDir, `${baseName}.avif`);
-          if (needsRegeneration(inputPath, avifPathPng)) {
+          // Generate AVIF version
+          const avifCachePathPng = path.join(cacheFileDir, `${baseName}.avif`);
+          const avifOutputPathPng = path.join(outputDir, `${baseName}.avif`);
+          if (needsRegeneration(inputPath, avifCachePathPng)) {
             await sharp(inputPath)
               .avif({
                 quality: 85,
                 effort: 4
               })
-              .toFile(avifPathPng);
-            console.log(`✅ Generated AVIF: ${avifPathPng}`);
+              .toFile(avifCachePathPng);
+            console.log(`✅ Generated cached AVIF: ${avifCachePathPng}`);
           } else {
-            console.log(`⏭️  Skipped AVIF (cached): ${avifPathPng}`);
+            console.log(`⏭️  Skipped AVIF (cached): ${avifCachePathPng}`);
           }
+          // Copy cached version to output
+          fs.copyFileSync(avifCachePathPng, avifOutputPathPng);
 
         } else if (ext === '.webp') {
           // Copy WebP as-is (only in build mode)
           if (!isDev) {
-            fs.copyFileSync(inputPath, outputPath);
+            const cachedWebp = path.join(cacheFileDir, `${baseName}${originalExt}`);
+            if (needsRegeneration(inputPath, cachedWebp)) {
+              fs.copyFileSync(inputPath, cachedWebp);
+              console.log(`✅ Cached WebP: ${cachedWebp}`);
+            }
+            // Copy cached version to output
+            fs.copyFileSync(cachedWebp, outputPath);
           }
 
-              // Generate AVIF version (only if needed)
-              const avifPathWebp = path.join(outputDir, `${baseName}.avif`);
-              if (needsRegeneration(inputPath, avifPathWebp)) {
-                await sharp(inputPath)
-                  .avif({
-                    quality: 85,
-                    effort: 4
-                  })
-                  .toFile(avifPathWebp);
-                console.log(`✅ Generated AVIF: ${avifPathWebp}`);
-              } else {
-                console.log(`⏭️  Skipped AVIF (cached): ${avifPathWebp}`);
-              }
+          // Generate AVIF version
+          const avifCachePathWebp = path.join(cacheFileDir, `${baseName}.avif`);
+          const avifOutputPathWebp = path.join(outputDir, `${baseName}.avif`);
+          if (needsRegeneration(inputPath, avifCachePathWebp)) {
+            await sharp(inputPath)
+              .avif({
+                quality: 85,
+                effort: 4
+              })
+              .toFile(avifCachePathWebp);
+            console.log(`✅ Generated cached AVIF: ${avifCachePathWebp}`);
+          } else {
+            console.log(`⏭️  Skipped AVIF (cached): ${avifCachePathWebp}`);
+          }
+          // Copy cached version to output
+          fs.copyFileSync(avifCachePathWebp, avifOutputPathWebp);
         }
 
         // Get optimized file size (for build mode statistics)
@@ -222,17 +257,24 @@ async function optimizeImages(isDev) {
     if (fs.existsSync(path.join(process.cwd(), heroImage))) {
       const relativePath = path.relative(srcDir, heroImage);
       const outputDir = path.join(distDir, path.dirname(relativePath));
+      const cacheHeroDir = path.join(cacheDir, path.dirname(relativePath));
       const baseName = path.basename(heroImage, path.extname(heroImage));
+
+      // Ensure cache directory exists
+      if (!fs.existsSync(cacheHeroDir)) {
+        fs.mkdirSync(cacheHeroDir, { recursive: true });
+      }
 
       try {
         const inputPath = path.join(process.cwd(), heroImage);
 
-        // Generate responsive sizes (only if needed)
+        // Generate responsive sizes
         const sizes = [400, 800, 1200, 1600];
 
         for (const size of sizes) {
+          const cachePath = path.join(cacheHeroDir, `${baseName}-${size}.webp`);
           const outputPath = path.join(outputDir, `${baseName}-${size}.webp`);
-          if (needsRegeneration(inputPath, outputPath)) {
+          if (needsRegeneration(inputPath, cachePath)) {
             await sharp(inputPath)
               .resize(size, null, {
                 withoutEnlargement: true,
@@ -242,11 +284,13 @@ async function optimizeImages(isDev) {
                 quality: 85,
                 effort: 4
               })
-              .toFile(outputPath);
-            console.log(`✅ Generated responsive: ${outputPath}`);
+              .toFile(cachePath);
+            console.log(`✅ Generated cached responsive: ${cachePath}`);
           } else {
-            console.log(`⏭️  Skipped responsive (cached): ${outputPath}`);
+            console.log(`⏭️  Skipped responsive (cached): ${cachePath}`);
           }
+          // Copy cached version to output
+          fs.copyFileSync(cachePath, outputPath);
         }
 
         console.log(`📱 Generated responsive images for: ${heroImage}`);

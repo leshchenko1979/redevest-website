@@ -35,6 +35,8 @@ __pycache__/
 # Optimized images (generated during build)
 **/*.webp
 **/*.avif
+# Image cache directory
+.image-cache/
 # Extensionless image files (corrupted generated files)
 src/assets/[!.]*
 src/projects/**/images/[!.]*

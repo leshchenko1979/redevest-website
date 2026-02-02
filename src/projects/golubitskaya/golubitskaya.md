@@ -81,10 +81,10 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 
 [[columns]]
 [[column]]
-![Туапсинский район](images/Туапсе.jfif)
+![Туапсинский район](images/Туапсе_fixed.jpg)
 <p align="center"><small>Туапсинский район, Черное море</small></p>
 [[column]]
-![Пляж Голубицкая 1](images/пляж1.jfif)
+![Пляж Голубицкая 1](images/пляж1_fixed.jpg)
 <p align="center"><small>Голубицкая, Азовское море</small></p>
 [[/columns]]
 

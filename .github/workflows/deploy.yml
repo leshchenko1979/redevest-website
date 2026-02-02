@@ -32,6 +32,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
+            .image-cache/**/*.jpg
+            .image-cache/**/*.jpeg
+            .image-cache/**/*.png
             .image-cache/**/*.webp
             .image-cache/**/*.avif
           key: optimized-images-${{ runner.os }}-${{ hashFiles('src/assets/**', 'src/projects/**/images/**') }}

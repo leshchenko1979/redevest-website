@@ -114,7 +114,7 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 
 ![План участка с охранными зонами](images/plan-zones.png)
 
-![Генеральный план участка](images/site-plan.png)
+![Генеральный план участка](images/site-plan.avif)
 
 ## Охранные зоны и решения
 

@@ -92,9 +92,9 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 
 Сейчас в Анапе и окрестностях происходит рост цен на недвижимость на 44%, что подтверждают эксперты рынка:
 
-<div style="max-width: 600px; margin: 0 auto;">
+<div style="max-width: 400px; margin: 0 auto;">
 
-![Экспертное мнение](images/роп_small.jpg)
+![Экспертное мнение](images/роп_mini.jpg)
 
 </div>
 

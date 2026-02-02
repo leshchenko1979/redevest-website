@@ -22,3 +22,9 @@ function toggleMobileMenu() {
         button.setAttribute('aria-expanded', !isOpen);
     }
 }
+
+// Make function globally available for onclick attributes
+window.toggleMobileMenu = toggleMobileMenu;
+
+// Export for potential module usage
+export { toggleMobileMenu };

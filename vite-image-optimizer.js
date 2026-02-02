@@ -639,7 +639,14 @@ export function imageOptimizerPlugin() {
 
     async generateBundle(options, bundle) {
       emitFile = this.emitFile.bind(this);
-      await optimizeImages(isDev, emitFile);
+
+      // Check if optimization is needed (skip if cache is valid in CI)
+      const needsOpt = await needsOptimization(isDev);
+      if (needsOpt) {
+        await optimizeImages(isDev, emitFile);
+      } else {
+        console.log('🖼️  Optimized images are up to date, skipping generation');
+      }
     }
   };
 }

@@ -205,7 +205,7 @@ function fixImagePaths(html, projectSlug) {
   return html.replace(/<img([^>]*?)src="([^"]*)"([^>]*?)>/g, (match, beforeSrc, src, afterSrc) => {
     // Only process relative paths that start with images/
     if (src.startsWith('images/') || src.startsWith('./images/')) {
-      const basePath = `../projects/${projectSlug}/${src.replace('./', '')}`;
+      const basePath = `/projects/${projectSlug}/${src.replace('./', '')}`;
       const attrs = extractImageAttributes(match);
       return createPictureElement(basePath, attrs);
     }

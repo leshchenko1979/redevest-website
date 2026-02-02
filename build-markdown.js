@@ -72,7 +72,7 @@ function fixImagePaths(html, projectSlug) {
     // Если путь относительный (начинается с images/ или ./images/)
     if (src.startsWith('images/') || src.startsWith('./images/')) {
       // Преобразуем в путь относительно dist/projects/
-      const basePath = `../assets/projects/${projectSlug}/${src.replace('./', '')}`;
+      const basePath = `../projects/${projectSlug}/${src.replace('./', '')}`;
       const pathWithoutExt = basePath.replace(/\.[^.]+$/, '');
       const ext = basePath.split('.').pop().toLowerCase();
 
@@ -84,12 +84,30 @@ function fixImagePaths(html, projectSlug) {
       const classMatch = match.match(/class="([^"]*)"/);
       const classAttr = classMatch ? ` class="${classMatch[1]}"` : '';
 
-      // Создаем picture элемент с современными форматами
-      const pictureHtml = `<picture>
+      // Проверяем, существуют ли responsive версии изображений
+      const fs = require('fs');
+      const path = require('path');
+      // В dev режиме проверяем в src/assets/projects, в prod - в dist/assets/projects
+      const isDev = process.env.NODE_ENV !== 'production';
+      const assetsDir = isDev ? '../src/assets' : '../dist/assets';
+      const responsiveWebpExists = fs.existsSync(path.join(__dirname, assetsDir, `${pathWithoutExt}-800.webp`));
+
+      let pictureHtml;
+      if (responsiveWebpExists) {
+        // Создаем picture элемент с responsive images
+        pictureHtml = `<picture>
+  <source srcset="${pathWithoutExt}-800.avif 800w, ${pathWithoutExt}-1200.avif 1200w, ${pathWithoutExt}-1600.avif 1600w" sizes="(max-width: 768px) 800px, (max-width: 1200px) 1200px, 1600px" type="image/avif">
+  <source srcset="${pathWithoutExt}-800.webp 800w, ${pathWithoutExt}-1200.webp 1200w, ${pathWithoutExt}-1600.webp 1600w" sizes="(max-width: 768px) 800px, (max-width: 1200px) 1200px, 1600px" type="image/webp">
+  <img src="${basePath}" alt="${alt}" loading="${loading}"${classAttr}>
+</picture>`;
+      } else {
+        // Создаем picture элемент без responsive images
+        pictureHtml = `<picture>
   <source srcset="${pathWithoutExt}.avif" type="image/avif">
   <source srcset="${pathWithoutExt}.webp" type="image/webp">
   <img src="${basePath}" alt="${alt}" loading="${loading}"${classAttr}>
 </picture>`;
+      }
 
       return pictureHtml;
     }

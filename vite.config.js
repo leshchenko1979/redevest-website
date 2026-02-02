@@ -94,10 +94,19 @@ export default defineConfig({
               templateContent = templateContent.replace(
                 /<!-- @include ([^>]+) -->/g,
                 (match, partialPath) => {
-                  const partialFile = path.join(__dirname, 'src', partialPath);
+                  // Handle both relative paths (partials/) and absolute paths (from src/)
+                  let partialFile;
+                  if (partialPath.startsWith('partials/')) {
+                    partialFile = path.join(__dirname, 'src', partialPath);
+                  } else {
+                    // Assume it's a partial name, add .html extension
+                    partialFile = path.join(__dirname, 'src', 'partials', partialPath.endsWith('.html') ? partialPath : partialPath + '.html');
+                  }
+
                   if (fs.existsSync(partialFile)) {
                     return fs.readFileSync(partialFile, 'utf8');
                   }
+                  console.warn(`Warning: Partial "${partialPath}" not found at "${partialFile}"`);
                   return match;
                 }
               );
@@ -113,6 +122,10 @@ export default defineConfig({
               templateContent = templateContent.replace(
                 /src="assets\//g,
                 'src="/assets/'
+              );
+              templateContent = templateContent.replace(
+                /src="common\.js/g,
+                'src="/common.js'
               );
 
               // Add cache control meta tags

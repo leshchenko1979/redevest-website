@@ -752,6 +752,29 @@
     @apply w-full border-collapse border-2 border-gray-500 rounded-sm my-6 overflow-hidden text-sm shadow-sm;
   }
 
+  /* Responsive table scrolling on mobile */
+  @media (max-width: 768px) {
+    .notion-table {
+      @apply block max-w-none;
+      min-width: fit-content;
+      /* Allow table to be as wide as its content needs */
+      width: auto;
+      /* Let table size itself based on content */
+    }
+
+    /* Container for table scrolling - prevents overflow beyond page width */
+    .notion-table-container {
+      @apply overflow-x-auto w-full;
+      max-width: 100%;
+      /* Ensure container doesn't exceed page width */
+      white-space: normal;
+      /* Allow text wrapping in description columns */
+      word-wrap: break-word;
+      /* Break long words if necessary */
+    }
+
+  }
+
   .notion-table th {
     @apply bg-gray-100 border border-gray-300 px-4 py-3 text-left font-semibold text-primary;
   }

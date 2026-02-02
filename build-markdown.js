@@ -99,8 +99,9 @@ async function processMarkdownFile(filePath, projectSlug) {
     // Конвертируем markdown в HTML с помощью marked
     let html = marked.parse(processedContent);
 
-    // Добавляем классы к таблицам
-    html = html.replace(/<table>/g, '<table class="notion-table">');
+    // Добавляем классы к таблицам и оборачиваем в контейнер для скроллинга
+    html = html.replace(/<table>/g, '<div class="notion-table-container"><table class="notion-table">');
+    html = html.replace(/<\/table>/g, '</table></div>');
 
     // Исправляем пути изображений
     const fixedHtml = fixImagePaths(html, projectSlug);

@@ -126,18 +126,13 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 [[columns]]
 [[column]]
 ![Пример интерьера 1](images/IMG_9519.JPG)
+![Пример интерьера 3](images/IMG_9516.JPG)
 [[column]]
 ![Пример интерьера 2](images/IMG_9515.JPG)
+![Пример интерьера 4](images/IMG_9506.JPG)
 [[/columns]]
 
 **А вот реальные фотографии текущего состояния и процесса работ:**
-
-[[columns]]
-[[column]]
-![Реальное фото 1](images/IMG_9516.JPG)
-[[column]]
-![Реальное фото 2](images/IMG_9506.JPG)
-[[/columns]]
 
 [[columns]]
 [[column]]

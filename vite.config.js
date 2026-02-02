@@ -13,7 +13,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'src/index.html'),
-        scheme: resolve(__dirname, 'src/scheme.html')
+        scheme: resolve(__dirname, 'src/scheme.html'),
+        common: resolve(__dirname, 'src/common.js')
       }
     }
   },
@@ -296,23 +297,32 @@ export default defineConfig({
         }
       }
     },
-    // Plugin to update CSS links in project pages after hashing
+    // Plugin to update CSS and JS links in project pages after hashing
     {
-      name: 'update-project-css-links',
+      name: 'update-project-css-js-links',
       async writeBundle(options, bundle) {
-        // Find the hashed CSS file
-        const cssFile = Object.keys(bundle).find(key => key.endsWith('.css'));
-        if (cssFile) {
-          const projectsDir = path.join(options.dir || path.join(__dirname, 'dist'), 'projects');
-          if (fs.existsSync(projectsDir)) {
-            const projectFiles = fs.readdirSync(projectsDir).filter(file => file.endsWith('.html'));
-            for (const projectFile of projectFiles) {
-              const filePath = path.join(projectsDir, projectFile);
-              let content = fs.readFileSync(filePath, 'utf8');
-              content = content.replace(/href="\.\.\/input\.css"/g, `href="../${cssFile}"`);
-              fs.writeFileSync(filePath, content);
-            }
+        const projectsDir = path.join(options.dir || path.join(__dirname, 'dist'), 'projects');
+        if (!fs.existsSync(projectsDir)) return;
+
+        const projectFiles = fs.readdirSync(projectsDir).filter(file => file.endsWith('.html'));
+
+        for (const projectFile of projectFiles) {
+          const filePath = path.join(projectsDir, projectFile);
+          let content = fs.readFileSync(filePath, 'utf8');
+
+          // Update CSS links
+          const cssFile = Object.keys(bundle).find(key => key.endsWith('.css'));
+          if (cssFile) {
+            content = content.replace(/href="\.\.\/input\.css"/g, `href="../${cssFile}"`);
           }
+
+          // Update JS links
+          const jsFile = Object.keys(bundle).find(key => key.includes('common') && key.endsWith('.js'));
+          if (jsFile) {
+            content = content.replace(/src="\.\.\/common\.js"/g, `src="../${jsFile}"`);
+          }
+
+          fs.writeFileSync(filePath, content);
         }
       }
     }

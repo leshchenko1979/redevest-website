@@ -90,11 +90,6 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 
 ![Пляж Голубицкая 2](images/пляж%20голуб.jpg)
 
-[[callout | tip]]
-| **Инсайд:** планируется строительство дублера Крымского моста, что еще сильнее увеличит поток отдыхающих именно через Голубицкую. 
-| 
-| ![Анализ рынка](images/роп.jpg)
-
 ## Инвестиционные преимущества
 
 - Низкий порог входа и высокая ликвидность
@@ -172,7 +167,7 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 
 ## Контакты
 
-![Ксения Дорофеева](images/BeautyPlus_20210922154159771_save.jpg)
+<img src="images/BeautyPlus_20210922154159771_save.jpg" alt="Ксения Дорофеева" style="width: 200px; height: auto; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
 
 ### Ксения Дорофеева
 Менеджер по продажам

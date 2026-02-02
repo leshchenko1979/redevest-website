@@ -67,6 +67,24 @@ export default defineConfig({
             this.addWatchFile(project.imagesPath);
           }
         }
+
+        // Watch template dependencies
+        this.addWatchFile(path.join(__dirname, 'src', 'templates', 'project.html'));
+        this.addWatchFile(path.join(__dirname, 'src', 'input.css'));
+        this.addWatchFile(path.join(__dirname, 'src', 'common.js'));
+        this.addWatchFile(path.join(__dirname, 'src', 'assets', 'favicon.png'));
+
+        // Watch all partials
+        const partialsDir = path.join(__dirname, 'src', 'partials');
+        if (fs.existsSync(partialsDir)) {
+          const partials = fs.readdirSync(partialsDir, { recursive: true });
+          for (const partial of partials) {
+            const partialPath = path.join(partialsDir, partial);
+            if (fs.statSync(partialPath).isFile() && partial.endsWith('.html')) {
+              this.addWatchFile(partialPath);
+            }
+          }
+        }
       },
       configureServer(server) {
         // Watch markdown files and images in dev mode

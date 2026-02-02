@@ -346,6 +346,51 @@ export default defineConfig({
           fs.writeFileSync(filePath, content);
         }
       }
+    },
+    // Plugin to update JS links in main index.html after hashing
+    {
+      name: 'update-main-js-links',
+      async writeBundle(options, bundle) {
+        const indexPath = path.join(options.dir || path.join(__dirname, 'dist'), 'index.html');
+        if (!fs.existsSync(indexPath)) return;
+
+        let content = fs.readFileSync(indexPath, 'utf8');
+
+        // Update common.js reference
+        const jsFile = Object.keys(bundle).find(key => key.includes('common') && key.endsWith('.js'));
+        if (jsFile) {
+          content = content.replace(/src="common\.js"/g, `src="${jsFile}"`);
+        }
+
+        // Update favicon references
+        const faviconFiles = Object.keys(bundle).filter(key =>
+          key.includes('favicon') && (key.endsWith('.png') || key.endsWith('.ico'))
+        );
+
+        // Update preload link
+        const mainFavicon = faviconFiles.find(key => key.includes('favicon') && !key.includes('-'));
+        if (mainFavicon) {
+          content = content.replace(/href="assets\/favicon\.png"/g, `href="assets/${mainFavicon}"`);
+        }
+
+        // Update icon links
+        const favicon16 = faviconFiles.find(key => key.includes('favicon-16x16'));
+        if (favicon16) {
+          content = content.replace(/href="assets\/favicon-16x16\.png"/g, `href="assets/${favicon16}"`);
+        }
+
+        const favicon32 = faviconFiles.find(key => key.includes('favicon-32x32'));
+        if (favicon32) {
+          content = content.replace(/href="assets\/favicon-32x32\.png"/g, `href="assets/${favicon32}"`);
+        }
+
+        const appleTouch = faviconFiles.find(key => key.includes('apple-touch-icon'));
+        if (appleTouch) {
+          content = content.replace(/href="assets\/apple-touch-icon\.png"/g, `href="assets/${appleTouch}"`);
+        }
+
+        fs.writeFileSync(indexPath, content);
+      }
     }
   ]
 });

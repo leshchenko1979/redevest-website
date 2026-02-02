@@ -84,7 +84,7 @@ bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 
 ## Предмет залога
 
-![Земельный участок Лунёвские ворота](images/image.png)
+<img src="images/image.png" alt="Земельный участок Лунёвские ворота" style="max-width: 100%; height: auto; width: 600px;">
 
 [[columns]]
 [[column]]

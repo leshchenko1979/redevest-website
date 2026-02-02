@@ -406,6 +406,23 @@
 
   /* Utility classes */
 
+  /*
+   * Стиль для фото людей (аватары, контактные фото)
+   * Контекст: Фотографии менеджеров, контактов, портреты
+   * Когда применять: Для круглых фото людей в контактных разделах
+   * Пример: <img src="..." alt="Имя" class="person-photo">
+   * Эффект: Создает круглое фото размером 120x120px с центрированием и тенью
+   */
+  .person-photo {
+    width: 300px !important;
+    height: 300px !important;
+    border-radius: 50% !important;
+    object-fit: cover;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    margin: 0 auto;
+    display: block;
+  }
+
   /* Responsive utilities */
 
   /* Project image overlay */

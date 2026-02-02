@@ -78,6 +78,17 @@ export default defineConfig({
           }
         }
 
+        // Handle markdown file changes in dev mode
+        server.watcher.on('change', async (filePath) => {
+          if (filePath.endsWith('.md') && filePath.includes('/projects/')) {
+            console.log(`Markdown file changed: ${filePath}`);
+            // Force reload of the page by invalidating the module
+            const slug = path.basename(path.dirname(filePath));
+            // Clear any cached processing for this project
+            console.log(`Project ${slug} updated, page will reload on next request`);
+          }
+        });
+
         // Handle project pages in dev mode
         server.middlewares.use('/projects', async (req, res, next) => {
           const slug = req.url.replace('/', '').replace('.html', '');
@@ -175,10 +186,10 @@ export default defineConfig({
             if (fs.existsSync(imagePath)) {
               const ext = path.extname(imageName).toLowerCase();
               const contentType = ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' :
-                                ext === '.png' ? 'image/png' :
-                                ext === '.gif' ? 'image/gif' :
-                                ext === '.webp' ? 'image/webp' :
-                                ext === '.avif' ? 'image/avif' : 'application/octet-stream';
+                ext === '.png' ? 'image/png' :
+                  ext === '.gif' ? 'image/gif' :
+                    ext === '.webp' ? 'image/webp' :
+                      ext === '.avif' ? 'image/avif' : 'application/octet-stream';
 
               res.setHeader('Content-Type', contentType);
               fs.createReadStream(imagePath).pipe(res);

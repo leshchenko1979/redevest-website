@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    content: ["./src/**/*.{html,js}", "./dist/**/*.html"],
+    content: ["./src/**/*.{html,js,md}", "./dist/**/*.html"],
     safelist: [
         'notion-columns',
         'notion-column',
@@ -40,6 +40,17 @@ module.exports = {
         'text-2xl',
         'flex-shrink-0',
         'mr-4',
+        'person-photo',
+        'w-[120px]',
+        'h-[120px]',
+        'w-[300px]',
+        'h-[300px]',
+        'rounded-full',
+        'object-cover',
+        'shadow-lg',
+        'mx-auto',
+        'block',
+        '!rounded-full',
     ],
     darkMode: 'class',
     theme: {

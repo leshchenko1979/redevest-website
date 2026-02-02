@@ -31,3 +31,13 @@ Desktop.ini
 *.tmp
 *.temp
 __pycache__/
+
+# Optimized images (generated during build)
+**/*.webp
+**/*.avif
+# Extensionless image files (corrupted generated files)
+src/assets/[!.]*
+src/projects/**/images/[!.]*
+# But keep source images
+!src/assets/*.{jpg,jpeg,png,gif}
+!src/projects/**/images/*.{jpg,jpeg,png,gif}

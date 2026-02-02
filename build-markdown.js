@@ -62,18 +62,36 @@ function processCustomBlocks(content) {
 }
 
 /**
- * Функция для преобразования путей изображений в HTML
+ * Функция для преобразования путей изображений в HTML с поддержкой современных форматов
  * @param {string} html - HTML контент
  * @param {string} projectSlug - Slug проекта
- * @returns {string} HTML с исправленными путями
+ * @returns {string} HTML с исправленными путями и современными форматами
  */
 function fixImagePaths(html, projectSlug) {
-  return html.replace(/src="([^"]*)"/g, (match, src) => {
+  return html.replace(/<img([^>]*?)src="([^"]*)"([^>]*?)>/g, (match, beforeSrc, src, afterSrc) => {
     // Если путь относительный (начинается с images/ или ./images/)
     if (src.startsWith('images/') || src.startsWith('./images/')) {
       // Преобразуем в путь относительно dist/projects/
-      const newSrc = `../assets/projects/${projectSlug}/${src.replace('./', '')}`;
-      return `src="${newSrc}"`;
+      const basePath = `../assets/projects/${projectSlug}/${src.replace('./', '')}`;
+      const pathWithoutExt = basePath.replace(/\.[^.]+$/, '');
+      const ext = basePath.split('.').pop().toLowerCase();
+
+      // Извлекаем alt текст и другие атрибуты
+      const altMatch = match.match(/alt="([^"]*)"/);
+      const alt = altMatch ? altMatch[1] : '';
+      const loadingMatch = match.match(/loading="([^"]*)"/);
+      const loading = loadingMatch ? loadingMatch[1] : 'lazy';
+      const classMatch = match.match(/class="([^"]*)"/);
+      const classAttr = classMatch ? ` class="${classMatch[1]}"` : '';
+
+      // Создаем picture элемент с современными форматами
+      const pictureHtml = `<picture>
+  <source srcset="${pathWithoutExt}.avif" type="image/avif">
+  <source srcset="${pathWithoutExt}.webp" type="image/webp">
+  <img src="${basePath}" alt="${alt}" loading="${loading}"${classAttr}>
+</picture>`;
+
+      return pictureHtml;
     }
     return match;
   });

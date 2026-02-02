@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { processMarkdownFile, findProjects } from './build-markdown.js';
 import sharp from 'sharp';
+import { imageOptimizerPlugin } from './vite-image-optimizer.js';
 
 export default defineConfig({
   root: 'src',
@@ -23,6 +24,7 @@ export default defineConfig({
     open: true
   },
   plugins: [
+    imageOptimizerPlugin(),
     // Plugin for HTML includes and CSS references
     {
       name: 'html-includes',
@@ -162,12 +164,21 @@ export default defineConfig({
             const projectSlug = urlParts[1];
             const imageName = decodeURIComponent(urlParts[3]); // Decode URL-encoded filenames
 
-            const imagePath = path.join(__dirname, 'src', 'projects', projectSlug, 'images', imageName);
+            // First try to serve optimized images from src/assets/projects/
+            let imagePath = path.join(__dirname, 'src', 'assets', 'projects', projectSlug, 'images', imageName);
+
+            // Fall back to original images in src/projects/
+            if (!fs.existsSync(imagePath)) {
+              imagePath = path.join(__dirname, 'src', 'projects', projectSlug, 'images', imageName);
+            }
+
             if (fs.existsSync(imagePath)) {
               const ext = path.extname(imageName).toLowerCase();
               const contentType = ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' :
                                 ext === '.png' ? 'image/png' :
-                                ext === '.gif' ? 'image/gif' : 'application/octet-stream';
+                                ext === '.gif' ? 'image/gif' :
+                                ext === '.webp' ? 'image/webp' :
+                                ext === '.avif' ? 'image/avif' : 'application/octet-stream';
 
               res.setHeader('Content-Type', contentType);
               fs.createReadStream(imagePath).pipe(res);

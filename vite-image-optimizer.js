@@ -279,7 +279,7 @@ async function optimizeImages(isDev, emitFile = null) {
 
   const formats = ['.jpg', '.jpeg', '.png', '.webp'];
   const assetFiles = findFiles(path.join(srcDir, 'assets'), formats);
-  const projectFiles = findFiles(path.join(srcDir, 'projects'), formats).filter(f => f.includes('/images/'));
+  const projectFiles = findFiles(path.join(srcDir, 'projects'), formats).filter(f => f.includes(`${path.sep}images${path.sep}`) || f.includes('/images/'));
 
   const allFiles = [...assetFiles, ...projectFiles];
   const largeProjectImages = [];

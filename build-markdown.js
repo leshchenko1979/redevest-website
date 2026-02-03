@@ -132,15 +132,15 @@ const RESPONSIVE_SIZES = [
 
 // HTML templates for picture elements
 const PICTURE_TEMPLATES = {
-  responsive: (pathWithoutExt, alt, loading, classAttr) => `<picture>
+  responsive: (pathWithoutExt, ext, alt, loading, classAttr) => `<picture>
   <source srcset="${pathWithoutExt}-800.avif 800w, ${pathWithoutExt}-1200.avif 1200w, ${pathWithoutExt}-1600.avif 1600w" sizes="(max-width: 768px) 800px, (max-width: 1200px) 1200px, 1600px" type="image/avif">
   <source srcset="${pathWithoutExt}-800.webp 800w, ${pathWithoutExt}-1200.webp 1200w, ${pathWithoutExt}-1600.webp 1600w" sizes="(max-width: 768px) 800px, (max-width: 1200px) 1200px, 1600px" type="image/webp">
-  <img src="${pathWithoutExt}.jpg" alt="${alt}" loading="${loading}"${classAttr}>
+  <img src="${pathWithoutExt}${ext}" alt="${alt}" loading="${loading}"${classAttr}>
 </picture>`,
-  standard: (pathWithoutExt, alt, loading, classAttr) => `<picture>
+  standard: (pathWithoutExt, ext, alt, loading, classAttr) => `<picture>
   <source srcset="${pathWithoutExt}.avif" type="image/avif">
   <source srcset="${pathWithoutExt}.webp" type="image/webp">
-  <img src="${pathWithoutExt}.jpg" alt="${alt}" loading="${loading}"${classAttr}>
+  <img src="${pathWithoutExt}${ext}" alt="${alt}" loading="${loading}"${classAttr}>
 </picture>`
 };
 
@@ -187,12 +187,13 @@ function hasResponsiveVersions(pathWithoutExt) {
  * @returns {string} HTML picture element
  */
 function createPictureElement(basePath, attrs) {
+  const ext = path.extname(basePath);
   const pathWithoutExt = basePath.replace(/\.[^.]+$/, '');
   const hasResponsive = hasResponsiveVersions(pathWithoutExt);
 
   return hasResponsive
-    ? PICTURE_TEMPLATES.responsive(pathWithoutExt, attrs.alt, attrs.loading, attrs.classAttr)
-    : PICTURE_TEMPLATES.standard(pathWithoutExt, attrs.alt, attrs.loading, attrs.classAttr);
+    ? PICTURE_TEMPLATES.responsive(pathWithoutExt, ext, attrs.alt, attrs.loading, attrs.classAttr)
+    : PICTURE_TEMPLATES.standard(pathWithoutExt, ext, attrs.alt, attrs.loading, attrs.classAttr);
 }
 
 /**

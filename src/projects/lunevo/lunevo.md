@@ -4,7 +4,7 @@ slug: "lunevo"
 bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
 ---
 
-![Лунёвские ворота - логистический парк](images/hero-main.jpg)
+![Лунёвские ворота - логистический парк](images/hero-main.png)
 
 ## Цель финансирования
 

@@ -1,7 +1,7 @@
 ---
 title: "Лунёвские ворота. Займ на строительство логопарка. 45% годовых."
 slug: "lunevo"
-bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
+bot_link: "https://t.me/FlippingInvestBot?start=c1707842038691-ds"
 ---
 
 ![Лунёвские ворота - логистический парк](images/hero-main.png)

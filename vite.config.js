@@ -6,6 +6,83 @@ import { processMarkdownFile, findProjects } from './build-markdown.js';
 import sharp from 'sharp';
 import { imageOptimizerPlugin } from './vite-image-optimizer.js';
 
+const srcDir = path.join(__dirname, 'src');
+const distDir = path.join(__dirname, 'dist');
+
+function getReportInputs() {
+  const reportsDir = path.join(__dirname, 'src', 'reports');
+  if (!fs.existsSync(reportsDir)) return {};
+  const files = fs.readdirSync(reportsDir).filter((f) => f.endsWith('.html'));
+  return Object.fromEntries(
+    files.map((f) => [path.basename(f, '.html'), path.join(reportsDir, f)])
+  );
+}
+
+function replaceIncludes(html) {
+  return html.replace(/<!-- @include ([^>]+) -->/g, (match, partialPath) => {
+    const partialFile = partialPath.startsWith('partials/')
+      ? path.join(srcDir, partialPath)
+      : path.join(srcDir, 'partials', partialPath.endsWith('.html') ? partialPath : partialPath + '.html');
+    if (fs.existsSync(partialFile)) {
+      return fs.readFileSync(partialFile, 'utf8');
+    }
+    console.warn(`Warning: Partial "${partialPath}" not found at "${partialFile}"`);
+    return match;
+  });
+}
+
+function getBundleAssets(bundle) {
+  return {
+    cssFile: Object.keys(bundle).find((k) => k.endsWith('.css')),
+    jsFile: Object.keys(bundle).find((k) => k.includes('common') && k.endsWith('.js')),
+    faviconFiles: Object.keys(bundle).filter(
+      (k) => (k.includes('favicon') || k.includes('apple-touch-icon')) && (k.endsWith('.png') || k.endsWith('.ico'))
+    )
+  };
+}
+
+function applyHashedLinks(content, assets, prefix) {
+  const { cssFile, jsFile, faviconFiles } = assets;
+  const mainFavicon = faviconFiles?.find((k) => k.includes('favicon') && !k.includes('-16x16') && !k.includes('-32x32') && !k.includes('apple-touch-icon'));
+  const favicon16 = faviconFiles?.find((k) => k.includes('favicon-16x16'));
+  const favicon32 = faviconFiles?.find((k) => k.includes('favicon-32x32'));
+  const appleTouch = faviconFiles?.find((k) => k.includes('apple-touch-icon'));
+
+  if (cssFile) {
+    content = content.replace(/href="\.\.\/input\.css"/g, `href="${prefix}${cssFile}"`);
+    content = content.replace(/href="input\.css"/g, `href="${prefix}${cssFile}"`);
+    content = content.replace(/href="\/input\.css"/g, `href="/${cssFile}"`);
+  }
+  if (jsFile) {
+    content = content.replace(/src="\.\.\/common\.js"/g, `src="${prefix}${jsFile}"`);
+    content = content.replace(/src="common\.js"/g, `src="${prefix}${jsFile}"`);
+    content = content.replace(/src="\/common\.js"/g, `src="/${jsFile}"`);
+  }
+  if (mainFavicon) {
+    content = content.replace(/src="\.\.\/assets\/favicon\.png"/g, `src="${prefix}${mainFavicon}"`);
+    content = content.replace(/src="assets\/favicon\.png"/g, `src="${prefix}${mainFavicon}"`);
+    content = content.replace(/href="\.\.\/assets\/favicon\.png"/g, `href="${prefix}${mainFavicon}"`);
+    content = content.replace(/href="assets\/favicon\.png"/g, `href="${prefix}${mainFavicon}"`);
+    content = content.replace(/href="\/assets\/favicon\.png"/g, `href="/${mainFavicon}"`);
+  }
+  if (favicon16) {
+    content = content.replace(/href="\.\.\/assets\/favicon-16x16\.png"/g, `href="${prefix}${favicon16}"`);
+    content = content.replace(/href="assets\/favicon-16x16\.png"/g, `href="${prefix}${favicon16}"`);
+    content = content.replace(/href="\/assets\/favicon-16x16\.png"/g, `href="/${favicon16}"`);
+  }
+  if (favicon32) {
+    content = content.replace(/href="\.\.\/assets\/favicon-32x32\.png"/g, `href="${prefix}${favicon32}"`);
+    content = content.replace(/href="assets\/favicon-32x32\.png"/g, `href="${prefix}${favicon32}"`);
+    content = content.replace(/href="\/assets\/favicon-32x32\.png"/g, `href="/${favicon32}"`);
+  }
+  if (appleTouch) {
+    content = content.replace(/href="\.\.\/assets\/apple-touch-icon\.png"/g, `href="${prefix}${appleTouch}"`);
+    content = content.replace(/href="assets\/apple-touch-icon\.png"/g, `href="${prefix}${appleTouch}"`);
+    content = content.replace(/href="\/assets\/apple-touch-icon\.png"/g, `href="/${appleTouch}"`);
+  }
+  return content;
+}
+
 export default defineConfig({
   root: 'src',
   build: {
@@ -15,7 +92,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'src/index.html'),
         scheme: resolve(__dirname, 'src/scheme.html'),
-        'fryazino-meeting-2026-02-17': resolve(__dirname, 'src/fryazino-meeting-2026-02-17.html'),
+        ...getReportInputs(),
         common: resolve(__dirname, 'src/common.js')
       }
     }
@@ -26,33 +103,10 @@ export default defineConfig({
   },
   plugins: [
     imageOptimizerPlugin(),
-    // Plugin for HTML includes and CSS references
     {
       name: 'html-includes',
-      transformIndexHtml(html, ctx) {
-        // First handle includes
-        let processedHtml = html.replace(
-          /<!-- @include ([^>]+) -->/g,
-          (match, partialPath) => {
-            // Handle both relative paths (partials/) and absolute paths (from src/)
-            let partialFile;
-            if (partialPath.startsWith('partials/')) {
-              partialFile = path.join(__dirname, 'src', partialPath);
-            } else {
-              // Assume it's a partial name, add .html extension
-              partialFile = path.join(__dirname, 'src', 'partials', partialPath.endsWith('.html') ? partialPath : partialPath + '.html');
-            }
-
-            if (fs.existsSync(partialFile)) {
-              return fs.readFileSync(partialFile, 'utf8');
-            }
-            console.warn(`Warning: Partial "${partialPath}" not found at "${partialFile}"`);
-            return match;
-          }
-        );
-
-        // Handle CSS references - will be updated after build
-        return processedHtml;
+      transformIndexHtml(html) {
+        return replaceIncludes(html);
       }
     },
     // Plugin for Markdown projects
@@ -74,6 +128,14 @@ export default defineConfig({
         this.addWatchFile(path.join(__dirname, 'src', 'input.css'));
         this.addWatchFile(path.join(__dirname, 'src', 'common.js'));
         this.addWatchFile(path.join(__dirname, 'src', 'assets', 'favicon.png'));
+
+        // Watch reports folder
+        const reportsDir = path.join(__dirname, 'src', 'reports');
+        if (fs.existsSync(reportsDir)) {
+          fs.readdirSync(reportsDir).filter((f) => f.endsWith('.html')).forEach((f) => {
+            this.addWatchFile(path.join(reportsDir, f));
+          });
+        }
 
         // Watch all partials
         const partialsDir = path.join(__dirname, 'src', 'partials');
@@ -122,26 +184,7 @@ export default defineConfig({
               const templatePath = path.join(__dirname, 'src', 'templates', 'project.html');
               let templateContent = fs.readFileSync(templatePath, 'utf8');
 
-              // Process template includes
-              templateContent = templateContent.replace(
-                /<!-- @include ([^>]+) -->/g,
-                (match, partialPath) => {
-                  // Handle both relative paths (partials/) and absolute paths (from src/)
-                  let partialFile;
-                  if (partialPath.startsWith('partials/')) {
-                    partialFile = path.join(__dirname, 'src', partialPath);
-                  } else {
-                    // Assume it's a partial name, add .html extension
-                    partialFile = path.join(__dirname, 'src', 'partials', partialPath.endsWith('.html') ? partialPath : partialPath + '.html');
-                  }
-
-                  if (fs.existsSync(partialFile)) {
-                    return fs.readFileSync(partialFile, 'utf8');
-                  }
-                  console.warn(`Warning: Partial "${partialPath}" not found at "${partialFile}"`);
-                  return match;
-                }
-              );
+              templateContent = replaceIncludes(templateContent);
 
               // Replace content
               templateContent = templateContent.replace(/{{title}}/g, metadata.title || project.slug);
@@ -230,26 +273,7 @@ export default defineConfig({
             const templatePath = path.join(__dirname, 'src', 'templates', 'project.html');
             let templateContent = fs.readFileSync(templatePath, 'utf8');
 
-            // Process template includes
-            templateContent = templateContent.replace(
-              /<!-- @include ([^>]+) -->/g,
-              (match, partialPath) => {
-                // Handle both relative paths (partials/) and absolute paths (from src/)
-                let partialFile;
-                if (partialPath.startsWith('partials/')) {
-                  partialFile = path.join(__dirname, 'src', partialPath);
-                } else {
-                  // Assume it's a partial name, add .html extension
-                  partialFile = path.join(__dirname, 'src', 'partials', partialPath.endsWith('.html') ? partialPath : partialPath + '.html');
-                }
-
-                if (fs.existsSync(partialFile)) {
-                  return fs.readFileSync(partialFile, 'utf8');
-                }
-                console.warn(`Warning: Partial "${partialPath}" not found at "${partialFile}"`);
-                return match;
-              }
-            );
+            templateContent = replaceIncludes(templateContent);
 
             // Replace content
             templateContent = templateContent.replace(/{{title}}/g, metadata.title || project.slug);
@@ -337,135 +361,40 @@ export default defineConfig({
         }
       }
     },
-    // Plugin to update CSS and JS links in project pages after hashing
     {
-      name: 'update-project-css-js-links',
+      name: 'update-hashed-links',
       async writeBundle(options, bundle) {
-        const projectsDir = path.join(options.dir || path.join(__dirname, 'dist'), 'projects');
-        if (!fs.existsSync(projectsDir)) return;
+        const dir = options.dir || distDir;
+        const assets = getBundleAssets(bundle);
 
-        const projectFiles = fs.readdirSync(projectsDir).filter(file => file.endsWith('.html'));
-
-        for (const projectFile of projectFiles) {
-          const filePath = path.join(projectsDir, projectFile);
-          let content = fs.readFileSync(filePath, 'utf8');
-
-          // Update CSS links
-          const cssFile = Object.keys(bundle).find(key => key.endsWith('.css'));
-          if (cssFile) {
-            content = content.replace(/href="\.\.\/input\.css"/g, `href="../${cssFile}"`);
-            content = content.replace(/href="\/input\.css"/g, `href="/${cssFile}"`);
+        // Project pages (dist/projects/*.html) use ../ prefix
+        const projectsDir = path.join(dir, 'projects');
+        if (fs.existsSync(projectsDir)) {
+          for (const f of fs.readdirSync(projectsDir).filter((file) => file.endsWith('.html'))) {
+            const filePath = path.join(projectsDir, f);
+            let content = fs.readFileSync(filePath, 'utf8');
+            fs.writeFileSync(filePath, applyHashedLinks(content, assets, '../'));
           }
+        }
 
-          // Update JS links
-          const jsFile = Object.keys(bundle).find(key => key.includes('common') && key.endsWith('.js'));
-          if (jsFile) {
-            content = content.replace(/src="\.\.\/common\.js"/g, `src="../${jsFile}"`);
-            content = content.replace(/src="\/common\.js"/g, `src="/${jsFile}"`);
+        // Report pages (dist/reports/*.html) use / prefix
+        const reportsDir = path.join(dir, 'reports');
+        if (fs.existsSync(reportsDir)) {
+          for (const f of fs.readdirSync(reportsDir).filter((file) => file.endsWith('.html'))) {
+            const filePath = path.join(reportsDir, f);
+            let content = fs.readFileSync(filePath, 'utf8');
+            fs.writeFileSync(filePath, applyHashedLinks(content, assets, '/'));
           }
+        }
 
-          // Update favicon links
-          const faviconFiles = Object.keys(bundle).filter(key =>
-            (key.includes('favicon') || key.includes('apple-touch-icon')) &&
-            (key.endsWith('.png') || key.endsWith('.ico'))
-          );
-
-          const mainFavicon = faviconFiles.find(key =>
-            key.includes('favicon') &&
-            !key.includes('-16x16') &&
-            !key.includes('-32x32') &&
-            !key.includes('apple-touch-icon')
-          );
-
-          if (mainFavicon) {
-            content = content.replace(/src="\.\.\/assets\/favicon\.png"/g, `src="../${mainFavicon}"`);
-            content = content.replace(/src="\/assets\/favicon\.png"/g, `src="/${mainFavicon}"`);
-            content = content.replace(/href="\.\.\/assets\/favicon\.png"/g, `href="../${mainFavicon}"`);
-            content = content.replace(/href="\/assets\/favicon\.png"/g, `href="/${mainFavicon}"`);
+        // Root HTML files (index, scheme) use same-dir prefix
+        for (const name of ['index.html', 'scheme.html']) {
+          const filePath = path.join(dir, name);
+          if (fs.existsSync(filePath)) {
+            let content = fs.readFileSync(filePath, 'utf8');
+            fs.writeFileSync(filePath, applyHashedLinks(content, assets, ''));
           }
-
-          const favicon16 = faviconFiles.find(key => key.includes('favicon-16x16'));
-          if (favicon16) {
-            content = content.replace(/href="\.\.\/assets\/favicon-16x16\.png"/g, `href="../${favicon16}"`);
-            content = content.replace(/href="\/assets\/favicon-16x16\.png"/g, `href="/${favicon16}"`);
-          }
-
-          const favicon32 = faviconFiles.find(key => key.includes('favicon-32x32'));
-          if (favicon32) {
-            content = content.replace(/href="\.\.\/assets\/favicon-32x32\.png"/g, `href="../${favicon32}"`);
-            content = content.replace(/href="\/assets\/favicon-32x32\.png"/g, `href="/${favicon32}"`);
-          }
-
-          const appleTouch = faviconFiles.find(key => key.includes('apple-touch-icon'));
-          if (appleTouch) {
-            content = content.replace(/href="\.\.\/assets\/apple-touch-icon\.png"/g, `href="../${appleTouch}"`);
-            content = content.replace(/href="\/assets\/apple-touch-icon\.png"/g, `href="/${appleTouch}"`);
-          }
-
-          fs.writeFileSync(filePath, content);
         }
-      }
-    },
-    // Plugin to update JS links in main index.html after hashing
-    {
-      name: 'update-main-js-links',
-      async writeBundle(options, bundle) {
-        const indexPath = path.join(options.dir || path.join(__dirname, 'dist'), 'index.html');
-        if (!fs.existsSync(indexPath)) return;
-
-        let content = fs.readFileSync(indexPath, 'utf8');
-
-        // Update common.js reference
-        const jsFile = Object.keys(bundle).find(key => key.includes('common') && key.endsWith('.js'));
-        if (jsFile) {
-          content = content.replace(/src="common\.js"/g, `src="${jsFile}"`);
-          content = content.replace(/src="\/common\.js"/g, `src="/${jsFile}"`);
-        }
-
-        // Update favicon references
-        const faviconFiles = Object.keys(bundle).filter(key =>
-          (key.includes('favicon') || key.includes('apple-touch-icon')) &&
-          (key.endsWith('.png') || key.endsWith('.ico'))
-        );
-
-        // Update preload link - find the main favicon (not size-specific ones)
-        const mainFavicon = faviconFiles.find(key =>
-          key.includes('favicon') &&
-          !key.includes('-16x16') &&
-          !key.includes('-32x32') &&
-          !key.includes('apple-touch-icon')
-        );
-        if (mainFavicon) {
-          content = content.replace(/href="assets\/favicon\.png"/g, `href="${mainFavicon}"`);
-          content = content.replace(/href="\/assets\/favicon\.png"/g, `href="/${mainFavicon}"`);
-        }
-
-        // Update icon links
-        const favicon16 = faviconFiles.find(key => key.includes('favicon-16x16'));
-        if (favicon16) {
-          content = content.replace(/href="assets\/favicon-16x16\.png"/g, `href="${favicon16}"`);
-          content = content.replace(/href="\/assets\/favicon-16x16\.png"/g, `href="/${favicon16}"`);
-        }
-
-        const favicon32 = faviconFiles.find(key => key.includes('favicon-32x32'));
-        if (favicon32) {
-          content = content.replace(/href="assets\/favicon-32x32\.png"/g, `href="${favicon32}"`);
-          content = content.replace(/href="\/assets\/favicon-32x32\.png"/g, `href="/${favicon32}"`);
-        }
-
-        const appleTouch = faviconFiles.find(key => key.includes('apple-touch-icon'));
-        if (appleTouch) {
-          content = content.replace(/href="assets\/apple-touch-icon\.png"/g, `href="${appleTouch}"`);
-          content = content.replace(/href="\/assets\/apple-touch-icon\.png"/g, `href="/${appleTouch}"`);
-        }
-
-        // Update img src references for favicons in header
-        if (mainFavicon) {
-          content = content.replace(/src="assets\/favicon\.png"/g, `src="${mainFavicon}"`);
-          content = content.replace(/src="\/assets\/favicon\.png"/g, `src="/${mainFavicon}"`);
-        }
-
-        fs.writeFileSync(indexPath, content);
       }
     }
   ]

@@ -9,7 +9,7 @@ function processCustomBlocks(content) {
   processed = processed.replace(/\[\[toggle\s*\|\s*(.*?)\]\]\n([\s\S]*?)(?=\n\[\[|\n*$)/g, (match, title, content) => {
     // Сохраняем содержимое как есть, убирая только префиксы |
     const body = content.replace(/^\|\s*/gm, '').trim();
-    return `<details class="notion-toggle">\n<summary>${title}</summary>\n<div>\n${body}\n</div>\n</details>`;
+    return `<details class="content-toggle">\n<summary>${title}</summary>\n<div>\n${body}\n</div>\n</details>`;
   });
 
   // Обработка колонок новый синтаксис
@@ -17,9 +17,9 @@ function processCustomBlocks(content) {
     const columns = content.split(/\[\[column\]\]/).slice(1);
     const columnHtml = columns.map(col => {
       const cleanContent = col.trim().replace(/^\|\s*/gm, '').replace(/^\|\s*/gm, '').replace(/\|\s*$/gm, '').replace(/^\|\s*$/gm, '').trim();
-      return `<div class="notion-column">${cleanContent}</div>`;
+      return `<div class="content-column">${cleanContent}</div>`;
     }).join('');
-    return `<div class="notion-columns">${columnHtml}</div>`;
+    return `<div class="content-columns">${columnHtml}</div>`;
   });
 
   // Обработка колонок старый синтаксис
@@ -29,15 +29,15 @@ function processCustomBlocks(content) {
 
     const columnHtml = columns.map(col => {
       const cleanContent = col.trim().replace(/^\|\s*/gm, '').replace(/^\|\s*/gm, '').replace(/\|\s*$/gm, '').replace(/^\|\s*$/gm, '').trim();
-      return `<div class="notion-column">${cleanContent}</div>`;
+      return `<div class="content-column">${cleanContent}</div>`;
     }).join('');
 
-    return `<div class="notion-columns">${columnHtml}</div>`;
+    return `<div class="content-columns">${columnHtml}</div>`;
   });
 
   // Обработка callout блоков
   processed = processed.replace(/\[\[callout\s*\|\s*(\w+)\]\]\n\|\s*(.*)/g, (match, type, text) => {
-    return `<div class="notion-callout notion-callout-${type}">\n${text}\n</div>`;
+    return `<div class="content-callout content-callout-${type}">\n${text}\n</div>`;
   });
 
   return processed;

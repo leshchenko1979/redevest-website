@@ -19,10 +19,10 @@ const BLOCK_PATTERNS = {
 
 // Constants for HTML templates
 const HTML_TEMPLATES = {
-  toggle: (title, bodyHtml) => `<details class="notion-toggle">\n<summary>${title}</summary>\n<div>\n${bodyHtml}\n</div>\n</details>\n\n`,
-  columns: (columnHtml) => `<div class="notion-columns">${columnHtml}</div>\n\n`,
-  column: (contentHtml) => `<div class="notion-column">${contentHtml}</div>`,
-  callout: (type, textHtml) => `<div class="notion-callout notion-callout-${type}">\n${textHtml}\n</div>\n\n`
+  toggle: (title, bodyHtml) => `<details class="content-toggle">\n<summary>${title}</summary>\n<div>\n${bodyHtml}\n</div>\n</details>\n\n`,
+  columns: (columnHtml) => `<div class="content-columns">${columnHtml}</div>\n\n`,
+  column: (contentHtml) => `<div class="content-column">${contentHtml}</div>`,
+  callout: (type, textHtml) => `<div class="content-callout content-callout-${type}">\n${textHtml}\n</div>\n\n`
 };
 
 /**
@@ -223,7 +223,7 @@ function enhanceHtmlContent(html) {
   let enhanced = html;
 
   // Add classes to tables and wrap in scrollable containers
-  enhanced = enhanced.replace(/<table>/g, '<div class="notion-table-container"><table class="notion-table">');
+  enhanced = enhanced.replace(/<table>/g, '<div class="content-table-container"><table class="content-table">');
   enhanced = enhanced.replace(/<\/table>/g, '</table></div>');
 
   return enhanced;

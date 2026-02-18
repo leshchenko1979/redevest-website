@@ -37,7 +37,7 @@ Content 1
 Content 2
 [[/columns]]`;
 
-      const expected = `<div class="notion-columns"><div class="notion-column">Content 1</div><div class="notion-column">Content 2</div></div>`;
+      const expected = `<div class="content-columns"><div class="content-column">Content 1</div><div class="content-column">Content 2</div></div>`;
 
       const result = processCustomBlocks(input);
       expect(result.trim()).toBe(expected);
@@ -46,7 +46,7 @@ Content 2
     test('should process columns correctly (old syntax)', () => {
       const input = `[[columns]] | [[column]] | | Content 1 | [[column]] | | Content 2`;
 
-      const expected = `<div class="notion-columns"><div class="notion-column">Content 1</div><div class="notion-column">Content 2</div></div>`;
+      const expected = `<div class="content-columns"><div class="content-column">Content 1</div><div class="content-column">Content 2</div></div>`;
 
       const result = processCustomBlocks(input);
       expect(result.trim()).toBe(expected);
@@ -56,7 +56,7 @@ Content 2
       const input = `[[callout | info]]
 | This is an info callout`;
 
-      const expected = `<div class="notion-callout notion-callout-info">
+      const expected = `<div class="content-callout content-callout-info">
 This is an info callout
 </div>`;
 
@@ -69,7 +69,7 @@ This is an info callout
 | Content line 1
 | Content line 2`;
 
-      const expected = `<details class="notion-toggle">
+      const expected = `<details class="content-toggle">
 <summary>Test Title</summary>
 <div>
 Content line 1

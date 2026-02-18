@@ -656,7 +656,7 @@
    * Пример: <div class="content-callout content-callout-info">...</div>
    */
   .content-callout {
-    @apply grid p-6 my-6 rounded-sm border-l-4 bg-surface border;
+    @apply grid p-6 my-6 rounded-lg border-l-4 bg-surface;
     grid-template-columns: auto 1fr;
     gap: 0 1rem;
   }
@@ -670,7 +670,7 @@
   }
 
   .content-callout-info {
-    @apply border-blue-500 bg-blue-50;
+    @apply border-l-blue-500 bg-blue-50;
   }
 
   .content-callout-info::before {
@@ -678,7 +678,7 @@
   }
 
   .content-callout-success {
-    @apply border-green-500 bg-green-50;
+    @apply border-l-green-500 bg-green-50;
   }
 
   .content-callout-success::before {
@@ -686,7 +686,7 @@
   }
 
   .content-callout-warning {
-    @apply border-yellow-500 bg-yellow-50;
+    @apply border-l-yellow-500 bg-yellow-50;
   }
 
   .content-callout-warning::before {
@@ -694,7 +694,7 @@
   }
 
   .content-callout-error {
-    @apply border-red-500 bg-red-50;
+    @apply border-l-red-500 bg-red-50;
   }
 
   .content-callout-error::before {
@@ -702,7 +702,7 @@
   }
 
   .content-callout-accent {
-    @apply border-accent bg-amber-50;
+    @apply border-l-accent bg-amber-50;
   }
 
   .content-callout-accent::before {
@@ -710,7 +710,7 @@
   }
 
   .content-callout-primary {
-    @apply border-primary bg-slate-100;
+    @apply border-l-primary bg-slate-100;
   }
 
   .content-callout-primary::before {

@@ -15,6 +15,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'src/index.html'),
         scheme: resolve(__dirname, 'src/scheme.html'),
+        'fryazino-meeting-2026-02-17': resolve(__dirname, 'src/fryazino-meeting-2026-02-17.html'),
         common: resolve(__dirname, 'src/common.js')
       }
     }

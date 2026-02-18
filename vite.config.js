@@ -8,6 +8,7 @@ import { imageOptimizerPlugin } from './vite-image-optimizer.js';
 
 const srcDir = path.join(__dirname, 'src');
 const distDir = path.join(__dirname, 'dist');
+const SITE_BASE = 'https://www.redevest.ru';
 
 function getReportInputs() {
   const reportsDir = path.join(__dirname, 'src', 'reports');
@@ -395,6 +396,36 @@ export default defineConfig({
             fs.writeFileSync(filePath, applyHashedLinks(content, assets, ''));
           }
         }
+      }
+    },
+    {
+      name: 'sitemap-robots',
+      async generateBundle() {
+        const urls = [`${SITE_BASE}/`, `${SITE_BASE}/scheme.html`];
+
+        const projects = findProjects();
+        for (const p of projects) {
+          urls.push(`${SITE_BASE}/projects/${p.slug}.html`);
+        }
+
+        const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map((loc) => `  <url>
+    <loc>${loc}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>${loc.endsWith('/') ? '1.0' : '0.8'}</priority>
+  </url>`).join('\n')}
+</urlset>`;
+
+        const robots = `User-agent: *
+Allow: /
+Disallow: /reports/
+
+Sitemap: ${SITE_BASE}/sitemap.xml
+`;
+
+        this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: sitemap });
+        this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robots });
       }
     }
   ]

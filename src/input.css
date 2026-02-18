@@ -86,7 +86,7 @@
 
   /* Special button variants */
   .btn-accent-bold {
-    @apply inline-flex items-center justify-center rounded-sm transition-all px-8 py-4 text-base font-bold text-primary bg-accent hover:bg-white shadow-lg hover:shadow-accent/50 hover:-translate-y-0.5;
+    @apply inline-flex items-center justify-center rounded-sm transition-all px-8 py-4 text-base font-bold text-white bg-accent hover:bg-accent/90 shadow-lg hover:shadow-accent/50 hover:-translate-y-0.5;
   }
 
   /* Navigation */
@@ -803,5 +803,229 @@
   .notion-table tr th:first-child,
   .notion-table tr td:first-child {
     @apply bg-gray-100;
+  }
+
+  /*
+   * ===========================================
+   * REPORT / MEETING PAGES (reports/*.html)
+   * ===========================================
+   * Стили для отчётов о встречах с инвесторами.
+   * Применяются к страницам в разделе reports.
+   */
+
+  .meeting-report {
+    @apply font-sans bg-surface text-slate-500 leading-relaxed font-normal py-6 px-4;
+  }
+
+  .meeting-report strong {
+    @apply text-primary font-bold;
+  }
+
+  .meeting-report .report-container {
+    @apply max-w-[760px] mx-auto;
+  }
+
+  .meeting-report .report-header {
+    @apply bg-white rounded-lg p-10 mb-8 shadow-sm border-t-4 border-primary text-center;
+  }
+
+  .meeting-report .header-pre {
+    @apply text-accent uppercase text-[13px] font-bold tracking-wider mb-3;
+  }
+
+  .meeting-report .header-title {
+    @apply text-3xl leading-tight text-primary font-bold mb-4;
+  }
+
+  .meeting-report .header-sub {
+    @apply text-lg text-slate-500 font-normal;
+  }
+
+  .meeting-report .report-meta {
+    @apply mt-4 text-sm text-slate-500;
+  }
+
+  .meeting-report .tags {
+    @apply flex justify-center gap-2 mt-6 flex-wrap;
+  }
+
+  .meeting-report .tag {
+    @apply bg-slate-100 text-primary px-3 py-1 rounded-full text-[13px] font-medium;
+  }
+
+  .meeting-report .report-section {
+    @apply bg-white rounded-lg mb-5 shadow-sm overflow-hidden transition-transform duration-200;
+  }
+
+  .meeting-report .report-section:hover {
+    @apply -translate-y-0.5;
+  }
+
+  .meeting-report .section-header {
+    @apply p-6 flex items-center cursor-pointer;
+  }
+
+  .meeting-report .report-section.collapsed .section-header {
+    @apply border-b-0;
+  }
+
+  .meeting-report .section-icon {
+    @apply w-11 h-11 bg-slate-100 text-primary rounded-xl flex items-center justify-center text-[22px] mr-4 flex-shrink-0;
+  }
+
+  .meeting-report .section-title {
+    @apply text-xl font-bold text-primary flex-1 m-0;
+  }
+
+  .meeting-report .section-toggle {
+    @apply w-6 h-6 flex items-center justify-center text-slate-500 transition-transform duration-300;
+  }
+
+  .meeting-report .report-section.collapsed .section-toggle {
+    @apply -rotate-90;
+  }
+
+  .meeting-report .section-content {
+    @apply px-6 pb-8 text-slate-500 text-base overflow-hidden transition-[max-height] duration-300 ease-out;
+  }
+
+  .meeting-report .report-section.collapsed .section-content {
+    max-height: 0 !important;
+    padding-bottom: 0;
+  }
+
+  .meeting-report p {
+    @apply mb-4;
+  }
+
+  .meeting-report ul,
+  .meeting-report ol {
+    @apply mb-6 pl-6;
+  }
+
+  .meeting-report li {
+    @apply mb-2;
+  }
+
+  /* Report callout: accent (warning/важно) */
+  .meeting-report .report-callout-accent {
+    @apply bg-amber-50 p-6 rounded-xl my-6 border-l-4 border-accent;
+  }
+
+  .meeting-report .report-callout-accent h4 {
+    @apply text-primary m-0 mb-2 text-base flex items-center gap-2;
+  }
+
+  .meeting-report .report-callout-accent h4::before {
+    content: '⚡';
+    @apply text-accent;
+  }
+
+  /* Report callout: primary (info/инсайт) */
+  .meeting-report .report-callout-primary {
+    @apply bg-slate-100 p-6 rounded-xl my-6 border-l-4 border-primary;
+  }
+
+  .meeting-report .report-callout-primary h4 {
+    @apply text-primary m-0 mb-2 text-base flex items-center gap-2;
+  }
+
+  .meeting-report .report-callout-primary h4::before {
+    content: '💎';
+    @apply text-primary;
+  }
+
+  .meeting-report .report-quote {
+    @apply text-lg italic text-primary border-l-4 border-accent pl-5 my-8;
+  }
+
+  .meeting-report .report-quote-author {
+    @apply text-sm text-slate-500 not-italic mt-2 font-medium;
+  }
+
+  .meeting-report .report-checklist {
+    @apply bg-white p-8 rounded-lg mt-10 shadow-sm border-2 border-slate-100;
+  }
+
+  .meeting-report .report-chk-title {
+    @apply text-2xl font-bold text-primary mb-2;
+  }
+
+  .meeting-report .report-chk-desc {
+    @apply text-sm mb-6;
+  }
+
+  .meeting-report .report-chk-group-title {
+    @apply text-xs uppercase tracking-wider text-accent font-bold my-6 mb-3;
+  }
+
+  .meeting-report .report-chk-item {
+    @apply flex gap-4 py-3 border-b border-gray-100;
+  }
+
+  .meeting-report .report-chk-item:last-child {
+    @apply border-b-0;
+  }
+
+  .meeting-report .report-checkbox {
+    @apply w-[22px] h-[22px] border-2 border-slate-500 rounded-md flex-shrink-0 mt-0.5 relative transition-all duration-200;
+  }
+
+  .meeting-report .report-chk-item.checked .report-checkbox {
+    @apply bg-primary border-primary;
+  }
+
+  .meeting-report .report-chk-item.checked .report-checkbox::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .meeting-report .report-chk-text strong {
+    @apply block text-[15px] text-primary transition-colors duration-200;
+  }
+
+  .meeting-report .report-chk-item.checked .report-chk-text strong {
+    @apply text-slate-500 line-through;
+  }
+
+  .meeting-report .report-chk-text span {
+    @apply text-[13px] text-slate-500;
+  }
+
+  .meeting-report .meeting-materials {
+    @apply mt-6 flex flex-wrap gap-3 justify-center;
+  }
+
+  .meeting-report .meeting-materials a {
+    @apply inline-flex items-center gap-2 no-underline;
+  }
+
+  @media (max-width: 600px) {
+    .meeting-report .report-header {
+      @apply p-6 text-left;
+    }
+
+    .meeting-report .header-title {
+      @apply text-2xl;
+    }
+
+    .meeting-report .section-header {
+      @apply p-4;
+    }
+
+    .meeting-report .section-icon {
+      @apply w-9 h-9 text-lg mr-3;
+    }
+
+    .meeting-report .section-content {
+      @apply px-4 pb-6;
+    }
   }
 }

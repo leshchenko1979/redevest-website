@@ -12,366 +12,6 @@
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
     <link href="../input.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <style>
-        /* Meeting report — scoped to avoid conflicts with site styles */
-        .meeting-report {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: #f8fafc;
-            color: #64748b;
-            line-height: 1.65;
-            font-weight: 400;
-            padding: 24px 16px;
-        }
-
-        .meeting-report strong {
-            color: #0f172a;
-            font-weight: 700;
-        }
-
-        .meeting-report .report-container {
-            max-width: 760px;
-            margin: 0 auto;
-        }
-
-        .meeting-report .report-header {
-            background: #fff;
-            border-radius: 8px;
-            padding: 40px;
-            margin-bottom: 32px;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, .06);
-            border-top: 6px solid #0f172a;
-            text-align: center;
-        }
-
-        .meeting-report .header-pre {
-            color: #b45309;
-            text-transform: uppercase;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-        }
-
-        .meeting-report .header-title {
-            font-size: 32px;
-            line-height: 1.2;
-            color: #0f172a;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
-
-        .meeting-report .header-sub {
-            font-size: 18px;
-            color: #64748b;
-            font-weight: 400;
-        }
-
-        .meeting-report .tags {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 24px;
-            flex-wrap: wrap;
-        }
-
-        .meeting-report .tag {
-            background: #f1f5f9;
-            color: #0f172a;
-            padding: 4px 12px;
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .meeting-report .report-section {
-            background: #fff;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, .06);
-            overflow: hidden;
-            transition: transform 0.2s ease;
-        }
-
-        .meeting-report .report-section:hover {
-            transform: translateY(-2px);
-        }
-
-        .meeting-report .section-header {
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .meeting-report .report-section.collapsed .section-header {
-            border-bottom: none;
-        }
-
-        .meeting-report .section-icon {
-            width: 44px;
-            height: 44px;
-            background: #f1f5f9;
-            color: #0f172a;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            margin-right: 16px;
-            flex-shrink: 0;
-        }
-
-        .meeting-report .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #0f172a;
-            flex: 1;
-            margin: 0;
-        }
-
-        .meeting-report .section-toggle {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #64748b;
-            transition: transform 0.3s ease;
-        }
-
-        .meeting-report .report-section.collapsed .section-toggle {
-            transform: rotate(-90deg);
-        }
-
-        .meeting-report .section-content {
-            padding: 0 24px 32px 24px;
-            color: #64748b;
-            font-size: 16px;
-            overflow: hidden;
-            transition: max-height 0.4s ease-out;
-        }
-
-        .meeting-report .report-section.collapsed .section-content {
-            max-height: 0 !important;
-            padding-bottom: 0;
-        }
-
-        .meeting-report p {
-            margin-bottom: 16px;
-        }
-
-        .meeting-report ul,
-        .meeting-report ol {
-            margin-bottom: 24px;
-            padding-left: 24px;
-        }
-
-        .meeting-report li {
-            margin-bottom: 8px;
-        }
-
-        .meeting-report .box-pink {
-            background: #fff7ed;
-            padding: 24px;
-            border-radius: 12px;
-            margin: 24px 0;
-            border-left: 4px solid #b45309;
-        }
-
-        .meeting-report .box-pink h4 {
-            color: #0f172a;
-            margin: 0 0 8px 0;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .meeting-report .box-pink h4::before {
-            content: '⚡';
-            color: #b45309;
-        }
-
-        .meeting-report .box-blue {
-            background: #f1f5f9;
-            padding: 24px;
-            border-radius: 12px;
-            margin: 24px 0;
-            border-left: 4px solid #0f172a;
-        }
-
-        .meeting-report .box-blue h4 {
-            color: #0f172a;
-            margin: 0 0 8px 0;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .meeting-report .box-blue h4::before {
-            content: '💎';
-            color: #0f172a;
-        }
-
-        .meeting-report .quote {
-            font-size: 18px;
-            font-style: italic;
-            color: #0f172a;
-            border-left: 4px solid #b45309;
-            padding-left: 20px;
-            margin: 32px 0;
-        }
-
-        .meeting-report .quote-author {
-            font-size: 14px;
-            color: #64748b;
-            font-style: normal;
-            margin-top: 8px;
-            font-weight: 500;
-        }
-
-        .meeting-report .checklist {
-            background: #fff;
-            padding: 32px;
-            border-radius: 8px;
-            margin-top: 40px;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, .06);
-            border: 2px solid #f1f5f9;
-        }
-
-        .meeting-report .chk-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 8px;
-        }
-
-        .meeting-report .chk-desc {
-            font-size: 14px;
-            margin-bottom: 24px;
-        }
-
-        .meeting-report .chk-group-title {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #b45309;
-            font-weight: 700;
-            margin: 24px 0 12px 0;
-        }
-
-        .meeting-report .chk-item {
-            display: flex;
-            gap: 16px;
-            padding: 12px 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
-        .meeting-report .chk-item:last-child {
-            border-bottom: none;
-        }
-
-        .meeting-report .checkbox {
-            width: 22px;
-            height: 22px;
-            border: 2px solid #64748b;
-            border-radius: 6px;
-            flex-shrink: 0;
-            margin-top: 2px;
-            position: relative;
-            transition: all 0.2s;
-        }
-
-        .meeting-report .chk-item.checked .checkbox {
-            background: #0f172a;
-            border-color: #0f172a;
-        }
-
-        .meeting-report .chk-item.checked .checkbox::after {
-            content: '';
-            position: absolute;
-            left: 6px;
-            top: 2px;
-            width: 5px;
-            height: 10px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-
-        .meeting-report .chk-text strong {
-            display: block;
-            font-size: 15px;
-            color: #0f172a;
-            transition: color 0.2s;
-        }
-
-        .meeting-report .chk-item.checked .chk-text strong {
-            color: #64748b;
-            text-decoration: line-through;
-        }
-
-        .meeting-report .chk-text span {
-            font-size: 13px;
-            color: #64748b;
-        }
-
-        .meeting-report .meeting-materials {
-            margin-top: 24px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .meeting-report .meeting-materials a {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            background: #0f172a;
-            color: white !important;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        .meeting-report .meeting-materials a:hover {
-            background: #334155;
-        }
-
-        @media (max-width: 600px) {
-            .meeting-report .report-header {
-                padding: 24px;
-                text-align: left;
-            }
-
-            .meeting-report .header-title {
-                font-size: 24px;
-            }
-
-            .meeting-report .section-header {
-                padding: 16px;
-            }
-
-            .meeting-report .section-icon {
-                width: 36px;
-                height: 36px;
-                font-size: 18px;
-                margin-right: 12px;
-            }
-
-            .meeting-report .section-content {
-                padding: 0 16px 24px 16px;
-            }
-        }
-    </style>
 
     <!-- @include head-analytics.html -->
 </head>
@@ -387,15 +27,15 @@
                     <h1 class="header-title">Фрязино — Встреча с инвесторами 17.02.2026</h1>
                     <div class="header-sub">Резюме обсуждения стратегий складского комплекса: продажа VS аренда в
                         условиях депрессивного рынка.</div>
-                    <div class="meta" style="margin-top: 16px; font-size: 14px; color: #64748b;">
+                    <div class="report-meta">
                         <strong>Участники:</strong> Алексей Лещенко (Редевест), Павел Кунцов (PNP), Павел Хитров (PNP),
                         Евгения Кирдей (PNP).
                     </div>
                     <div class="meeting-materials">
-                        <a href="https://disk.yandex.ru/i/d-XDOvccxtVhPw" target="_blank" rel="noopener noreferrer">📹
-                            Видео встречи</a>
-                        <a href="https://disk.yandex.ru/i/PWBpvlRaxGe8WQ" target="_blank" rel="noopener noreferrer">📄
-                            Слайды (PDF)</a>
+                        <a href="https://disk.yandex.ru/i/d-XDOvccxtVhPw" target="_blank" rel="noopener noreferrer"
+                            class="btn btn-sm btn-accent-bold">📹 Видео встречи</a>
+                        <a href="https://disk.yandex.ru/i/PWBpvlRaxGe8WQ" target="_blank" rel="noopener noreferrer"
+                            class="btn btn-sm btn-outline">📄 Слайды (PDF)</a>
                     </div>
                 </header>
 
@@ -413,7 +53,7 @@
                             особенно в сегменте продаж. В рамках проекта Фрязино (складской комплекс из трёх зданий)
                             брокеры активно работают, размещая объекты на различных площадках и проводя индивидуальные
                             встречи, однако спрос остается низким.</p>
-                        <div class="box-pink">
+                        <div class="report-callout-accent">
                             <h4>Важно</h4>
                             <p>Основная проблема связана с <strong>депрессивным рынком и отсутствием «дешёвых»
                                     денег</strong>, что затрудняет принятие решений о покупке или долгосрочной аренде
@@ -422,7 +62,7 @@
                         <p>Единственным активным сегментом под конец года были <strong>запросы на покупку объектов с
                                 НДС</strong>, которые не рассматриваются как целевые, поскольку были связаны с попытками
                             компаний «закрыть» НДС, а не с реальной потребностью в объекте.</p>
-                        <div class="box-blue">
+                        <div class="report-callout-primary">
                             <h4>Инсайт</h4>
                             <p>Низкий спрос на покупку и сложности с долгосрочной арендой вынуждают искать новые подходы
                                 и адаптироваться к текущим рыночным условиям.</p>
@@ -463,10 +103,10 @@
                                 </ul>
                             </li>
                         </ol>
-                        <div class="quote">«С этим клиентом мы реально продвинулись далеко. Они встречались с
+                        <div class="report-quote">«С этим клиентом мы реально продвинулись далеко. Они встречались с
                             владельцами, интересовались покупкой. Я прорабатывала вопрос о помощи кредитования в ДОМ.РФ.
                             В принципе, ДОМ.РФ готов кредитовать. Сейчас я жду возвращения их ликвидности.»<div
-                                class="quote-author">— Евгения Кирдей, коммерческий директор PNP</div>
+                                class="report-quote-author">— Евгения Кирдей, коммерческий директор PNP</div>
                         </div>
                         <p><strong>Вывод:</strong> Динамика продаж остается слабой, основной спрос приходится на аренду.
                             Есть надежда на оживление рынка с конца февраля – начала марта.</p>
@@ -501,7 +141,7 @@
                                 выкуп) завершены. Актуализируются договоры со всеми инвесторами для обеспечения
                                 легитимности сделок и распределения арендного дохода.</li>
                         </ul>
-                        <div class="box-pink">
+                        <div class="report-callout-accent">
                             <h4>Проблема</h4>
                             <p>Многие арендаторы-производственники <strong>опасаются арендовать объекты, выставленные на
                                     продажу</strong>, так как переезд для них — дорогостоящий и длительный процесс. Это
@@ -522,10 +162,10 @@
                     <div class="section-content">
                         <p>В ходе обсуждения возникла дискуссия между инвесторами и инициаторами проекта (PNP)
                             относительно стратегии ценообразования и приоритетов.</p>
-                        <div class="quote">«Прошло 3 месяца, вы сдавались за 1000 [рублей за кв.м]. То есть считать, что
+                        <div class="report-quote">«Прошло 3 месяца, вы сдавались за 1000 [рублей за кв.м]. То есть считать, что
                             вы 3 месяца потеряли, это значит, что можно было сразу поставить на 30% дешевле... А может
                             быть, рыночная цена реальная, текущая, вообще 400. Чем раньше это осознание получится, тем
-                            лучше.»<div class="quote-author">— Инвестор</div>
+                            лучше.»<div class="report-quote-author">— Инвестор</div>
                         </div>
                         <p>Один из инвесторов предлагает <strong>кардинально снизить арендную ставку</strong> (например,
                             до 400 руб./кв.м), чтобы быстро заселить склады, даже если это приведёт к потере части
@@ -540,7 +180,7 @@
                             <li><strong>Ограничить возможности для быстрой продажи</strong>, так как арендаторы требуют
                                 долгосрочных договоров (минимум 6 месяцев), что «связывает» объект.</li>
                         </ul>
-                        <div class="box-blue">
+                        <div class="report-callout-primary">
                             <h4>Позиция инициаторов проекта</h4>
                             <p>Изначальная стратегия заключалась в поиске арендатора по высокой ставке (1200 руб./кв.м),
                                 чтобы в случае продажи объекта как готового арендного бизнеса он был максимально
@@ -548,10 +188,10 @@
                                 руб./кв.м, хоть и позволит заселить склады, но <strong>не соответствует главной цели —
                                     продаже объекта по выгодной цене</strong>.</p>
                         </div>
-                        <div class="quote">«Мы должны здесь взвеситься, потому что кто-то будет за вот эту стратегию, за
+                        <div class="report-quote">«Мы должны здесь взвеситься, потому что кто-то будет за вот эту стратегию, за
                             ваше предложение, а кто-то будет против. И Алексей это слышит каждый день. Кто-то говорит,
                             что это надо сделать, другой говорит, что надо другое сделать. Из-за того, что у нас
-                            коллективное инвестирование, мы должны найти общее решение.»<div class="quote-author">—
+                            коллективное инвестирование, мы должны найти общее решение.»<div class="report-quote-author">—
                                 Павел Хитров (PNP)</div>
                         </div>
                     </div>
@@ -590,16 +230,16 @@
                                 создания нового АО или ООО для УК пока отложена из-за сложности и необходимости
                                 согласования с инвесторами.</li>
                         </ul>
-                        <div class="box-pink">
+                        <div class="report-callout-accent">
                             <h4>Внимание</h4>
                             <p>Предложение о «демпинге с месячным уведомлением» было отклонено как нереалистичное:
                                 <strong>ни один серьёзный арендатор не согласится на такие условия</strong>, особенно
                                 производственники, для которых переезд — это многомиллионные затраты.
                             </p>
                         </div>
-                        <div class="quote">«Моё личное мнение о рынке... Сейчас самое лучшее время покупать
+                        <div class="report-quote">«Моё личное мнение о рынке... Сейчас самое лучшее время покупать
                             недвижимость, потому что рынок депрессивный... Но аренда взлетает в космос... Моё личное
-                            мнение, просто пересидеть, и можно и 30% просто отыграть.»<div class="quote-author">— Павел
+                            мнение, просто пересидеть, и можно и 30% просто отыграть.»<div class="report-quote-author">— Павел
                                 Кунцов (PNP)</div>
                         </div>
                         <p>Прогнозируется, что <strong>рост рынка недвижимости</strong> (включая склады) начнётся, когда
@@ -608,29 +248,29 @@
                     </div>
                 </section>
 
-                <div class="checklist">
-                    <div class="chk-title">🚀 Чек-лист внедрения</div>
-                    <div class="chk-desc">Ответственный: Алексей Лещенко.</div>
-                    <div class="chk-group-title">На этой неделе</div>
-                    <div class="chk-item">
-                        <div class="checkbox"></div>
-                        <div class="chk-text"><strong>Проработать варианты стратегий</strong><span>Сформулировать
+                <div class="report-checklist">
+                    <div class="report-chk-title">🚀 Чек-лист внедрения</div>
+                    <div class="report-chk-desc">Ответственный: Алексей Лещенко.</div>
+                    <div class="report-chk-group-title">На этой неделе</div>
+                    <div class="report-chk-item">
+                        <div class="report-checkbox"></div>
+                        <div class="report-chk-text"><strong>Проработать варианты стратегий</strong><span>Сформулировать
                                 конкретные сценарии (демпинг, долгосрочная аренда, продажа) с финансовыми
                                 расчётами.</span></div>
                     </div>
-                    <div class="chk-item">
-                        <div class="checkbox"></div>
-                        <div class="chk-text"><strong>Подготовить презентацию предложений</strong><span>Собрать все
+                    <div class="report-chk-item">
+                        <div class="report-checkbox"></div>
+                        <div class="report-chk-text"><strong>Подготовить презентацию предложений</strong><span>Собрать все
                                 варианты стратегий и расчёты для повторной встречи с инвесторами.</span></div>
                     </div>
-                    <div class="chk-item">
-                        <div class="checkbox"></div>
-                        <div class="chk-text"><strong>Запланировать следующую встречу</strong><span>Организовать
+                    <div class="report-chk-item">
+                        <div class="report-checkbox"></div>
+                        <div class="report-chk-text"><strong>Запланировать следующую встречу</strong><span>Организовать
                                 онлайн-встречу для обсуждения новых стратегий и голосования.</span></div>
                     </div>
-                    <div class="chk-item">
-                        <div class="checkbox"></div>
-                        <div class="chk-text"><strong>Собрать обратную связь от инвесторов</strong><span>Выяснить, кто
+                    <div class="report-chk-item">
+                        <div class="report-checkbox"></div>
+                        <div class="report-chk-text"><strong>Собрать обратную связь от инвесторов</strong><span>Выяснить, кто
                                 готов остаться в долгосрочной аренде, а кто хочет выйти из проекта.</span></div>
                     </div>
                 </div>

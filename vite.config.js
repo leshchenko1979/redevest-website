@@ -8,7 +8,7 @@ import { imageOptimizerPlugin } from './vite-image-optimizer.js';
 
 const srcDir = path.join(__dirname, 'src');
 const distDir = path.join(__dirname, 'dist');
-const SITE_BASE = 'https://www.redevest.ru';
+const SITE_BASE = 'https://www.rdvest.ru';
 
 function getReportInputs() {
   const reportsDir = path.join(__dirname, 'src', 'reports');

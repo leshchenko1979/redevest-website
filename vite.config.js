@@ -126,6 +126,8 @@ export default defineConfig({
 
         // Watch template dependencies
         this.addWatchFile(path.join(__dirname, 'src', 'templates', 'project.html'));
+        this.addWatchFile(path.join(__dirname, 'src', 'templates', 'legal-events.html'));
+        this.addWatchFile(path.join(__dirname, 'src', 'legal', 'events.md'));
         this.addWatchFile(path.join(__dirname, 'src', 'input.css'));
         this.addWatchFile(path.join(__dirname, 'src', 'common.js'));
         this.addWatchFile(path.join(__dirname, 'src', 'assets', 'favicon.png'));
@@ -159,15 +161,20 @@ export default defineConfig({
             server.watcher.add(project.imagesPath);
           }
         }
+        const eventsMdPath = path.join(__dirname, 'src', 'legal', 'events.md');
+        if (fs.existsSync(eventsMdPath)) {
+          server.watcher.add(eventsMdPath);
+        }
 
         // Handle markdown file changes in dev mode
         server.watcher.on('change', async (filePath) => {
           if (filePath.endsWith('.md') && filePath.includes('/projects/')) {
             console.log(`Markdown file changed: ${filePath}`);
-            // Force reload of the page by invalidating the module
             const slug = path.basename(path.dirname(filePath));
-            // Clear any cached processing for this project
             console.log(`Project ${slug} updated, page will reload on next request`);
+          }
+          if (filePath.endsWith('.md') && filePath.includes('/legal/')) {
+            console.log(`Legal markdown changed: ${filePath}`);
           }
         });
 
@@ -261,6 +268,47 @@ export default defineConfig({
           }
           next();
         });
+
+        // Handle legal/events.html in dev mode
+        server.middlewares.use('/legal', async (req, res, next) => {
+          if (req.url !== '/events.html' && req.url !== '/events') {
+            next();
+            return;
+          }
+          const eventsMdPath = path.join(__dirname, 'src', 'legal', 'events.md');
+          const templatePath = path.join(__dirname, 'src', 'templates', 'legal-events.html');
+          if (!fs.existsSync(eventsMdPath) || !fs.existsSync(templatePath)) {
+            next();
+            return;
+          }
+          try {
+            const { html, metadata } = await processMarkdownFile(eventsMdPath, 'legal');
+            let templateContent = fs.readFileSync(templatePath, 'utf8');
+            templateContent = replaceIncludes(templateContent);
+            templateContent = templateContent.replace(/{{title}}/g, metadata.title || 'Условия участия');
+            templateContent = templateContent.replace('{{content}}', html);
+            templateContent = templateContent.replace(/{{bot_link}}/g, metadata.bot_link || '#');
+            templateContent = templateContent.replace(/{{description}}/g, metadata.description || '');
+            templateContent = templateContent.replace(
+              /href="\.\.\/assets\//g,
+              'href="/assets/'
+            );
+            templateContent = templateContent.replace(
+              /href="\.\.\/input\.css"/g,
+              'href="/input.css"'
+            );
+            templateContent = templateContent.replace(
+              /src="common\.js/g,
+              'src="/common.js'
+            );
+            res.setHeader('Content-Type', 'text/html');
+            res.end(templateContent);
+          } catch (error) {
+            console.error('Error processing legal/events:', error.message);
+            res.statusCode = 500;
+            res.end('Internal Server Error');
+          }
+        });
       },
       async generateBundle() {
         // Process and generate project pages for build
@@ -323,6 +371,44 @@ export default defineConfig({
 
           } catch (error) {
             console.error(`Error processing project ${project.slug}:`, error.message);
+          }
+        }
+
+        // Process legal/events.md
+        const eventsMdPath = path.join(__dirname, 'src', 'legal', 'events.md');
+        const legalTemplatePath = path.join(__dirname, 'src', 'templates', 'legal-events.html');
+        if (fs.existsSync(eventsMdPath) && fs.existsSync(legalTemplatePath)) {
+          try {
+            const { html, metadata } = await processMarkdownFile(eventsMdPath, 'legal');
+            let templateContent = fs.readFileSync(legalTemplatePath, 'utf8');
+            templateContent = replaceIncludes(templateContent);
+            templateContent = templateContent.replace(/{{title}}/g, metadata.title || 'Условия участия');
+            templateContent = templateContent.replace('{{content}}', html);
+            templateContent = templateContent.replace(/{{bot_link}}/g, metadata.bot_link || '#');
+            templateContent = templateContent.replace(/{{description}}/g, metadata.description || '');
+            templateContent = templateContent.replace(
+              /href="index\.html/g,
+              'href="../index.html'
+            );
+            templateContent = templateContent.replace(
+              /href="scheme\.html/g,
+              'href="../scheme.html'
+            );
+            templateContent = templateContent.replace(
+              /src="assets\//g,
+              'src="../assets/'
+            );
+            templateContent = templateContent.replace(
+              /src="common\.js/g,
+              'src="../common.js'
+            );
+            this.emitFile({
+              type: 'asset',
+              fileName: 'legal/events.html',
+              source: templateContent
+            });
+          } catch (error) {
+            console.error('Error processing legal/events:', error.message);
           }
         }
       }
@@ -388,6 +474,16 @@ export default defineConfig({
           }
         }
 
+        // Legal pages (dist/legal/*.html) use ../ prefix
+        const legalDir = path.join(dir, 'legal');
+        if (fs.existsSync(legalDir)) {
+          for (const f of fs.readdirSync(legalDir).filter((file) => file.endsWith('.html'))) {
+            const filePath = path.join(legalDir, f);
+            let content = fs.readFileSync(filePath, 'utf8');
+            fs.writeFileSync(filePath, applyHashedLinks(content, assets, '../'));
+          }
+        }
+
         // Root HTML files (index, scheme) use same-dir prefix
         for (const name of ['index.html', 'scheme.html']) {
           const filePath = path.join(dir, name);
@@ -401,7 +497,7 @@ export default defineConfig({
     {
       name: 'sitemap-robots',
       async generateBundle() {
-        const urls = [`${SITE_BASE}/`, `${SITE_BASE}/scheme.html`];
+        const urls = [`${SITE_BASE}/`, `${SITE_BASE}/scheme.html`, `${SITE_BASE}/legal/events.html`];
 
         const projects = findProjects();
         for (const p of projects) {

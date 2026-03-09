@@ -39,6 +39,7 @@
         "vite-plugin-imagemin": "^0.6.1"
     },
     "dependencies": {
-        "marked": "^17.0.1"
+        "marked": "^17.0.1",
+        "xlsx": "^0.18.5"
     }
 }

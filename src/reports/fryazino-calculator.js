@@ -91,15 +91,6 @@ function applyUrlParams(state) {
   }
 }
 
-function buildShareUrl(state) {
-  const u = new URL(window.location.href);
-  u.searchParams.set("warehouse", state.warehouse);
-  u.searchParams.set("share", (state.sharePct * 100).toFixed(1));
-  u.searchParams.set("cost", state.purchaseCost);
-  u.searchParams.set("date", state.purchaseDate);
-  return u.toString();
-}
-
 function getState() {
   const warehouse = parseInt(document.getElementById("warehouse").value, 10);
   const area = WAREHOUSE_AREAS[warehouse] || 1000;
@@ -316,24 +307,6 @@ function init() {
 
   document.getElementById("btn-download-excel").addEventListener("click", () => {
     downloadExcel(getState());
-  });
-
-  document.getElementById("btn-copy-link").addEventListener("click", () => {
-    const url = buildShareUrl(getState());
-    navigator.clipboard.writeText(url).then(
-      () => {
-        const span = document.getElementById("btn-copy-text");
-        const orig = span.textContent;
-        span.textContent = "Скопировано";
-        const btn = document.getElementById("btn-copy-link");
-        btn.disabled = true;
-        setTimeout(() => {
-          span.textContent = orig;
-          btn.disabled = false;
-        }, 2000);
-      },
-      () => alert("Не удалось скопировать")
-    );
   });
 
   update();

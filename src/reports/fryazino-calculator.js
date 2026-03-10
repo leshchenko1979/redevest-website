@@ -1,9 +1,7 @@
 /**
  * Калькулятор доходности проекта Фрязино
- * Логика соответствует Excel-файлу "Фрязино - калькулятор доходности.xlsx"
+ * Логика соответствует Google Sheets "Фрязино - калькулятор доходности"
  */
-
-import * as XLSX from "xlsx";
 
 const WAREHOUSE_AREAS = { 1: 1000, 2: 1246, 3: 1246 };
 
@@ -247,49 +245,6 @@ function render(state) {
   });
 }
 
-function downloadExcel(state) {
-
-  const wb = XLSX.utils.book_new();
-
-  const params = [
-    ["Номер склада", state.warehouse],
-    ["Ваша доля, %", state.sharePct * 100],
-    ["Стоимость покупки доли, руб.", state.purchaseCost],
-    ["Дата покупки", document.getElementById("purchaseDate").value],
-    ["Общая площадь склада, кв. м", state.area],
-    ["Ваша доля в кв. м", state.shareSqm],
-    ["Цена покупки, руб. / кв. м", state.pricePerSqm],
-    ["Текущий срок владения, мес.", state.ownershipMonths],
-    ["Стоимость продажи доли, руб.", state.saleToInvestor],
-    ["Индексация аренды, % в год", state.rentIndexation * 100],
-    ["Арендные каникулы, мес.", state.rentVacation],
-  ];
-
-  state.scenarios.forEach((s, i) => {
-    params.push([`Сценарий ${["A", "B", "C", "D"][i]} срок, мес.`, s.months]);
-    params.push([`Сценарий ${["A", "B", "C", "D"][i]} цена, руб/кв.м`, s.price]);
-    params.push([`Сценарий ${["A", "B", "C", "D"][i]} аренда, руб/кв.м/мес.`, s.rent]);
-  });
-
-  const wsParams = XLSX.utils.aoa_to_sheet(params);
-  XLSX.utils.book_append_sheet(wb, wsParams, "Параметры");
-
-  const instr = [
-    ["1. Калькулятор рассчитывает доходность в трёх сценариях"],
-    ["А. Немедленная продажа доли другому инвестору"],
-    ["Б. Немедленная продажа на рынок с дисконтом"],
-    ["В. Сдача в аренду с продажей при восстановлении рынка"],
-    [""],
-    ["2. Параметры расчёта загружены с веб-калькулятора."],
-    ["   Импортируйте значения из листа «Параметры» в исходный Excel-файл калькулятора."],
-  ];
-  const wsInstr = XLSX.utils.aoa_to_sheet(instr);
-  XLSX.utils.book_append_sheet(wb, wsInstr, "Инструкция");
-
-  const fn = `Фрязино-калькулятор-параметры-${new Date().toISOString().slice(0, 10)}.xlsx`;
-  XLSX.writeFile(wb, fn);
-}
-
 function init() {
   applyUrlParams(getState());
 
@@ -304,10 +259,6 @@ function init() {
   );
   inputs.forEach((el) => el.addEventListener("input", update));
   inputs.forEach((el) => el.addEventListener("change", update));
-
-  document.getElementById("btn-download-excel").addEventListener("click", () => {
-    downloadExcel(getState());
-  });
 
   update();
 }

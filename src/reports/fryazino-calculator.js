@@ -25,17 +25,17 @@ const EXPECTED_SALE_DIAGONAL = { 110000: 4, 105000: 3, 100000: 2, 95000: 1, 8000
 const EXPECTED_RENT_RATE = 900;
 
 function fmtNum(n) {
-  if (n == null || isNaN(n)) return "—";
+  if (n == null || isNaN(n) || !Number.isFinite(n)) return "—";
   return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00A0");
 }
 
 function fmtPct(n) {
-  if (n == null || isNaN(n)) return "—";
+  if (n == null || isNaN(n) || !Number.isFinite(n)) return "—";
   return (n * 100).toFixed(2).replace(".", ",") + "%";
 }
 
 function yieldToBgColor(y) {
-  if (y == null || isNaN(y)) return "transparent";
+  if (y == null || isNaN(y) || !Number.isFinite(y)) return "transparent";
   const t = Math.max(0, Math.min(1, y / 0.2));
   const r = Math.round(254 - t * 34);
   const g = Math.round(226 + t * 26);
@@ -83,6 +83,12 @@ function applyUrlParams(state) {
   if (url.purchaseDate) {
     document.getElementById("purchaseDate").value = url.purchaseDate;
   }
+  // Стоимость переуступки = стоимость покупки + 10%, округление до 100К
+  const cost = parseFloat(document.getElementById("purchaseCost").value);
+  if (cost > 0) {
+    const saleToInvestor = Math.round((cost * 1.1) / 100000) * 100000;
+    document.getElementById("saleToInvestor").value = saleToInvestor;
+  }
 }
 
 function buildShareUrl(state) {
@@ -102,8 +108,10 @@ function getState() {
   const purchaseDate = new Date(document.getElementById("purchaseDate").value);
   const shareSqm = area * sharePct;
   const pricePerSqm = purchaseCost / shareSqm;
-  const ownershipMonths =
-    ((Date.now() - purchaseDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)) * 12;
+  const ownershipMonths = Math.max(
+    0,
+    ((Date.now() - purchaseDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)) * 12
+  );
 
   const rentIndexation = parseFloat(document.getElementById("rentIndexation").value) / 100;
   const rentVacation = parseFloat(document.getElementById("rentVacation").value);
@@ -133,7 +141,7 @@ function getState() {
 }
 
 function calcSaleIncome(pricePerSqm, salePricePerSqm, shareSqm) {
-  return Math.max(0, (salePricePerSqm - pricePerSqm) * shareSqm);
+  return (salePricePerSqm - pricePerSqm) * shareSqm;
 }
 
 function calcRentIncomeCumulative(netPerSqm, shareSqm, monthsToRent, vacation, indexation) {
@@ -172,8 +180,10 @@ function render(state) {
     state.ownershipMonths.toFixed(1);
 
   const investorYield =
-    ((state.saleToInvestor - state.purchaseCost) / state.purchaseCost / state.ownershipMonths) *
-    12;
+    state.ownershipMonths > 0 && state.purchaseCost > 0
+      ? ((state.saleToInvestor - state.purchaseCost) / state.purchaseCost / state.ownershipMonths) *
+      12
+      : null;
   document.getElementById("out-investorYield").textContent = fmtPct(investorYield);
 
   // Таблица дохода от продажи (синяя диагональ: 110k→48м, 105k→36м, 100k→24м, 95k→12м, 80k→0м)

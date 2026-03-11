@@ -3,7 +3,7 @@
  * Логика соответствует Google Sheets "Фрязино - калькулятор доходности"
  */
 
-const WAREHOUSE_AREAS = { 1: 1000, 2: 1246, 3: 1246 };
+const WAREHOUSE_AREAS = { 1: 1045.3, 2: 1257.1, 3: 1257.1 };
 
 // Чистый арендный доход к инвестору (руб/кв.м/мес) по валовой ставке. Источник: лист "Аренда - подробности"
 const NET_RENT_BY_RATE = {
@@ -53,6 +53,14 @@ function getNetRent(rate) {
   return NET_RENT_BY_RATE[lo] + t * (NET_RENT_BY_RATE[hi] - NET_RENT_BY_RATE[lo]);
 }
 
+/** Парсит число из строки, допуская запятую как десятичный разделитель */
+function parseDecimal(str) {
+  if (str == null || str === "") return null;
+  const normalized = String(str).replace(",", ".");
+  const n = parseFloat(normalized);
+  return isNaN(n) ? null : n;
+}
+
 function parseUrlParams() {
   const params = new URLSearchParams(window.location.search);
   const warehouse = params.get("warehouse") || params.get("sklad");
@@ -61,7 +69,7 @@ function parseUrlParams() {
   const purchaseDate = params.get("date");
   return {
     warehouse: warehouse ? parseInt(warehouse, 10) : null,
-    sharePct: sharePct ? parseFloat(sharePct) : null,
+    sharePct: parseDecimal(sharePct),
     purchaseCost: purchaseCost ? parseFloat(purchaseCost) : null,
     purchaseDate: purchaseDate || null,
   };

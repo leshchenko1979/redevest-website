@@ -10,6 +10,34 @@ const srcDir = path.join(__dirname, 'src');
 const distDir = path.join(__dirname, 'dist');
 const SITE_BASE = 'https://www.rdvest.ru';
 
+const LEGAL_PAGES = [
+  { slug: 'events', md: 'legal/events.md' },
+  { slug: 'privacy', md: 'legal/privacy.md' }
+];
+
+function buildLegalCtaBlocks(metadata) {
+  const link = metadata.cta_link;
+  const empty = { cta_hero: '', cta_footer: '' };
+  if (!link || !metadata.cta_button) return empty;
+  const cta_hero = `
+                    <div class="flex justify-center">
+                        <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn btn-lg btn-primary">
+                            ${metadata.cta_button}
+                        </a>
+                    </div>`;
+  const cta_footer = `
+                    <div class="mt-16 text-center">
+                        <div class="bg-surface p-8 rounded-sm border border-gray-100">
+                            <h3 class="text-2xl font-serif font-bold text-primary mb-4">${metadata.cta_heading || ''}</h3>
+                            <p class="text-gray-600 mb-6">${metadata.cta_text || ''}</p>
+                            <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn btn-lg btn-primary">
+                                ${metadata.cta_button}
+                            </a>
+                        </div>
+                    </div>`;
+  return { cta_hero, cta_footer };
+}
+
 function getReportInputs() {
   const reportsDir = path.join(__dirname, 'src', 'reports');
   if (!fs.existsSync(reportsDir)) return {};
@@ -126,8 +154,10 @@ export default defineConfig({
 
         // Watch template dependencies
         this.addWatchFile(path.join(__dirname, 'src', 'templates', 'project.html'));
-        this.addWatchFile(path.join(__dirname, 'src', 'templates', 'legal-events.html'));
-        this.addWatchFile(path.join(__dirname, 'src', 'legal', 'events.md'));
+        this.addWatchFile(path.join(__dirname, 'src', 'templates', 'legal.html'));
+        for (const lp of LEGAL_PAGES) {
+          this.addWatchFile(path.join(__dirname, 'src', lp.md));
+        }
         this.addWatchFile(path.join(__dirname, 'src', 'input.css'));
         this.addWatchFile(path.join(__dirname, 'src', 'common.js'));
         this.addWatchFile(path.join(__dirname, 'src', 'assets', 'favicon.png'));
@@ -161,9 +191,9 @@ export default defineConfig({
             server.watcher.add(project.imagesPath);
           }
         }
-        const eventsMdPath = path.join(__dirname, 'src', 'legal', 'events.md');
-        if (fs.existsSync(eventsMdPath)) {
-          server.watcher.add(eventsMdPath);
+        for (const lp of LEGAL_PAGES) {
+          const mdPath = path.join(__dirname, 'src', lp.md);
+          if (fs.existsSync(mdPath)) server.watcher.add(mdPath);
         }
 
         // Handle markdown file changes in dev mode
@@ -269,42 +299,45 @@ export default defineConfig({
           next();
         });
 
-        // Handle legal/events.html in dev mode
+        // Handle legal pages in dev mode
         server.middlewares.use('/legal', async (req, res, next) => {
-          if (req.url !== '/events.html' && req.url !== '/events') {
+          const urlPath = req.url.replace(/^\//, '').replace(/\.html$/, '') || 'index';
+          const slug = urlPath === 'events' || urlPath === 'privacy' ? urlPath : null;
+          if (!slug) {
             next();
             return;
           }
-          const eventsMdPath = path.join(__dirname, 'src', 'legal', 'events.md');
-          const templatePath = path.join(__dirname, 'src', 'templates', 'legal-events.html');
-          if (!fs.existsSync(eventsMdPath) || !fs.existsSync(templatePath)) {
+          const lp = LEGAL_PAGES.find((p) => p.slug === slug);
+          if (!lp) {
+            next();
+            return;
+          }
+          const mdPath = path.join(__dirname, 'src', lp.md);
+          const templatePath = path.join(__dirname, 'src', 'templates', 'legal.html');
+          if (!fs.existsSync(mdPath) || !fs.existsSync(templatePath)) {
             next();
             return;
           }
           try {
-            const { html, metadata } = await processMarkdownFile(eventsMdPath, 'legal');
+            const { html, metadata } = await processMarkdownFile(mdPath, slug);
+            const { cta_hero, cta_footer } = buildLegalCtaBlocks(metadata);
+            const canonicalUrl = `${SITE_BASE}/legal/${slug}.html`;
             let templateContent = fs.readFileSync(templatePath, 'utf8');
             templateContent = replaceIncludes(templateContent);
-            templateContent = templateContent.replace(/{{title}}/g, metadata.title || 'Условия участия');
-            templateContent = templateContent.replace('{{content}}', html);
-            templateContent = templateContent.replace(/{{bot_link}}/g, metadata.bot_link || '#');
+            templateContent = templateContent.replace(/{{title}}/g, metadata.title || slug);
             templateContent = templateContent.replace(/{{description}}/g, metadata.description || '');
-            templateContent = templateContent.replace(
-              /href="\.\.\/assets\//g,
-              'href="/assets/'
-            );
-            templateContent = templateContent.replace(
-              /href="\.\.\/input\.css"/g,
-              'href="/input.css"'
-            );
-            templateContent = templateContent.replace(
-              /src="common\.js/g,
-              'src="/common.js'
-            );
+            templateContent = templateContent.replace(/{{hero_badge}}/g, metadata.hero_badge || 'Документ');
+            templateContent = templateContent.replace(/{{canonical_url}}/g, canonicalUrl);
+            templateContent = templateContent.replace('{{content}}', html);
+            templateContent = templateContent.replace('{{cta_hero}}', cta_hero);
+            templateContent = templateContent.replace('{{cta_footer}}', cta_footer);
+            templateContent = templateContent.replace(/href="\.\.\/assets\//g, 'href="/assets/');
+            templateContent = templateContent.replace(/href="\.\.\/input\.css"/g, 'href="/input.css"');
+            templateContent = templateContent.replace(/src="common\.js/g, 'src="/common.js');
             res.setHeader('Content-Type', 'text/html');
             res.end(templateContent);
           } catch (error) {
-            console.error('Error processing legal/events:', error.message);
+            console.error(`Error processing legal/${slug}:`, error.message);
             res.statusCode = 500;
             res.end('Internal Server Error');
           }
@@ -374,41 +407,37 @@ export default defineConfig({
           }
         }
 
-        // Process legal/events.md
-        const eventsMdPath = path.join(__dirname, 'src', 'legal', 'events.md');
-        const legalTemplatePath = path.join(__dirname, 'src', 'templates', 'legal-events.html');
-        if (fs.existsSync(eventsMdPath) && fs.existsSync(legalTemplatePath)) {
-          try {
-            const { html, metadata } = await processMarkdownFile(eventsMdPath, 'legal');
-            let templateContent = fs.readFileSync(legalTemplatePath, 'utf8');
-            templateContent = replaceIncludes(templateContent);
-            templateContent = templateContent.replace(/{{title}}/g, metadata.title || 'Условия участия');
-            templateContent = templateContent.replace('{{content}}', html);
-            templateContent = templateContent.replace(/{{bot_link}}/g, metadata.bot_link || '#');
-            templateContent = templateContent.replace(/{{description}}/g, metadata.description || '');
-            templateContent = templateContent.replace(
-              /href="index\.html/g,
-              'href="../index.html'
-            );
-            templateContent = templateContent.replace(
-              /href="scheme\.html/g,
-              'href="../scheme.html'
-            );
-            templateContent = templateContent.replace(
-              /src="assets\//g,
-              'src="../assets/'
-            );
-            templateContent = templateContent.replace(
-              /src="common\.js/g,
-              'src="../common.js'
-            );
-            this.emitFile({
-              type: 'asset',
-              fileName: 'legal/events.html',
-              source: templateContent
-            });
-          } catch (error) {
-            console.error('Error processing legal/events:', error.message);
+        // Process legal pages
+        const legalTemplatePath = path.join(__dirname, 'src', 'templates', 'legal.html');
+        if (fs.existsSync(legalTemplatePath)) {
+          for (const lp of LEGAL_PAGES) {
+            const mdPath = path.join(__dirname, 'src', lp.md);
+            if (!fs.existsSync(mdPath)) continue;
+            try {
+              const { html, metadata } = await processMarkdownFile(mdPath, lp.slug);
+              const { cta_hero, cta_footer } = buildLegalCtaBlocks(metadata);
+              const canonicalUrl = `${SITE_BASE}/legal/${lp.slug}.html`;
+              let templateContent = fs.readFileSync(legalTemplatePath, 'utf8');
+              templateContent = replaceIncludes(templateContent);
+              templateContent = templateContent.replace(/{{title}}/g, metadata.title || lp.slug);
+              templateContent = templateContent.replace(/{{description}}/g, metadata.description || '');
+              templateContent = templateContent.replace(/{{hero_badge}}/g, metadata.hero_badge || 'Документ');
+              templateContent = templateContent.replace(/{{canonical_url}}/g, canonicalUrl);
+              templateContent = templateContent.replace('{{content}}', html);
+              templateContent = templateContent.replace('{{cta_hero}}', cta_hero);
+              templateContent = templateContent.replace('{{cta_footer}}', cta_footer);
+              templateContent = templateContent.replace(/href="index\.html/g, 'href="../index.html');
+              templateContent = templateContent.replace(/href="scheme\.html/g, 'href="../scheme.html');
+              templateContent = templateContent.replace(/src="assets\//g, 'src="../assets/');
+              templateContent = templateContent.replace(/src="common\.js/g, 'src="../common.js');
+              this.emitFile({
+                type: 'asset',
+                fileName: `legal/${lp.slug}.html`,
+                source: templateContent
+              });
+            } catch (error) {
+              console.error(`Error processing legal/${lp.slug}:`, error.message);
+            }
           }
         }
       }
@@ -497,7 +526,11 @@ export default defineConfig({
     {
       name: 'sitemap-robots',
       async generateBundle() {
-        const urls = [`${SITE_BASE}/`, `${SITE_BASE}/scheme.html`, `${SITE_BASE}/legal/events.html`];
+        const urls = [
+          `${SITE_BASE}/`,
+          `${SITE_BASE}/scheme.html`,
+          ...LEGAL_PAGES.map((lp) => `${SITE_BASE}/legal/${lp.slug}.html`)
+        ];
 
         const projects = findProjects();
         for (const p of projects) {

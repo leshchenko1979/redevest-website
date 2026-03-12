@@ -13,7 +13,7 @@ const BLOCK_PATTERNS = {
   toggle: /\[\[toggle\s*\|\s*(.*?)\]\]\n([\s\S]*?)(?=\n\[\[|\n*$)/g,
   columns: /\[\[columns\]\]([\s\S]*?)\[\[\/columns\]\]/g,
   columnsLegacy: /(\[\[columns\]\]\s*\|\s*\[\[column\]\][\s\S]*?)(?=\n(?:\[\[|#|$))/g,
-  callout: /\[\[callout\s*\|\s*(\w+)\]\]\r?\n([\s\S]*?)(?=\r?\n(?:\[\[|##|---|$))/g,
+  callout: /\[\[callout\s*\|\s*(\w+)\]\]\r?\n([\s\S]*?)(?:\r?\n\[\[\/callout\]\]|(?=\r?\n(?:\[\[|##|---|$)))/g,
   column: /\[\[column\]\]/g
 };
 

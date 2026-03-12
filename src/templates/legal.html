@@ -5,23 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}} | Редевест</title>
-    <meta name="description" content="Проект {{title}} от Редевест">
+    <meta name="description" content="{{description}}">
     <meta name="author" content="Алексей Лещенко, Редевест">
-    <link rel="canonical" href="https://rdvest.ru/projects/{{slug}}.html">
+    <link rel="canonical" href="{{canonical_url}}">
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
     <link href="../input.css" rel="stylesheet">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="article">
-    <meta property="og:url" content="https://rdvest.ru/projects/{{slug}}.html">
+    <meta property="og:url" content="{{canonical_url}}">
     <meta property="og:title" content="{{title}} | Редевест">
-    <meta property="og:description" content="Проект {{title}} от Редевест">
+    <meta property="og:description" content="{{description}}">
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://rdvest.ru/projects/{{slug}}.html">
+    <meta property="twitter:url" content="{{canonical_url}}">
     <meta property="twitter:title" content="{{title}} | Редевест">
-    <meta property="twitter:description" content="Проект {{title}} от Редевест">
+    <meta property="twitter:description" content="{{description}}">
 
     <!-- @include head-analytics.html -->
 </head>
@@ -46,38 +46,25 @@
                 <div class="max-w-4xl mx-auto text-center">
                     <div
                         class="inline-flex items-center px-3 py-1 mb-8 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-medium uppercase tracking-wider">
-                        Инвестиционный проект
+                        {{hero_badge}}
                     </div>
                     <h1 class="text-4xl md:text-6xl font-serif font-medium text-primary mb-8 leading-tight">
                         {{title}}
                     </h1>
-                    <div class="flex justify-center">
-                        <a href="{{bot_link}}" target="_blank" class="btn btn-lg btn-primary">
-                            Получить презентацию
-                        </a>
-                    </div>
+                    {{cta_hero}}
                 </div>
             </div>
         </section>
 
-        <!-- Project Content Section -->
-        <section id="project-details" class="py-20 bg-white">
+        <!-- Content Section -->
+        <section class="py-20 bg-white">
             <div class="container mx-auto px-6">
                 <div class="max-w-4xl mx-auto">
                     <article class="content-typography max-w-none">
                         {{content}}
                     </article>
 
-                    <div class="mt-16 text-center">
-                        <div class="bg-surface p-8 rounded-sm border border-gray-100">
-                            <h3 class="text-2xl font-serif font-bold text-primary mb-4">Интересно узнать больше?</h3>
-                            <p class="text-gray-600 mb-6">Получите подробную презентацию проекта с финансовой моделью и
-                                условиями инвестирования.</p>
-                            <a href="{{bot_link}}" target="_blank" class="btn btn-lg btn-primary">
-                                Получить презентацию проекта
-                            </a>
-                        </div>
-                    </div>
+                    {{cta_footer}}
                 </div>
             </div>
         </section>

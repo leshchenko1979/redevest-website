@@ -184,6 +184,14 @@ export default defineConfig({
         }
       },
       configureServer(server) {
+        const srcProjectsDir = path.join(__dirname, 'src', 'projects');
+        const srcLegalDir = path.join(__dirname, 'src', 'legal');
+        const templatesDir = path.join(__dirname, 'src', 'templates');
+
+        // Watch whole trees so new projects/legal pages are picked up without restart
+        if (fs.existsSync(srcProjectsDir)) server.watcher.add(srcProjectsDir);
+        if (fs.existsSync(srcLegalDir)) server.watcher.add(srcLegalDir);
+
         // Watch markdown files and images in dev mode
         const projects = findProjects();
         for (const project of projects) {
@@ -197,16 +205,26 @@ export default defineConfig({
           if (fs.existsSync(mdPath)) server.watcher.add(mdPath);
         }
 
-        // Handle markdown file changes in dev mode
-        server.watcher.on('change', async (filePath) => {
-          if (filePath.endsWith('.md') && filePath.includes('/projects/')) {
-            console.log(`Markdown file changed: ${filePath}`);
-            const slug = path.basename(path.dirname(filePath));
-            console.log(`Project ${slug} updated, page will reload on next request`);
+        const triggersMarkdownPageReload = (filePath) => {
+          const fp = path.normalize(filePath);
+          if (fp.endsWith('.md')) {
+            return fp.includes(`${path.sep}projects${path.sep}`) || fp.includes(`${path.sep}legal${path.sep}`);
           }
-          if (filePath.endsWith('.md') && filePath.includes('/legal/')) {
-            console.log(`Legal markdown changed: ${filePath}`);
+          if (fp.endsWith('project.html') || fp.endsWith('legal.html')) {
+            return fp.startsWith(path.normalize(templatesDir));
           }
+          return false;
+        };
+
+        // Markdown / templates drive HTML via middleware; tell the client to reload so the browser shows rebuilt HTML
+        server.watcher.on('change', (filePath) => {
+          if (!triggersMarkdownPageReload(filePath)) return;
+          if (filePath.endsWith('.md')) {
+            console.log(`Markdown changed, full reload: ${filePath}`);
+          } else {
+            console.log(`Project/legal template changed, full reload: ${filePath}`);
+          }
+          server.ws.send({ type: 'full-reload' });
         });
 
         // Handle project pages in dev mode
@@ -225,12 +243,16 @@ export default defineConfig({
 
               templateContent = replaceIncludes(templateContent);
 
-              // Replace content
-              templateContent = templateContent.replace(/{{title}}/g, metadata.title || project.slug);
-              templateContent = templateContent.replace('{{content}}', html);
-              templateContent = templateContent.replace(/{{slug}}/g, project.slug);
-              templateContent = templateContent.replace(/{{bot_link}}/g, metadata.bot_link || '');
-              templateContent = templateContent.replace(/{{date}}/g, metadata.date || '');
+              // Replace content using replaceAll for reliability
+              templateContent = templateContent.replaceAll('{{title}}', metadata.title || project.slug);
+              templateContent = templateContent.replaceAll('{{content}}', html);
+              templateContent = templateContent.replaceAll('{{slug}}', project.slug);
+              templateContent = templateContent.replaceAll('{{bot_link}}', metadata.bot_link || '');
+              templateContent = templateContent.replaceAll('{{date}}', metadata.date || '');
+              templateContent = templateContent.replaceAll('{{hero_badge}}', metadata.hero_badge || 'Инвестиционный проект');
+              templateContent = templateContent.replaceAll('{{cta_button}}', metadata.cta_button || 'Узнать об инвестировании');
+              templateContent = templateContent.replaceAll('{{cta_heading}}', metadata.cta_heading || 'Инвестировать в проект');
+              templateContent = templateContent.replaceAll('{{cta_text}}', metadata.cta_text || 'Запросите подробную документацию проекта в Telegram-боте.');
 
               // Fix paths for project pages (dev mode)
               templateContent = templateContent.replace(
@@ -322,13 +344,13 @@ export default defineConfig({
             const canonicalUrl = `${SITE_BASE}/legal/${slug}.html`;
             let templateContent = fs.readFileSync(templatePath, 'utf8');
             templateContent = replaceIncludes(templateContent);
-            templateContent = templateContent.replace(/{{title}}/g, metadata.title || slug);
-            templateContent = templateContent.replace(/{{description}}/g, metadata.description || '');
-            templateContent = templateContent.replace(/{{hero_badge}}/g, metadata.hero_badge || 'Документ');
-            templateContent = templateContent.replace(/{{canonical_url}}/g, canonicalUrl);
-            templateContent = templateContent.replace('{{content}}', html);
-            templateContent = templateContent.replace('{{cta_hero}}', cta_hero);
-            templateContent = templateContent.replace('{{cta_footer}}', cta_footer);
+            templateContent = templateContent.replaceAll('{{title}}', metadata.title || slug);
+            templateContent = templateContent.replaceAll('{{description}}', metadata.description || '');
+            templateContent = templateContent.replaceAll('{{hero_badge}}', metadata.hero_badge || 'Документ');
+            templateContent = templateContent.replaceAll('{{canonical_url}}', canonicalUrl);
+            templateContent = templateContent.replaceAll('{{content}}', html);
+            templateContent = templateContent.replaceAll('{{cta_hero}}', cta_hero);
+            templateContent = templateContent.replaceAll('{{cta_footer}}', cta_footer);
             templateContent = templateContent.replace(/href="\.\.\/assets\//g, 'href="/assets/');
             templateContent = templateContent.replace(/href="\.\.\/input\.css"/g, 'href="/input.css"');
             templateContent = templateContent.replace(/src="common\.js/g, 'src="/common.js');
@@ -355,12 +377,16 @@ export default defineConfig({
 
             templateContent = replaceIncludes(templateContent);
 
-            // Replace content
-            templateContent = templateContent.replace(/{{title}}/g, metadata.title || project.slug);
-            templateContent = templateContent.replace('{{content}}', html);
-            templateContent = templateContent.replace(/{{slug}}/g, project.slug);
-            templateContent = templateContent.replace(/{{bot_link}}/g, metadata.bot_link || '');
-            templateContent = templateContent.replace(/{{date}}/g, metadata.date || '');
+            // Replace content using replaceAll for reliability
+            templateContent = templateContent.replaceAll('{{title}}', metadata.title || project.slug);
+            templateContent = templateContent.replaceAll('{{content}}', html);
+            templateContent = templateContent.replaceAll('{{slug}}', project.slug);
+            templateContent = templateContent.replaceAll('{{bot_link}}', metadata.bot_link || '');
+            templateContent = templateContent.replaceAll('{{date}}', metadata.date || '');
+            templateContent = templateContent.replaceAll('{{hero_badge}}', metadata.hero_badge || 'Инвестиционный проект');
+            templateContent = templateContent.replaceAll('{{cta_button}}', metadata.cta_button || 'Узнать об инвестировании');
+            templateContent = templateContent.replaceAll('{{cta_heading}}', metadata.cta_heading || 'Инвестировать в проект');
+            templateContent = templateContent.replaceAll('{{cta_text}}', metadata.cta_text || 'Запросите подробную документацию проекта в Telegram-боте.');
 
             // Fix paths for project pages
             templateContent = templateContent.replace(
@@ -417,13 +443,13 @@ export default defineConfig({
               const canonicalUrl = `${SITE_BASE}/legal/${lp.slug}.html`;
               let templateContent = fs.readFileSync(legalTemplatePath, 'utf8');
               templateContent = replaceIncludes(templateContent);
-              templateContent = templateContent.replace(/{{title}}/g, metadata.title || lp.slug);
-              templateContent = templateContent.replace(/{{description}}/g, metadata.description || '');
-              templateContent = templateContent.replace(/{{hero_badge}}/g, metadata.hero_badge || 'Документ');
-              templateContent = templateContent.replace(/{{canonical_url}}/g, canonicalUrl);
-              templateContent = templateContent.replace('{{content}}', html);
-              templateContent = templateContent.replace('{{cta_hero}}', cta_hero);
-              templateContent = templateContent.replace('{{cta_footer}}', cta_footer);
+              templateContent = templateContent.replaceAll('{{title}}', metadata.title || lp.slug);
+              templateContent = templateContent.replaceAll('{{description}}', metadata.description || '');
+              templateContent = templateContent.replaceAll('{{hero_badge}}', metadata.hero_badge || 'Документ');
+              templateContent = templateContent.replaceAll('{{canonical_url}}', canonicalUrl);
+              templateContent = templateContent.replaceAll('{{content}}', html);
+              templateContent = templateContent.replaceAll('{{cta_hero}}', cta_hero);
+              templateContent = templateContent.replaceAll('{{cta_footer}}', cta_footer);
               templateContent = templateContent.replace(/href="index\.html/g, 'href="../index.html');
               templateContent = templateContent.replace(/href="scheme\.html/g, 'href="../scheme.html');
               templateContent = templateContent.replace(/src="assets\//g, 'src="../assets/');

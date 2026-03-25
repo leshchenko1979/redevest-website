@@ -245,10 +245,14 @@ function extractImageAttributes(imgTag) {
  */
 function hasResponsiveVersions(pathWithoutExt) {
   const isDev = process.env.NODE_ENV !== 'production';
-  const baseDir = isDev ? 'src' : 'dist';
-  // pathWithoutExt: "slug/images/..." (URL segments, forward slashes) — join under projects/
-  const normalized = pathWithoutExt.replace(/^\/+/, '').replace(/^projects\//, '');
-  const responsiveWebpPath = path.join(__dirname, baseDir, 'projects', `${normalized}-800.webp`);
+  // In dev mode, check .image-cache/assets. In production, check dist/assets/
+  const checkDir = isDev
+    ? path.join(__dirname, '.image-cache', 'assets')
+    : path.join(__dirname, 'dist', 'assets');
+
+  // pathWithoutExt: "projects/slug/images/..." (URL segments, forward slashes)
+  const normalized = pathWithoutExt.replace(/^\/+/, '');
+  const responsiveWebpPath = path.join(checkDir, `${normalized}-800.webp`);
 
   try {
     return fs.existsSync(responsiveWebpPath);
@@ -268,9 +272,11 @@ function createPictureElement(basePath, attrs) {
   const pathWithoutExt = basePath.replace(/\.[^.]+$/, '');
   const hasResponsive = hasResponsiveVersions(pathWithoutExt);
 
+  const prefix = '../assets/';
+
   return hasResponsive
-    ? PICTURE_TEMPLATES.responsive(pathWithoutExt, ext, attrs.alt, attrs.loading, attrs.classAttr)
-    : PICTURE_TEMPLATES.standard(pathWithoutExt, ext, attrs.alt, attrs.loading, attrs.classAttr);
+    ? PICTURE_TEMPLATES.responsive(prefix + pathWithoutExt, ext, attrs.alt, attrs.loading, attrs.classAttr)
+    : PICTURE_TEMPLATES.standard(prefix + pathWithoutExt, ext, attrs.alt, attrs.loading, attrs.classAttr);
 }
 
 /**
@@ -284,7 +290,7 @@ function fixImagePaths(html, projectSlug) {
     // Only process relative paths that start with images/ — URL relative to /projects/{slug}.html → {slug}/images/...
     if (src.startsWith('images/') || src.startsWith('./images/')) {
       const rel = src.replace(/^\.\//, '');
-      const basePath = `${projectSlug}/${rel}`;
+      const basePath = `projects/${projectSlug}/${rel}`;
       const attrs = extractImageAttributes(match);
       return createPictureElement(basePath, attrs);
     }

@@ -148,7 +148,14 @@ async function generateAvifVersion(inputPath, cacheDir, relativeDir, baseName, i
  */
 async function processImageFile(file, srcDir, distDir, cacheDir, isDev, emitFile) {
   const inputPath = path.join(process.cwd(), file);
-  const relativePath = path.relative(srcDir, inputPath);
+  const relativePathRaw = path.relative(srcDir, inputPath);
+
+  // Ensure all project images are under assets/projects/ in the output/cache
+  let relativePath = relativePathRaw;
+  if (relativePathRaw.startsWith('projects' + path.sep)) {
+    relativePath = path.join('assets', relativePathRaw);
+  }
+
   const relativeDir = path.dirname(relativePath);
   const cacheFileDir = path.join(cacheDir, relativeDir);
   const baseName = path.basename(file, path.extname(file));
@@ -232,7 +239,7 @@ async function generateResponsiveVersions(inputPath, cacheDir, distDir, relative
       if (needsRegeneration(inputPath, cachePath)) {
         await sharp(inputPath)
           .resize(size, null, { withoutEnlargement: true, fit: 'inside' })
-          [format.method](format.options)
+        [format.method](format.options)
           .toFile(cachePath);
         console.log(`✨ Generated responsive ${format.ext.toUpperCase()} (${size}w): ${relativeOutputPath}`);
         copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile);
@@ -303,7 +310,10 @@ async function optimizeImages(isDev, emitFile = null) {
   for (const heroImage of heroImages) {
     const fullHeroPath = path.join(process.cwd(), heroImage);
     if (fs.existsSync(fullHeroPath)) {
-      const relativePath = path.relative(srcDir, fullHeroPath);
+      let relativePath = path.relative(srcDir, fullHeroPath);
+      if (relativePath.startsWith('projects' + path.sep)) {
+        relativePath = path.join('assets', relativePath);
+      }
       const relativeDir = path.dirname(relativePath);
       const cacheHeroDir = path.join(cacheDir, relativeDir);
       const baseName = path.basename(heroImage, path.extname(heroImage));
@@ -315,7 +325,10 @@ async function optimizeImages(isDev, emitFile = null) {
   // Large project images responsive versions
   for (const projectImage of largeProjectImages) {
     const fullPath = path.join(process.cwd(), projectImage);
-    const relativePath = path.relative(srcDir, fullPath);
+    let relativePath = path.relative(srcDir, fullPath);
+    if (relativePath.startsWith('projects' + path.sep)) {
+      relativePath = path.join('assets', relativePath);
+    }
     const relativeDir = path.dirname(relativePath);
     const cacheProjectDir = path.join(cacheDir, relativeDir);
     const baseName = path.basename(projectImage, path.extname(projectImage));

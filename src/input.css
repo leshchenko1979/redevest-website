@@ -729,7 +729,8 @@
   /*
    * content-toggle
    * Контекст: Раскрывающийся блок в markdown
-   * Пример: <details class="content-toggle"><summary>...</summary><div>...</div></details>
+   * Пример: details.content-toggle > summary + .content-toggle-panel > .content-toggle-inner
+   * Анимация высоты: max-height + overflow:hidden на панели; логика в common.js (initContentToggleDetails)
    */
   .content-toggle {
     @apply border border-gray-200 rounded-sm my-4 bg-surface;
@@ -745,16 +746,136 @@
   }
 
   .content-toggle summary::before {
-    content: '▶️';
-    @apply mr-2 transition-transform duration-200;
+    content: '▶';
+    display: inline-block;
+    @apply mr-2 text-sm text-primary transition-transform duration-300 ease-out;
   }
 
   .content-toggle[open] summary::before {
-    content: '▼';
+    transform: rotate(90deg);
   }
 
-  .content-toggle>div {
-    @apply p-4 pt-0 border-t border-gray-200;
+  .content-toggle-panel {
+    width: 100%;
+    overflow: hidden;
+    transition: max-height 0.35s ease-out;
+    @apply border-t border-gray-200;
+  }
+
+  .content-toggle-inner {
+    width: 100%;
+    box-sizing: border-box;
+    @apply px-4 py-4;
+  }
+
+  /* Иначе mb-4 у последнего p из .content-typography ломает симметрию с py-4 */
+  .content-typography .content-toggle-inner> :last-child {
+    @apply mb-0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .content-toggle-panel {
+      transition-duration: 0.01ms;
+    }
+
+    .content-toggle summary::before {
+      transition-duration: 0.01ms;
+    }
+  }
+
+  /*
+   * content-gallery (carousel)
+   * Контекст: [[gallery]] — горизонтальная прокрутка + кнопки
+   */
+  .content-typography .content-gallery--carousel {
+    @apply relative my-8 max-w-full;
+  }
+
+  .content-typography .content-gallery-scroller {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* mandatory + JS scrollLeft/lerp ломали прокрутку; snap делаем в JS после жеста */
+    scroll-snap-type: none;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.35rem;
+    scrollbar-width: thin;
+    cursor: grab;
+    touch-action: pan-y;
+  }
+
+  .content-typography .content-gallery-scroller.content-gallery-scroller--dragging {
+    cursor: grabbing;
+    scroll-behavior: auto;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .content-typography .content-gallery-scroller.content-gallery-scroller--smooth-lerp {
+    scroll-behavior: auto;
+  }
+
+  .content-typography .content-gallery-scroller.content-gallery-scroller--momentum {
+    scroll-behavior: auto;
+  }
+
+  /*
+   * marked склеивает подряд идущие ![img] в один <p> с несколькими <picture>.
+   * display:contents убирает <p> из раскладки — flex-элементами становятся сами picture.
+   */
+  .content-typography .content-gallery-scroller>p {
+    display: contents;
+    @apply mb-0;
+  }
+
+  /*
+   * Единая высота слайдов, ширина по пропорциям картинки (без обрезки по высоте).
+   */
+  .content-typography .content-gallery-scroller picture {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    height: clamp(14rem, 48vw, 24rem);
+    @apply rounded-sm shadow-sm my-0 block overflow-hidden;
+  }
+
+  @media (min-width: 768px) {
+    .content-typography .content-gallery-scroller picture {
+      height: clamp(16rem, 40vh, 28rem);
+    }
+  }
+
+  .content-typography .content-gallery-scroller picture img {
+    @apply my-0 block h-full w-auto max-w-none;
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
+
+  .content-typography .content-gallery-controls {
+    @apply flex justify-center items-center gap-6 mt-4;
+  }
+
+  .content-typography .content-gallery-btn {
+    @apply w-11 h-11 shrink-0 rounded-full border border-gray-200 bg-white text-2xl font-light leading-none text-primary shadow-sm flex items-center justify-center transition-colors hover:bg-primary hover:text-white hover:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent;
+  }
+
+  /*
+   * content-iframe-container
+   * Контекст: Встраивание 3D-туров и др. через [[iframe | URL]]
+   */
+  .content-typography .content-iframe-container {
+    @apply relative w-full my-8 rounded-sm overflow-hidden border border-gray-200 shadow-sm bg-gray-100;
+    aspect-ratio: 16 / 9;
+    max-height: min(80vh, 720px);
+  }
+
+  .content-typography .content-iframe-container iframe {
+    @apply absolute inset-0 w-full h-full border-0;
   }
 
   /*

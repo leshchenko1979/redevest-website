@@ -293,21 +293,27 @@ export default defineConfig({
 
         // Handle project images in dev mode
         server.middlewares.use('/assets/projects', (req, res, next) => {
-          const urlParts = req.url.split('/');
-          if (urlParts.length >= 4 && urlParts[2] === 'images') {
-            const projectSlug = urlParts[1];
-            const imageName = decodeURIComponent(urlParts[3]); // Decode URL-encoded filenames
+          const pathname = req.url.split('?')[0];
+          const urlParts = pathname.split('/').filter(Boolean);
+          // /lunevo/images/foo.jpg or /lunevo/images/renders/foo.jpg
+          if (urlParts.length >= 3 && urlParts[1] === 'images') {
+            const projectSlug = urlParts[0];
+            const imageRelPath = decodeURIComponent(urlParts.slice(2).join('/'));
+            if (imageRelPath.includes('..')) {
+              next();
+              return;
+            }
 
             // First try to serve optimized images from src/assets/projects/
-            let imagePath = path.join(__dirname, 'src', 'assets', 'projects', projectSlug, 'images', imageName);
+            let imagePath = path.join(__dirname, 'src', 'assets', 'projects', projectSlug, 'images', imageRelPath);
 
             // Fall back to original images in src/projects/
             if (!fs.existsSync(imagePath)) {
-              imagePath = path.join(__dirname, 'src', 'projects', projectSlug, 'images', imageName);
+              imagePath = path.join(__dirname, 'src', 'projects', projectSlug, 'images', imageRelPath);
             }
 
             if (fs.existsSync(imagePath)) {
-              const ext = path.extname(imageName).toLowerCase();
+              const ext = path.extname(imageRelPath).toLowerCase();
               const contentType = ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' :
                 ext === '.png' ? 'image/png' :
                   ext === '.gif' ? 'image/gif' :

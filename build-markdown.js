@@ -10,7 +10,10 @@ const marked = require('marked');
  */
 // Constants for custom block patterns
 const BLOCK_PATTERNS = {
-  toggle: /\[\[toggle\s*\|\s*(.*?)\]\]\n([\s\S]*?)(?=\n\[\[|\n*$)/g,
+  gallery: /\[\[gallery\]\]\r?\n?([\s\S]*?)\r?\n\[\[\/gallery\]\]/g,
+  iframe: /\[\[iframe\s*\|\s*([^\]]+)\]\]/g,
+  // Body ends at next custom block, next markdown H2 (##), or EOF (so FAQ toggles do not swallow following sections)
+  toggle: /\[\[toggle\s*\|\s*(.*?)\]\]\r?\n([\s\S]*?)(?=\r?\n\[\[|\r?\n##\s|\r?\n*$)/g,
   columns: /\[\[columns\]\]([\s\S]*?)\[\[\/columns\]\]/g,
   columnsLegacy: /(\[\[columns\]\]\s*\|\s*\[\[column\]\][\s\S]*?)(?=\n(?:\[\[|#|$))/g,
   callout: /\[\[callout\s*\|\s*(\w+)\]\]\r?\n([\s\S]*?)(?:\r?\n\[\[\/callout\]\]|(?=\r?\n(?:\[\[|##|---|$)))/g,
@@ -19,10 +22,23 @@ const BLOCK_PATTERNS = {
 
 // Constants for HTML templates
 const HTML_TEMPLATES = {
-  toggle: (title, bodyHtml) => `<details class="content-toggle">\n<summary>${title}</summary>\n<div>\n${bodyHtml}\n</div>\n</details>\n\n`,
+  toggle: (title, bodyHtml) =>
+    `<details class="content-toggle">\n<summary>${title}</summary>\n<div class="content-toggle-panel">\n<div class="content-toggle-inner">\n${bodyHtml}\n</div>\n</div>\n</details>\n\n`,
   columns: (columnHtml) => `<div class="content-columns">${columnHtml}</div>\n\n`,
   column: (contentHtml) => `<div class="content-column">${contentHtml}</div>`,
-  callout: (type, textHtml) => `<div class="content-callout content-callout-${type}">\n${textHtml}\n</div>\n\n`
+  callout: (type, textHtml) => `<div class="content-callout content-callout-${type}">\n${textHtml}\n</div>\n\n`,
+  gallery: (innerHtml) =>
+    `<div class="content-gallery content-gallery--carousel" role="region" aria-label="Галерея изображений">\n` +
+    `<div class="content-gallery-scroller">${innerHtml}</div>\n` +
+    `<div class="content-gallery-controls">\n` +
+    `<button type="button" class="content-gallery-btn content-gallery-prev" aria-label="Предыдущее изображение">‹</button>\n` +
+    `<button type="button" class="content-gallery-btn content-gallery-next" aria-label="Следующее изображение">›</button>\n` +
+    `</div>\n` +
+    `</div>\n\n`,
+  iframe: (src, title) =>
+    `<div class="content-iframe-container">\n` +
+    `<iframe src="${src}" title="${title}" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>\n` +
+    `</div>\n\n`
 };
 
 /**
@@ -37,6 +53,65 @@ function cleanPipeContent(content) {
     .replace(/\|\s*$/gm, '') // Remove trailing pipes
     .replace(/^\|\s*$/gm, '') // Remove lines that are only pipes
     .trim();
+}
+
+/**
+ * Escapes a string for use inside an HTML double-quoted attribute.
+ * @param {string} value
+ * @returns {string}
+ */
+function escapeHtmlAttr(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/**
+ * Returns true if URL is safe to embed in iframe src (http/https only).
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isAllowedIframeUrl(url) {
+  const trimmed = url.trim();
+  try {
+    const u = new URL(trimmed);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Processes [[gallery]]...[[/gallery]] blocks (must run before [[toggle]]).
+ * @param {string} content
+ * @returns {string}
+ */
+function processGalleryBlocks(content) {
+  return content.replace(BLOCK_PATTERNS.gallery, (match, blockContent) => {
+    const cleanBody = cleanPipeContent(blockContent);
+    const innerHtml = marked.parse(cleanBody);
+    return HTML_TEMPLATES.gallery(innerHtml);
+  });
+}
+
+/**
+ * Processes [[iframe | URL]] blocks (must run before [[toggle]]).
+ * @param {string} content
+ * @returns {string}
+ */
+function processIframeBlocks(content) {
+  return content.replace(BLOCK_PATTERNS.iframe, (match, rawUrl) => {
+    const url = rawUrl.trim();
+    if (!isAllowedIframeUrl(url)) {
+      console.warn(`[build-markdown] Skipped iframe: disallowed or invalid URL`);
+      return '';
+    }
+    const safeSrc = escapeHtmlAttr(url);
+    const safeTitle = escapeHtmlAttr('Интерактивный контент');
+    return HTML_TEMPLATES.iframe(safeSrc, safeTitle);
+  });
 }
 
 /**
@@ -114,7 +189,9 @@ function processCalloutBlocks(content) {
 function processCustomBlocks(content) {
   let processed = content;
 
-  // Process blocks in order (toggle first to avoid conflicts)
+  // Gallery and iframe before toggle (toggle body must not start with [[...]] or match breaks)
+  processed = processGalleryBlocks(processed);
+  processed = processIframeBlocks(processed);
   processed = processToggleBlocks(processed);
   processed = processColumnBlocks(processed);
   processed = processLegacyColumnBlocks(processed);
@@ -169,9 +246,9 @@ function extractImageAttributes(imgTag) {
 function hasResponsiveVersions(pathWithoutExt) {
   const isDev = process.env.NODE_ENV !== 'production';
   const baseDir = isDev ? 'src' : 'dist';
-  // Remove leading ../ from pathWithoutExt to get the relative path from src/dist
-  const relativePath = pathWithoutExt.replace(/^(\.\.\/)*/, '');
-  const responsiveWebpPath = path.join(__dirname, baseDir, `${relativePath}-800.webp`);
+  // pathWithoutExt: "slug/images/..." (URL segments, forward slashes) — join under projects/
+  const normalized = pathWithoutExt.replace(/^\/+/, '').replace(/^projects\//, '');
+  const responsiveWebpPath = path.join(__dirname, baseDir, 'projects', `${normalized}-800.webp`);
 
   try {
     return fs.existsSync(responsiveWebpPath);
@@ -204,9 +281,10 @@ function createPictureElement(basePath, attrs) {
  */
 function fixImagePaths(html, projectSlug) {
   return html.replace(/<img([^>]*?)src="([^"]*)"([^>]*?)>/g, (match, beforeSrc, src, afterSrc) => {
-    // Only process relative paths that start with images/
+    // Only process relative paths that start with images/ — URL relative to /projects/{slug}.html → {slug}/images/...
     if (src.startsWith('images/') || src.startsWith('./images/')) {
-      const basePath = `/projects/${projectSlug}/${src.replace('./', '')}`;
+      const rel = src.replace(/^\.\//, '');
+      const basePath = `${projectSlug}/${rel}`;
       const attrs = extractImageAttributes(match);
       return createPictureElement(basePath, attrs);
     }
@@ -326,5 +404,7 @@ module.exports = {
   processMarkdownFile,
   findProjects,
   processCustomBlocks,
-  fixImagePaths
+  fixImagePaths,
+  processGalleryBlocks,
+  processIframeBlocks
 };

@@ -45,14 +45,14 @@ describe('Vite Config Plugins', () => {
             <div class="nav-flex">
                 <a href="index.html" class="flex items-center space-x-3 group">
                     <img src="assets/favicon.png" alt="Редевест" class="h-10 w-auto">
-                    <span class="text-2xl font-sans text-primary hidden md:block group-hover:text-accent transition-colors tracking-tight">Редевест</span>
+                    <span class="text-2xl font-sans text-primary hidden lg:block group-hover:text-accent transition-colors tracking-tight">Редевест</span>
                 </a>
-                <button onclick="toggleMobileMenu()" aria-label="Открыть мобильное меню" class="md:hidden text-primary hover:text-accent transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button type="button" onclick="toggleMobileMenu()" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobile-menu-panel" class="lg:hidden text-primary hover:text-accent transition-colors p-1 -mr-1 shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
                 </button>
-                <div class="hidden md:flex items-center space-x-10">
+                <div class="hidden lg:flex items-center gap-6 xl:gap-10">
                     <a href="index.html#about" class="nav-link">О компании</a>
                     <a href="index.html#trust" class="nav-link">Безопасность</a>
                     <a href="index.html#projects" class="nav-link">Проекты</a>

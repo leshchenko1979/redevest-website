@@ -12,7 +12,8 @@ const SITE_BASE = 'https://rdvst.ru';
 
 const LEGAL_PAGES = [
   { slug: 'events', md: 'legal/events.md' },
-  { slug: 'privacy', md: 'legal/privacy.md' }
+  { slug: 'privacy', md: 'legal/privacy.md' },
+  { slug: 'community-rules', md: 'legal/community-rules.md' }
 ];
 
 function buildLegalCtaBlocks(metadata) {
@@ -301,17 +302,14 @@ export default defineConfig({
 
         // Handle legal pages in dev mode
         server.middlewares.use('/legal', async (req, res, next) => {
-          const urlPath = req.url.replace(/^\//, '').replace(/\.html$/, '') || 'index';
-          const slug = urlPath === 'events' || urlPath === 'privacy' ? urlPath : null;
-          if (!slug) {
-            next();
-            return;
-          }
-          const lp = LEGAL_PAGES.find((p) => p.slug === slug);
+          const urlPath =
+            req.url.replace(/^\//, '').split('?')[0].replace(/\.html$/, '') || 'index';
+          const lp = LEGAL_PAGES.find((p) => p.slug === urlPath);
           if (!lp) {
             next();
             return;
           }
+          const slug = lp.slug;
           const mdPath = path.join(__dirname, 'src', lp.md);
           const templatePath = path.join(__dirname, 'src', 'templates', 'legal.html');
           if (!fs.existsSync(mdPath) || !fs.existsSync(templatePath)) {

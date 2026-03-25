@@ -237,6 +237,9 @@ function enhanceHtmlContent(html) {
  */
 async function processMarkdownFile(filePath, projectSlug) {
   try {
+    const displayPath = path.relative(__dirname, filePath) || filePath;
+    console.log(`[build-markdown] ${displayPath}`);
+
     // Read and parse file
     const fileContent = fs.readFileSync(filePath, 'utf8');
     const { data: metadata, content } = matter(fileContent);

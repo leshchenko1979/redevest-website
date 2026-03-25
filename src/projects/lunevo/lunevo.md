@@ -78,7 +78,7 @@ cta_text: "Получите документацию и условия в Telegr
 
 - **Адрес:** МО, г.о. Химки, с/п Лунёвское
 - **Кадастровый номер:** 50:09:0060510:3008
-- **Документы:** [Участок на кадастровой карте](https://rosreestr-doc.ru/%D0%BA%D0%B0%D0%B4%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B2%D0%B0%D1%8F_%D0%BA%D0%B0%D1%80%D1%82%D0%B0#lat=55.988872&lng=37.288400&ct=55.988828&cg=37.285451&zoom=15) | [Локация и окружение на Яндекс Картах](https://yandex.ru/maps/?l=trf%2Ctrfe&ll=37.287850%2C55.989000&mode=whatshere&whatshere%5Bpoint%5D=37.286649%2C55.989577&whatshere%5Bzoom%5D=16&z=15)
+- **На карте:** [Участок на кадастровой карте](https://rosreestr-doc.ru/%D0%BA%D0%B0%D0%B4%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B2%D0%B0%D1%8F_%D0%BA%D0%B0%D1%80%D1%82%D0%B0#lat=55.988872&lng=37.288400&ct=55.988828&cg=37.285451&zoom=15) | [Локация и окружение на Яндекс Картах](https://yandex.ru/maps/?l=trf%2Ctrfe&ll=37.287850%2C55.989000&mode=whatshere&whatshere%5Bpoint%5D=37.286649%2C55.989577&whatshere%5Bzoom%5D=16&z=15)
 
 [[gallery]]
 ![Окружение](images/image1.png)

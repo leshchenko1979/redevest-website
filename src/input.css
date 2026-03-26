@@ -28,7 +28,7 @@
    * .btn-sm  - маленький (px-6 py-4 text-base) - для компактных кнопок
    *
    * ВАРИАНТЫ СТИЛЕЙ (выберите один):
-   * .btn-primary    - темно-синяя кнопка с градиентом
+   * .btn-primary    - акцентная кнопка с фирменным градиентом
    * .btn-secondary  - ghost-кнопка без фона и рамки + стрелка
    * .btn-outline    - glass/tertiary кнопка для поверхностей и изображений
    *
@@ -68,7 +68,12 @@
 
   /* Button variants */
   .btn-primary {
-    @apply text-white bg-gradient-to-b from-[#0b1733] to-[#1f2f4d] hover:from-[#1f2f4d] hover:to-[#0b1733] shadow-ambient-xl hover:shadow-ambient-xl-hover hover:-translate-y-0.5;
+    @apply text-white shadow-ambient-xl hover:shadow-ambient-xl-hover hover:-translate-y-0.5;
+    background: linear-gradient(135deg, #a83900 0%, #ff6b2b 100%);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #962f00 0%, #f55d1f 100%);
   }
 
   .btn-secondary {
@@ -117,13 +122,18 @@
   }
 
   .nav-btn {
-    @apply inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-white rounded-sm transition-all duration-200 bg-gradient-to-b from-[#0b1733] to-[#1f2f4d] hover:from-[#1f2f4d] hover:to-[#0b1733] shadow-ambient-xl hover:shadow-ambient-xl-hover;
+    @apply inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-white rounded-sm transition-all duration-200 shadow-ambient-xl hover:shadow-ambient-xl-hover;
+    background: linear-gradient(135deg, #a83900 0%, #ff6b2b 100%);
+  }
+
+  .nav-btn:hover {
+    background: linear-gradient(135deg, #962f00 0%, #f55d1f 100%);
   }
 
   /* Cards — базовый класс и варианты */
 
   .card-base {
-    @apply bg-white rounded-sm shadow-ambient-lg hover:shadow-ambient-card-hover transition-all;
+    @apply bg-surface rounded-sm shadow-ambient-lg hover:shadow-ambient-card-hover transition-all;
   }
 
   .card-section {
@@ -131,7 +141,7 @@
   }
 
   .card-info {
-    @apply bg-blue-50 border-l-4 border-primary p-8 md:p-10 rounded-r-sm;
+    @apply bg-blue-50 p-8 md:p-10 rounded-sm;
   }
 
   .card-faq {
@@ -356,7 +366,7 @@
   }
 
   .footer-bottom {
-    @apply border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500;
+    @apply pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500;
   }
 
   .container {
@@ -608,11 +618,11 @@
   }
 
   .content-typography h1 {
-    @apply text-3xl font-serif font-bold text-primary mt-8 mb-4 first:mt-0;
+    @apply text-3xl font-serif font-bold text-primary mt-8 mb-4 first:mt-0 leading-[1.3];
   }
 
   .content-typography h2 {
-    @apply text-2xl font-serif font-bold text-primary mt-12 mb-3;
+    @apply text-2xl font-serif font-bold text-primary mt-12 mb-3 leading-[1.3];
   }
 
   .content-typography h3 {
@@ -620,7 +630,7 @@
   }
 
   .content-typography p {
-    @apply mb-4;
+    @apply mb-4 tracking-[0.02em];
   }
 
   .content-typography ul,
@@ -667,7 +677,7 @@
    * Пример: <div class="content-callout content-callout-info">...</div>
    */
   .content-callout {
-    @apply p-6 my-6 rounded-lg bg-surface shadow-ambient-sm ring-1 ring-slate-300/40;
+    @apply p-6 my-6 rounded-lg bg-surface shadow-ambient-sm text-[1.0625rem] leading-relaxed;
     @apply flex flex-col justify-center;
   }
 
@@ -723,7 +733,7 @@
   }
 
   .content-toggle summary {
-    @apply cursor-pointer p-4 font-semibold text-primary hover:bg-gray-50 transition-colors;
+    @apply cursor-pointer p-4 font-semibold text-primary bg-white/70 hover:bg-slate-50/90 transition-colors;
     list-style: none;
   }
 
@@ -861,11 +871,9 @@
   .content-typography .content-project-passport::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(to right, #0f172a, #b45309);
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(140deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.02) 100%);
   }
 
   .content-typography .content-project-passport::after {
@@ -895,17 +903,11 @@
   }
 
   .content-typography .content-project-passport li {
-    @apply m-0 pb-3 border-b border-slate-200/70;
+    @apply m-0 p-3 rounded-md bg-white/70 text-[1.0625rem] leading-relaxed;
   }
 
-  .content-typography .content-project-passport li:last-child {
-    @apply border-b-0;
-  }
-
-  @media (min-width: 768px) {
-    .content-typography .content-project-passport li:nth-last-child(-n+2) {
-      @apply border-b-0;
-    }
+  .content-typography .content-project-passport li:nth-child(even) {
+    @apply bg-slate-50/85;
   }
 
   /*
@@ -915,9 +917,9 @@
   .project-cta-glass {
     @apply relative p-8 md:p-10 rounded-sm shadow-ambient-xl overflow-hidden;
     background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.76) 0%, rgba(243, 246, 255, 0.88) 55%, rgba(236, 241, 255, 0.94) 100%);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+      linear-gradient(135deg, rgba(250, 249, 248, 0.8) 0%, rgba(244, 243, 242, 0.88) 55%, rgba(255, 255, 255, 0.92) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
   }
 
   .project-cta-glass::before {
@@ -961,7 +963,8 @@
    * Пример: <div class="content-table-container"><table class="content-table">...</table></div>
    */
   .content-table {
-    @apply w-full border-collapse border-2 border-gray-500 rounded-sm my-6 overflow-hidden text-sm shadow-sm;
+    @apply w-full border-collapse rounded-sm my-6 overflow-hidden text-sm shadow-sm;
+    background: rgba(255, 255, 255, 0.9);
   }
 
   @media (max-width: 768px) {
@@ -979,11 +982,19 @@
   }
 
   .content-table th {
-    @apply bg-gray-100 border border-gray-300 px-4 py-3 text-left font-semibold text-primary;
+    @apply bg-gray-100 px-4 py-3 text-left font-semibold text-primary;
   }
 
   .content-table td {
-    @apply border border-gray-300 px-4 py-3 text-left;
+    @apply px-4 py-3 text-left;
+  }
+
+  .content-table tbody tr:nth-child(odd) {
+    @apply bg-white;
+  }
+
+  .content-table tbody tr:nth-child(even) {
+    @apply bg-slate-50/80;
   }
 
   .content-table tr th:first-child,
@@ -992,11 +1003,21 @@
   }
 
   .calc-input {
-    @apply w-full max-w-xs border border-gray-300 rounded-sm px-3 py-2 text-gray-800 focus:border-primary focus:ring-1 focus:ring-primary;
+    @apply w-full max-w-xs rounded-sm px-3 py-2 text-gray-800;
+    outline: 1px solid rgba(220, 193, 177, 0.15);
+  }
+
+  .calc-input:focus {
+    outline: 1px solid rgba(220, 193, 177, 0.45);
   }
 
   .calc-input-sm {
-    @apply w-full border border-gray-300 rounded-sm px-2 py-1 text-sm text-gray-800 focus:border-primary text-right;
+    @apply w-full rounded-sm px-2 py-1 text-sm text-gray-800 text-right;
+    outline: 1px solid rgba(220, 193, 177, 0.15);
+  }
+
+  .calc-input-sm:focus {
+    outline: 1px solid rgba(220, 193, 177, 0.45);
   }
 
   .calc-table-num td,
@@ -1034,7 +1055,8 @@
   }
 
   .content-report .content-report-header {
-    @apply bg-white rounded-lg p-10 mb-8 shadow-sm border-t-4 border-primary text-center;
+    @apply bg-white rounded-lg p-10 mb-8 shadow-sm text-center;
+    background-image: linear-gradient(180deg, rgba(168, 57, 0, 0.18) 0%, rgba(168, 57, 0, 0) 16%);
   }
 
   .content-report .content-header-pre {
@@ -1122,7 +1144,8 @@
 
   /* content-quote */
   .content-report .content-quote {
-    @apply text-lg italic text-primary border-l-4 border-accent pl-5 my-8;
+    @apply text-lg italic text-primary pl-5 my-8 rounded-sm;
+    background: linear-gradient(90deg, rgba(250, 204, 21, 0.2) 0%, rgba(250, 204, 21, 0.04) 25%, rgba(250, 204, 21, 0) 70%);
   }
 
   .content-report .content-quote-author {
@@ -1134,7 +1157,7 @@
    * Контекст: Чек-лист в отчётах о встречах
    */
   .content-report .content-checklist {
-    @apply bg-white p-8 rounded-lg mt-10 shadow-sm border-2 border-slate-100;
+    @apply bg-white p-8 rounded-lg mt-10 shadow-sm;
   }
 
   .content-report .content-checklist-title {
@@ -1150,19 +1173,20 @@
   }
 
   .content-report .content-checklist-item {
-    @apply flex gap-4 py-3 border-b border-gray-100;
+    @apply flex gap-4 py-3;
+    background: linear-gradient(180deg, rgba(148, 163, 184, 0.08) 0%, rgba(148, 163, 184, 0) 100%);
   }
 
   .content-report .content-checklist-item:last-child {
-    @apply border-b-0;
+    @apply mb-0;
   }
 
   .content-report .content-checklist-checkbox {
-    @apply w-[22px] h-[22px] border-2 border-slate-500 rounded-md flex-shrink-0 mt-0.5 relative transition-all duration-200;
+    @apply w-[22px] h-[22px] rounded-md flex-shrink-0 mt-0.5 relative transition-all duration-200 bg-slate-200;
   }
 
   .content-report .content-checklist-item.checked .content-checklist-checkbox {
-    @apply bg-primary border-primary;
+    @apply bg-primary;
   }
 
   .content-report .content-checklist-item.checked .content-checklist-checkbox::after {

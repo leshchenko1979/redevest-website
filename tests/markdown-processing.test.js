@@ -84,6 +84,15 @@ This is an info callout
       expect(result).toContain('images/b.png');
     });
 
+    test('should process project passport blocks', () => {
+      const input = `[[project-passport]]
+**Локация:** Химки
+[[/project-passport]]`;
+      const result = processCustomBlocks(input);
+      expect(result).toContain('content-project-passport');
+      expect(result).toContain('Локация');
+    });
+
     test('should process iframe blocks with https URL', () => {
       const input = '[[iframe | https://example.com/embed]]';
       const result = processCustomBlocks(input);

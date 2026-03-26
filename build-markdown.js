@@ -11,6 +11,7 @@ const marked = require('marked');
 // Constants for custom block patterns
 const BLOCK_PATTERNS = {
   gallery: /\[\[gallery\]\]\r?\n?([\s\S]*?)\r?\n\[\[\/gallery\]\]/g,
+  projectPassport: /\[\[project-passport\]\]\r?\n?([\s\S]*?)\r?\n\[\[\/project-passport\]\]/g,
   iframe: /\[\[iframe\s*\|\s*([^\]]+)\]\]/g,
   // Body ends at next custom block, next markdown H2 (##), or EOF (so FAQ toggles do not swallow following sections)
   toggle: /\[\[toggle\s*\|\s*(.*?)\]\]\r?\n([\s\S]*?)(?=\r?\n\[\[|\r?\n##\s|\r?\n*$)/g,
@@ -35,6 +36,10 @@ const HTML_TEMPLATES = {
     `<button type="button" class="content-gallery-btn content-gallery-next" aria-label="Следующее изображение">›</button>\n` +
     `</div>\n` +
     `</div>\n\n`,
+  projectPassport: (innerHtml) =>
+    `<section class="content-project-passport" role="region" aria-label="Паспорт проекта">\n` +
+    `${innerHtml}\n` +
+    `</section>\n\n`,
   iframe: (src, title) =>
     `<div class="content-iframe-container">\n` +
     `<iframe src="${src}" title="${title}" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>\n` +
@@ -93,6 +98,19 @@ function processGalleryBlocks(content) {
     const cleanBody = cleanPipeContent(blockContent);
     const innerHtml = marked.parse(cleanBody);
     return HTML_TEMPLATES.gallery(innerHtml);
+  });
+}
+
+/**
+ * Processes [[project-passport]]...[[/project-passport]] blocks.
+ * @param {string} content
+ * @returns {string}
+ */
+function processProjectPassportBlocks(content) {
+  return content.replace(BLOCK_PATTERNS.projectPassport, (match, blockContent) => {
+    const cleanBody = cleanPipeContent(blockContent);
+    const innerHtml = marked.parse(cleanBody);
+    return HTML_TEMPLATES.projectPassport(innerHtml);
   });
 }
 
@@ -191,6 +209,7 @@ function processCustomBlocks(content) {
 
   // Gallery and iframe before toggle (toggle body must not start with [[...]] or match breaks)
   processed = processGalleryBlocks(processed);
+  processed = processProjectPassportBlocks(processed);
   processed = processIframeBlocks(processed);
   processed = processToggleBlocks(processed);
   processed = processColumnBlocks(processed);
@@ -412,5 +431,6 @@ module.exports = {
   processCustomBlocks,
   fixImagePaths,
   processGalleryBlocks,
+  processProjectPassportBlocks,
   processIframeBlocks
 };

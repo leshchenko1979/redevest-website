@@ -36,7 +36,7 @@ function ensureDirectoryExists(dirPath) {
 
 /**
  * Copies a cached file to the output location or emits it to Vite bundle
- * In dev mode, optimized files are served via middleware - originals only copied on failure
+ * In dev mode, files are served from cache/originals only - no writes to src
  */
 function copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile, isOriginalFallback = false) {
   // Handle original file fallback (when optimization fails)
@@ -49,11 +49,9 @@ function copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile, i
     }
 
     if (isDev) {
-      // In dev mode, copy original to src/assets so Vite can serve it
-      const devOutputPath = path.join(distDir, relativeOutputPath);
-      ensureDirectoryExists(path.dirname(devOutputPath));
-      fs.copyFileSync(originalPath, devOutputPath);
-      return true;
+      // Never write fallback files into src during development.
+      // Let Vite serve originals directly when optimized variants are unavailable.
+      return false;
     } else {
       // In production, emit original file to bundle
       if (emitFile) {
@@ -279,7 +277,7 @@ function findFiles(dir, patterns) {
  */
 async function optimizeImages(isDev, emitFile = null) {
   const srcDir = path.join(process.cwd(), 'src');
-  const distDir = isDev ? srcDir : path.join(process.cwd(), 'dist');
+  const distDir = path.join(process.cwd(), 'dist');
   const cacheDir = path.join(process.cwd(), CACHE_DIR);
 
   ensureDirectoryExists(cacheDir);

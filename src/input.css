@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -28,22 +28,22 @@
    * .btn-sm  - маленький (px-6 py-4 text-base) - для компактных кнопок
    *
    * ВАРИАНТЫ СТИЛЕЙ (выберите один):
-   * .btn-primary    - синяя кнопка с белым текстом
-   * .btn-secondary  - белая кнопка с рамкой
-   * .btn-outline    - белая с синей рамкой (hover на синий фон)
+   * .btn-primary    - темно-синяя кнопка с градиентом
+   * .btn-secondary  - ghost-кнопка без фона и рамки + стрелка
+   * .btn-outline    - glass/tertiary кнопка для поверхностей и изображений
    *
    * МОДИФИКАТОРЫ ШИРИНЫ (опционально):
    * .btn-full       - кнопка на всю ширину контейнера
    *
    * СПЕЦИАЛЬНЫЕ ВАРИАНТЫ (альтернатива комбинациям выше):
-   * .btn-accent-bold    - желтая кнопка с жирным текстом (для партнеров)
+   * .btn-accent-bold    - glass/tertiary кнопка для dark-секций
    *
    * ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
    *
    * Основная кнопка:     <a class="btn btn-lg btn-primary">Смотреть проекты</a>
    * Кнопка в карточке:   <a class="btn btn-full btn-sm btn-primary">Получить презентацию</a>
    * Ссылка на схему:     <a class="btn btn-md btn-outline">Подробная схема</a>
-   * Специальная кнопка:  <a class="btn-accent-bold">Вступить в клуб</a>
+   * Специальная кнопка:  <a class="btn btn-lg btn-accent-bold">Вступить в клуб</a>
    *
    * ===========================================
    */
@@ -68,15 +68,24 @@
 
   /* Button variants */
   .btn-primary {
-    @apply text-white bg-primary hover:bg-secondary shadow-lg hover:shadow-xl hover:-translate-y-0.5;
+    @apply text-white bg-gradient-to-b from-[#0b1733] to-[#1f2f4d] hover:from-[#1f2f4d] hover:to-[#0b1733] shadow-ambient-xl hover:shadow-ambient-xl-hover hover:-translate-y-0.5;
   }
 
   .btn-secondary {
-    @apply text-primary bg-white border border-gray-200 hover:border-primary/50 hover:bg-gray-50;
+    @apply text-secondary bg-transparent uppercase tracking-wide text-sm hover:text-primary inline-flex items-center gap-2;
+  }
+
+  .btn-secondary::after {
+    content: '→';
+    @apply transition-transform duration-200;
+  }
+
+  .btn-secondary:hover::after {
+    transform: translateX(2px);
   }
 
   .btn-outline {
-    @apply text-primary bg-white border border-primary hover:bg-primary hover:text-white shadow-md hover:shadow-lg hover:-translate-y-0.5;
+    @apply text-primary bg-surface/60 backdrop-blur-sm hover:bg-surface hover:text-primary shadow-ambient-md hover:shadow-ambient-lg hover:-translate-y-0.5;
   }
 
   /* Button width modifiers */
@@ -86,12 +95,13 @@
 
   /* Special button variants */
   .btn-accent-bold {
-    @apply inline-flex items-center justify-center rounded-sm transition-all px-8 py-4 text-base font-bold text-white bg-accent hover:bg-accent/90 shadow-lg hover:shadow-accent/50 hover:-translate-y-0.5;
+    @apply font-semibold text-white bg-white/10 backdrop-blur-[20px] hover:bg-white/20 shadow-ambient-xl hover:shadow-ambient-xl-hover hover:-translate-y-0.5;
   }
 
   /* Navigation */
   .nav-container {
-    @apply bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50;
+    @apply bg-white/80 backdrop-blur-[20px] sticky top-0 z-50;
+    box-shadow: 0 8px 32px rgba(21, 28, 39, 0.06);
   }
 
   .nav-content {
@@ -107,13 +117,13 @@
   }
 
   .nav-btn {
-    @apply inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-white bg-primary hover:bg-secondary rounded-sm transition-colors duration-200;
+    @apply inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-white rounded-sm transition-all duration-200 bg-gradient-to-b from-[#0b1733] to-[#1f2f4d] hover:from-[#1f2f4d] hover:to-[#0b1733] shadow-ambient-xl hover:shadow-ambient-xl-hover;
   }
 
   /* Cards — базовый класс и варианты */
 
   .card-base {
-    @apply bg-white rounded-sm border border-gray-100 shadow-sm hover:shadow-md transition-all;
+    @apply bg-white rounded-sm shadow-ambient-lg hover:shadow-ambient-card-hover transition-all;
   }
 
   .card-section {
@@ -125,7 +135,7 @@
   }
 
   .card-faq {
-    @apply bg-white rounded-sm border border-gray-200 overflow-hidden;
+    @apply bg-white rounded-sm overflow-hidden shadow-ambient-sm;
   }
 
   .card-faq-summary {
@@ -173,7 +183,8 @@
    * Эффект: Создает левостороннее выравнивание текста с отступами и границей
    */
   .faq-content {
-    @apply p-6 border-t border-gray-200 text-gray-600 font-light leading-relaxed text-left;
+    @apply p-6 text-gray-600 font-light leading-relaxed text-left;
+    background: linear-gradient(to bottom, rgba(240, 243, 255, 0.45), rgba(240, 243, 255, 0.12));
   }
 
   /*
@@ -226,7 +237,7 @@
    * Эффект: Создает секцию с белым фоном, вертикальными отступами и нижней границей
    */
   .section-white {
-    @apply section-padding bg-white border-b border-gray-100;
+    @apply section-padding bg-white;
   }
 
   /*
@@ -237,7 +248,7 @@
    * Эффект: Создает секцию с серым фоном, вертикальными отступами и нижней границей
    */
   .section-surface {
-    @apply section-padding bg-surface border-b border-gray-100;
+    @apply section-padding bg-surface;
   }
 
   /*
@@ -395,7 +406,7 @@
 
   /* Project image overlay */
   .project-image-overlay {
-    @apply absolute bottom-4 right-4 md:bottom-4 md:right-4 bg-white/95 backdrop-blur-md rounded-lg shadow-xl border border-white/20 flex items-center justify-center p-3;
+    @apply absolute bottom-4 right-4 md:bottom-4 md:right-4 bg-white/80 backdrop-blur-[20px] rounded-lg shadow-ambient-xl flex items-center justify-center p-3;
   }
 
   .project-yield-text {
@@ -427,7 +438,7 @@
    * Эффект: Создает карточку с номером, заголовком и hover эффектом для популярных материалов
    */
   .top-post-card {
-    @apply card-base flex items-center p-4 hover:border-accent/50 duration-200;
+    @apply card-base flex items-center p-4 duration-200;
   }
 
   .top-post-number {
@@ -484,7 +495,7 @@
    * Эффект: Создает белую карточку с тенью, hover эффектами и анимацией
    */
   .lifecycle-card {
-    @apply card-base relative z-10 p-6 hover:border-primary duration-300;
+    @apply card-base relative z-10 p-6 duration-300;
   }
 
   .lifecycle-card-number {
@@ -517,7 +528,7 @@
    * Эффект: Создает контейнер с белым фоном и отступами для диаграмм
    */
   .mermaid-container {
-    @apply bg-white p-8 rounded-sm shadow-sm border border-gray-100 overflow-hidden;
+    @apply bg-white p-8 rounded-sm shadow-ambient-lg overflow-hidden;
   }
 
   .mermaid-scroll {
@@ -656,70 +667,45 @@
    * Пример: <div class="content-callout content-callout-info">...</div>
    */
   .content-callout {
-    @apply grid p-6 my-6 rounded-lg border-l-4 bg-surface;
-    grid-template-columns: auto 1fr;
-    gap: 0 1rem;
+    @apply p-6 my-6 rounded-lg bg-surface shadow-ambient-sm ring-1 ring-slate-300/40;
+    @apply flex flex-col justify-center;
   }
 
-  .content-callout::before {
-    content: '💡';
-    @apply text-2xl flex-shrink-0;
-    grid-column: 1;
-    grid-row: 1 / -1;
-    align-self: start;
+  .content-callout> :first-child {
+    @apply mt-0;
+  }
+
+  .content-callout> :last-child {
+    @apply mb-0;
   }
 
   .content-callout-info {
-    @apply border-l-blue-500 bg-blue-50;
-  }
-
-  .content-callout-info::before {
-    content: '💡';
+    @apply bg-slate-50/90;
   }
 
   .content-callout-success {
-    @apply border-l-green-500 bg-green-50;
-  }
-
-  .content-callout-success::before {
-    content: '✅';
+    @apply bg-emerald-50/70;
   }
 
   .content-callout-warning {
-    @apply border-l-yellow-500 bg-yellow-50;
-  }
-
-  .content-callout-warning::before {
-    content: '⚠️';
+    @apply bg-amber-50/70;
   }
 
   .content-callout-error {
-    @apply border-l-red-500 bg-red-50;
-  }
-
-  .content-callout-error::before {
-    content: '❌';
+    @apply bg-rose-50/70;
   }
 
   .content-callout-accent {
-    @apply border-l-accent bg-amber-50;
-  }
-
-  .content-callout-accent::before {
-    content: '⚡';
+    @apply bg-gradient-to-r from-amber-50/85 to-orange-50/70;
   }
 
   .content-callout-primary {
-    @apply border-l-primary bg-slate-100;
-  }
-
-  .content-callout-primary::before {
-    content: '💎';
+    @apply bg-gradient-to-r from-slate-100/90 to-blue-50/80;
   }
 
   /* Компактный вариант callout без иконки (для warning-block и аналогичных) */
   .content-callout-inline {
-    @apply p-3 my-3 text-xs;
+    @apply p-3 my-3 text-xs flex items-center;
   }
 
   .content-callout-inline::before {
@@ -733,7 +719,7 @@
    * Анимация высоты: max-height + overflow:hidden на панели; логика в common.js (initContentToggleDetails)
    */
   .content-toggle {
-    @apply border border-gray-200 rounded-sm my-4 bg-surface;
+    @apply rounded-sm my-4 bg-surface shadow-ambient-sm;
   }
 
   .content-toggle summary {
@@ -759,7 +745,6 @@
     width: 100%;
     overflow: hidden;
     transition: max-height 0.35s ease-out;
-    @apply border-t border-gray-200;
   }
 
   .content-toggle-inner {
@@ -861,7 +846,7 @@
   }
 
   .content-typography .content-gallery-btn {
-    @apply w-11 h-11 shrink-0 rounded-full border border-gray-200 bg-white text-2xl font-light leading-none text-primary shadow-sm flex items-center justify-center transition-colors hover:bg-primary hover:text-white hover:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent;
+    @apply w-11 h-11 shrink-0 rounded-full bg-white text-2xl font-light leading-none text-primary shadow-ambient-xl flex items-center justify-center transition-colors hover:bg-primary hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-accent;
   }
 
   /*
@@ -870,7 +855,25 @@
    * Пример: <section class="content-project-passport">...</section>
    */
   .content-typography .content-project-passport {
-    @apply my-6 p-5 md:p-7 rounded-xl border border-primary/20 bg-gradient-to-br from-slate-50 via-white to-blue-50 shadow-sm;
+    @apply relative my-8 p-6 md:p-8 rounded-xl bg-gradient-to-br from-slate-50 via-white to-blue-50 shadow-ambient-lg overflow-hidden;
+  }
+
+  .content-typography .content-project-passport::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(to right, #0f172a, #b45309);
+  }
+
+  .content-typography .content-project-passport::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(80% 60% at 100% 0%, rgba(180, 83, 9, 0.08), transparent 60%);
   }
 
   .content-typography .content-project-passport> :last-child {
@@ -883,7 +886,59 @@
   }
 
   .content-typography .content-project-passport h2 {
-    @apply mt-0;
+    @apply mt-0 mb-5;
+  }
+
+  .content-typography .content-project-passport ul {
+    @apply grid md:grid-cols-2 gap-x-8 gap-y-3 ml-0;
+    list-style: none;
+  }
+
+  .content-typography .content-project-passport li {
+    @apply m-0 pb-3 border-b border-slate-200/70;
+  }
+
+  .content-typography .content-project-passport li:last-child {
+    @apply border-b-0;
+  }
+
+  @media (min-width: 768px) {
+    .content-typography .content-project-passport li:nth-last-child(-n+2) {
+      @apply border-b-0;
+    }
+  }
+
+  /*
+   * Финальный CTA-блок на страницах проектов.
+   * Усиленный glass-слой + мягкая глубина без жестких границ.
+   */
+  .project-cta-glass {
+    @apply relative p-8 md:p-10 rounded-sm shadow-ambient-xl overflow-hidden;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.76) 0%, rgba(243, 246, 255, 0.88) 55%, rgba(236, 241, 255, 0.94) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .project-cta-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(90% 60% at 100% 0%, rgba(15, 23, 42, 0.06), transparent 62%);
+  }
+
+  .project-cta-glass::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0));
+  }
+
+  .project-cta-glass>* {
+    position: relative;
+    z-index: 1;
   }
 
   /*
@@ -891,7 +946,7 @@
    * Контекст: Встраивание 3D-туров и др. через [[iframe | URL]]
    */
   .content-typography .content-iframe-container {
-    @apply relative w-full my-8 rounded-sm overflow-hidden border border-gray-200 shadow-sm bg-gray-100;
+    @apply relative w-full my-8 rounded-sm overflow-hidden shadow-ambient-md bg-gray-100;
     aspect-ratio: 16 / 9;
     max-height: min(80vh, 720px);
   }

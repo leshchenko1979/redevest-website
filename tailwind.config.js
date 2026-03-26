@@ -69,11 +69,22 @@ module.exports = {
             },
             fontFamily: {
                 sans: ['Inter', 'system-ui', 'sans-serif'],
-                serif: ['"Playfair Display"', 'Georgia', 'serif'], // Premium serif
+                serif: ['Newsreader', 'Georgia', 'serif'], // Editorial serif
             },
             backgroundImage: {
                 'hero-pattern': "radial-gradient(#0f172a08 1px, transparent 1px)", // Updated to match primary color
-            }
+            },
+            boxShadow: {
+                'ambient-xs': '0 8px 20px rgba(21, 28, 39, 0.08)',
+                'ambient-sm': '0 10px 26px rgba(21, 28, 39, 0.05)',
+                'ambient-md': '0 12px 30px rgba(21, 28, 39, 0.06)',
+                'ambient-lg': '0 16px 36px rgba(21, 28, 39, 0.06)',
+                'ambient-lg-hover': '0 20px 44px rgba(21, 28, 39, 0.08)',
+                'ambient-xl': '0 20px 40px rgba(21, 28, 39, 0.08)',
+                'ambient-xl-hover': '0 24px 48px rgba(21, 28, 39, 0.10)',
+                'ambient-2xl': '0 24px 48px rgba(21, 28, 39, 0.12)',
+                'ambient-card-hover': '0 20px 42px rgba(21, 28, 39, 0.08)',
+            },
         },
     },
     plugins: [],

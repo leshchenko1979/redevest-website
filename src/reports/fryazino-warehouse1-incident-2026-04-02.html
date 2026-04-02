@@ -116,7 +116,7 @@
                             </svg></div>
                     </div>
                     <div class="content-accordion-content">
-                        <p>Команда проекта однозначно считает <strong>вину лежит на подрядчике</strong>. Основная
+                        <p>Команда проекта однозначно считает, что <strong>вину лежит на подрядчике</strong>. Основная
                             стратегия — восстановление объекта по гарантии, так как действует двухлетний гарантийный
                             срок
                             по договору подряда.</p>
@@ -153,22 +153,30 @@
                     </div>
                     <div class="content-accordion-content">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <img src="../assets/fryazino-warehouse1/Image-1.jpg" alt="Фото 1"
-                                class="rounded-lg w-full aspect-square object-cover">
-                            <img src="../assets/fryazino-warehouse1/Image-2.jpg" alt="Фото 2"
-                                class="rounded-lg w-full aspect-square object-cover">
-                            <img src="../assets/fryazino-warehouse1/Image-3.jpg" alt="Фото 3"
-                                class="rounded-lg w-full aspect-square object-cover">
-                            <img src="../assets/fryazino-warehouse1/Image-4.jpg" alt="Фото 4"
-                                class="rounded-lg w-full aspect-square object-cover">
-                            <img src="../assets/fryazino-warehouse1/Image-5.jpg" alt="Фото 5"
-                                class="rounded-lg w-full aspect-square object-cover">
-                            <img src="../assets/fryazino-warehouse1/Image-6.jpg" alt="Фото 6"
-                                class="rounded-lg w-full aspect-square object-cover">
-                            <img src="../assets/fryazino-warehouse1/Image-7.jpg" alt="Фото 7"
-                                class="rounded-lg w-full aspect-square object-cover">
-                            <img src="../assets/fryazino-warehouse1/Image-8.jpg" alt="Фото 8"
-                                class="rounded-lg w-full aspect-square object-cover">
+                            <img src="../assets/fryazino-warehouse1/Image-1.jpg" alt="Фото 1" data-index="0"
+                                class="rounded-lg w-full aspect-square object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                onclick="openLightbox(0)">
+                            <img src="../assets/fryazino-warehouse1/Image-2.jpg" alt="Фото 2" data-index="1"
+                                class="rounded-lg w-full aspect-square object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                onclick="openLightbox(1)">
+                            <img src="../assets/fryazino-warehouse1/Image-3.jpg" alt="Фото 3" data-index="2"
+                                class="rounded-lg w-full aspect-square object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                onclick="openLightbox(2)">
+                            <img src="../assets/fryazino-warehouse1/Image-4.jpg" alt="Фото 4" data-index="3"
+                                class="rounded-lg w-full aspect-square object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                onclick="openLightbox(3)">
+                            <img src="../assets/fryazino-warehouse1/Image-5.jpg" alt="Фото 5" data-index="4"
+                                class="rounded-lg w-full aspect-square object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                onclick="openLightbox(4)">
+                            <img src="../assets/fryazino-warehouse1/Image-6.jpg" alt="Фото 6" data-index="5"
+                                class="rounded-lg w-full aspect-square object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                onclick="openLightbox(5)">
+                            <img src="../assets/fryazino-warehouse1/Image-7.jpg" alt="Фото 7" data-index="6"
+                                class="rounded-lg w-full aspect-square object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                onclick="openLightbox(6)">
+                            <img src="../assets/fryazino-warehouse1/Image-8.jpg" alt="Фото 8" data-index="7"
+                                class="rounded-lg w-full aspect-square object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                onclick="openLightbox(7)">
                         </div>
                     </div>
                 </section>
@@ -274,8 +282,17 @@
 
     <!-- @include footer -->
 
+    <!-- Image Lightbox Modal -->
+    <div id="lightbox" class="lightbox-modal" onclick="closeLightbox(event)">
+        <button class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
+        <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(event, -1)">&#10094;</button>
+        <img id="lightbox-img" class="lightbox-img" onclick="event.stopPropagation()">
+        <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(event, 1)">&#10095;</button>
+        <div class="lightbox-counter" id="lightbox-counter"></div>
+    </div>
+
     <script>
-        function toggleMeetingSection(header) {
+function toggleMeetingSection(header) {
             const section = header.closest('.content-accordion');
             const content = section.querySelector('.content-accordion-content');
             section.classList.toggle('collapsed');
@@ -286,9 +303,109 @@
             document.querySelectorAll('.content-report .content-accordion-content').forEach(el => { el.style.maxHeight = el.scrollHeight + 'px'; });
         });
         window.addEventListener('resize', () => {
-            document.querySelectorAll('.content-report .content-accordion:not(.collapsed) .content-accordion-content').forEach(el => { el.style.maxHeight = el.scrollHeight + 'px'; });
+             document.querySelectorAll('.content-report .content-accordion:not(.collapsed) .content-accordion-content').forEach(el => { el.style.maxHeight = el.scrollHeight + 'px'; });
+        });
+
+        // Lightbox
+        const images = Array.from(document.querySelectorAll('.grid img[data-index]'));
+        let currentIndex = 0;
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxCounter = document.getElementById('lightbox-counter');
+
+        function openLightbox(index) {
+            currentIndex = index;
+            updateLightboxImage();
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox(event) {
+            if (event && event.target !== lightbox && event.target.className !== 'lightbox-close') return;
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function navigateLightbox(event, direction) {
+            event.stopPropagation();
+            currentIndex = (currentIndex + direction + images.length) % images.length;
+            updateLightboxImage();
+        }
+
+        function updateLightboxImage() {
+            const img = images[currentIndex];
+            lightboxImg.src = img.src;
+            lightboxImg.alt = img.alt;
+            lightboxCounter.textContent = `${currentIndex + 1} / ${images.length}`;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') navigateLightbox(e, -1);
+            if (e.key === 'ArrowRight') navigateLightbox(e, 1);
         });
     </script>
+
+    <style>
+        .lightbox-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .lightbox-modal.active { display: flex; }
+        .lightbox-img {
+            max-width: 95vw;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            font-size: 32px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            line-height: 1;
+            transition: background 0.2s;
+        }
+        .lightbox-close:hover { background: rgba(255,255,255,0.2); }
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            font-size: 28px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .lightbox-nav:hover { background: rgba(255,255,255,0.2); }
+        .lightbox-prev { left: 20px; }
+        .lightbox-next { right: 20px; }
+        .lightbox-counter {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+    </style>
 </body>
 
 </html>

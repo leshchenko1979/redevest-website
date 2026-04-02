@@ -1,0 +1,8 @@
+<!-- Lightbox Modal -->
+<div id="lightbox" class="lightbox-modal" onclick="if(event.target===this)closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(event,-1)">&#10094;</button>
+    <img id="lightbox-img" class="lightbox-img" onclick="event.stopPropagation()">
+    <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(event,1)">&#10095;</button>
+    <div class="lightbox-counter" id="lightbox-counter"></div>
+</div>

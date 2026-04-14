@@ -248,11 +248,16 @@ export default defineConfig({
               templateContent = templateContent.replaceAll('{{content}}', html);
               templateContent = templateContent.replaceAll('{{slug}}', project.slug);
               templateContent = templateContent.replaceAll('{{bot_link}}', metadata.bot_link || '');
+              templateContent = templateContent.replaceAll('{{max_bot_link}}', metadata.max_bot_link || metadata.bot_link || '');
               templateContent = templateContent.replaceAll('{{date}}', metadata.date || '');
               templateContent = templateContent.replaceAll('{{hero_badge}}', metadata.hero_badge || 'Инвестиционный проект');
               templateContent = templateContent.replaceAll('{{cta_button}}', metadata.cta_button || 'Узнать об инвестировании');
+              templateContent = templateContent.replaceAll('{{telegram_cta_label}}', metadata.telegram_cta_label || metadata.cta_button || 'Telegram');
+              templateContent = templateContent.replaceAll('{{max_cta_button}}', metadata.max_cta_button || 'Перейти в MAX');
               templateContent = templateContent.replaceAll('{{cta_heading}}', metadata.cta_heading || 'Инвестировать в проект');
               templateContent = templateContent.replaceAll('{{cta_text}}', metadata.cta_text || 'Запросите подробную документацию проекта в Telegram-боте.');
+              templateContent = templateContent.replaceAll('{{cta_choice_text}}', metadata.cta_choice_text ?? 'Получить расчеты доходности можно в ботах — выберите, что вам по кайфу.');
+              templateContent = templateContent.replaceAll('{{telegram_vpn_note}}', metadata.telegram_vpn_note || 'Переход в Telegram-бот работает с VPN.');
 
               // Fix paths for project pages (dev mode)
               templateContent = templateContent.replace(
@@ -388,11 +393,16 @@ export default defineConfig({
             templateContent = templateContent.replaceAll('{{content}}', html);
             templateContent = templateContent.replaceAll('{{slug}}', project.slug);
             templateContent = templateContent.replaceAll('{{bot_link}}', metadata.bot_link || '');
+            templateContent = templateContent.replaceAll('{{max_bot_link}}', metadata.max_bot_link || metadata.bot_link || '');
             templateContent = templateContent.replaceAll('{{date}}', metadata.date || '');
             templateContent = templateContent.replaceAll('{{hero_badge}}', metadata.hero_badge || 'Инвестиционный проект');
             templateContent = templateContent.replaceAll('{{cta_button}}', metadata.cta_button || 'Узнать об инвестировании');
+            templateContent = templateContent.replaceAll('{{telegram_cta_label}}', metadata.telegram_cta_label || metadata.cta_button || 'Telegram');
+            templateContent = templateContent.replaceAll('{{max_cta_button}}', metadata.max_cta_button || 'Перейти в MAX');
             templateContent = templateContent.replaceAll('{{cta_heading}}', metadata.cta_heading || 'Инвестировать в проект');
             templateContent = templateContent.replaceAll('{{cta_text}}', metadata.cta_text || 'Запросите подробную документацию проекта в Telegram-боте.');
+            templateContent = templateContent.replaceAll('{{cta_choice_text}}', metadata.cta_choice_text ?? 'Получить расчеты доходности можно в ботах — выберите, что вам по кайфу.');
+            templateContent = templateContent.replaceAll('{{telegram_vpn_note}}', metadata.telegram_vpn_note || 'Переход в Telegram-бот работает с VPN.');
 
             // Fix paths for project pages
             templateContent = templateContent.replace(

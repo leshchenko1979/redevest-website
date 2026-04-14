@@ -2,9 +2,14 @@
 title: "Голубицкая. Покупка апартаментов в отеле на Азовском море."
 slug: "golubitskaya"
 bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
+max_bot_link: "https://max.ru/id773671678516_bot?start=c1774864074726-ds"
 cta_button: "Рассчитать доходность"
+telegram_cta_label: "Telegram"
+max_cta_button: "MAX"
+cta_choice_text: "Получить расчеты доходности можно в ботах — выберите, где вам удобнее."
+telegram_vpn_note: "Telegram-бот открывается через VPN."
 cta_heading: "Инвестировать в апартаменты"
-cta_text: "Получите актуальную шахматку с ценами и расчет доходности по вашему бюджету."
+cta_text: "Получите актуальную шахматку с ценами и расчет доходности по вашему бюджету в наших ботах — выберите, где вам удобнее."
 ---
 
 [[project-passport]]

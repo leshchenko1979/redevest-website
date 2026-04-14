@@ -2,7 +2,7 @@
 title: "Голубицкая. Покупка апартаментов в отеле на Азовском море."
 slug: "golubitskaya"
 bot_link: "https://t.me/FlippingInvestBot?start=dl-175450813783ea29032ff2"
-max_bot_link: "https://max.ru/id773671678516_bot?start=c1774864074726-ds"
+max_bot_link: "https://max.ru/id773671678516_bot?start=dl-17748640745da68f85562d"
 cta_button: "Рассчитать доходность"
 telegram_cta_label: "Telegram"
 max_cta_button: "MAX"

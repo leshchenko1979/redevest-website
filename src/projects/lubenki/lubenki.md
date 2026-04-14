@@ -2,6 +2,8 @@
 title: "Лубёнки. Строительство коттеджного поселка."
 slug: "lubenki"
 bot_link: "https://t.me/FlippingInvestBot?start=c1731502858283-ds"
+max_bot_link: "https://max.ru/id773671678516_bot?start=c1774863935528-ds"
+cta_choice_text: "Получить расчеты доходности можно в ботах — выберите, где вам удобнее."
 hero_badge: "Инвестиционный проект / Ленд-девелопмент"
 cta_button: "Презентация, финмодель, документы"
 cta_heading: "Материалы по проекту"

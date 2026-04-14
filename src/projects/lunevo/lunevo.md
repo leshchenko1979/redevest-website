@@ -3,6 +3,8 @@ title: "Лунёвские ворота. Строительство логопа
 slug: "lunevo"
 bot_link: "https://t.me/FlippingInvestBot?start=c1707842038691-ds"
 max_bot_link: "https://max.ru/id773671678516_bot?start=c1774864043850-ds"
+telegram_cta_label: "Telegram"
+max_cta_button: "MAX"
 cta_choice_text: "Получить расчеты доходности можно в ботах — выберите, где вам удобнее."
 hero_badge: "Инвестиционный проект / Девелопмент"
 cta_button: "Презентация, финмодель, документы"

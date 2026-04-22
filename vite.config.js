@@ -8,7 +8,7 @@ import { imageOptimizerPlugin } from './vite-image-optimizer.js';
 
 const srcDir = path.join(__dirname, 'src');
 const distDir = path.join(__dirname, 'dist');
-const SITE_BASE = 'https://rdvst.ru';
+const SITE_BASE = 'https://rede-vest.ru';
 
 const LEGAL_PAGES = [
   { slug: 'events', md: 'legal/events.md' },

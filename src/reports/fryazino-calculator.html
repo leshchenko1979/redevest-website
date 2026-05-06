@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор доходности Фрязино | Редевест</title>
+    <meta name="description"
+        content="Рассчитайте доходность инвестиций в складской комплекс Фрязино: продажа доли, продажа на рынок, сдача в аренду.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
+    <link href="../input.css" rel="stylesheet">
+
+    <!-- @include head-analytics.html -->
+</head>
+
+<body class="bg-surface font-sans text-gray-700">
+    <!-- @include header -->
+
+    <main id="main-content">
+        <div class="content-report">
+            <div class="content-container max-w-5xl">
+                <header class="content-report-header">
+                    <div class="content-header-pre">Проект Фрязино</div>
+                    <h1 class="content-header-title">Калькулятор доходности</h1>
+                    <div class="content-header-sub">
+                        Рассчитайте доходность в трёх сценариях: немедленная продажа доли, продажа на рынок, сдача в
+                        аренду с последующей продажей.
+                    </div>
+                    <div class="mt-6 flex flex-wrap gap-4 justify-center">
+                        <a href="https://docs.google.com/spreadsheets/d/1cehUgq4_UPVYVOu0yeZDeloeFHgqRZgHWHGRRWLIWA8/edit?gid=1914096405#gid=1914096405"
+                            target="_blank" rel="noopener noreferrer"
+                            class="btn btn-md btn-primary inline-flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            Проверить формулы в Google Sheets
+                        </a>
+                    </div>
+                </header>
+
+                <section class="content-accordion collapsed">
+                    <div class="content-accordion-header" onclick="toggleCalcInstruction(this)">
+                        <div class="content-accordion-icon">📖</div>
+                        <h2 class="content-accordion-title">Инструкция</h2>
+                        <div class="content-accordion-toggle"><svg width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg></div>
+                    </div>
+                    <div class="content-accordion-content">
+                        <ol class="calc-instruction-list list-decimal space-y-4">
+                            <li>Калькулятор рассчитывает доходность инвестора в трёх базовых сценариях:
+                                <ol type="a" class="space-y-1">
+                                    <li>Немедленная продажа доли другому инвестору</li>
+                                    <li>Немедленная продажа на рынок с дисконтом</li>
+                                    <li>Сдача в аренду с продажей при восстановлении рынка</li>
+                                </ol>
+                            </li>
+                            <li>Все расчёты выполняются на этой странице. Формулы можно проверить в исходной таблице
+                                Google Sheets.</li>
+                            <li>Перед началом расчётов внесите основные параметры в раздел 1 «Введите базовые параметры
+                                расчёта»: номер склада (для определения площади), вашу долю в этом складе в %, стоимость
+                                покупки доли и дату покупки.</li>
+                            <li>Для расчёта доходности немедленной продажи доли другому инвестору используйте раздел 2
+                                «Доходность немедленной продажи другому инвестору».</li>
+                            <li>Для расчёта продажи на рынок и сдачи в аренду используйте разделы 3–7.
+                                <ol type="a" class="space-y-2">
+                                    <li>В разделе 5 можно ввести несколько сценариев развития событий (A, B, C, D),
+                                        указав разные срок, ставку аренды и стоимость продажи, и сравнить доходность по
+                                        ним.</li>
+                                    <li>При немедленной продаже (и, соответственно, отсутствии сдачи в аренду) ставим
+                                        срок — ноль.</li>
+                                    <li>В разделе 6 «Совокупная доходность» рассчитывается доходность в разрезе по
+                                        сценариям.</li>
+                                    <li>В разделе 3 «Доход от продажи» синим помечены ожидаемые инициаторами проекта
+                                        стоимости продажи на разных сроках (увеличивается по мере восстановления рынка).
+                                    </li>
+                                    <li>В разделе 4 «Доход от аренды» синим помечен ожидаемый уровень арендной ставки
+                                        при сдаче в долгосрочную аренду в ближайшее время.</li>
+                                </ol>
+                            </li>
+                        </ol>
+                    </div>
+                </section>
+
+                <section class="bg-white rounded-sm shadow-sm border border-gray-100 p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-primary mb-4">1. Базовые параметры</h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Номер склада</label>
+                            <select id="warehouse" class="calc-input w-full">
+                                <option value="1">Склад 1 (1045.3 кв.м)</option>
+                                <option value="2">Склад 2 (1257.1 кв.м)</option>
+                                <option value="3">Склад 3 (1257.1 кв.м)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ваша доля, %</label>
+                            <input type="number" id="sharePct" class="calc-input" min="0.1" max="100" step="0.1"
+                                value="6.5">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Стоимость покупки доли,
+                                ₽</label>
+                            <input type="number" id="purchaseCost" class="calc-input" min="0" step="100000"
+                                value="5040000">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Дата покупки</label>
+                            <input type="date" id="purchaseDate" class="calc-input" value="2024-06-01">
+                        </div>
+                    </div>
+                    <div class="mt-4 p-4 bg-gray-50 rounded-sm text-sm">
+                        <dl class="flex flex-wrap gap-x-8 gap-y-2">
+                            <div class="flex items-baseline gap-2">
+                                <dt class="text-gray-500">Площадь доли</dt>
+                                <dd class="font-medium tabular-nums"><span id="out-shareSqm">—</span> кв.м</dd>
+                            </div>
+                            <div class="flex items-baseline gap-2">
+                                <dt class="text-gray-500">Цена покупки</dt>
+                                <dd class="font-medium tabular-nums"><span id="out-pricePerSqm">—</span> ₽/кв.м</dd>
+                            </div>
+                            <div class="flex items-baseline gap-2">
+                                <dt class="text-gray-500">Срок владения</dt>
+                                <dd class="font-medium tabular-nums"><span id="out-ownershipMonths">—</span> мес.</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </section>
+
+                <section class="bg-white rounded-sm shadow-sm border border-gray-100 p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-primary mb-4">2. Доходность немедленной продажи доли</h2>
+                    <p class="text-gray-600 text-sm mb-4">Продажа доли другому инвестору по согласованной цене.</p>
+                    <div class="flex flex-wrap items-end gap-4">
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Стоимость продажи доли,
+                                ₽</label>
+                            <input type="number" id="saleToInvestor" class="calc-input" min="0" step="100000"
+                                value="6000000">
+                        </div>
+                        <div class="text-lg text-right">
+                            <span class="text-gray-500">Доходность: </span>
+                            <span id="out-investorYield" class="font-bold text-primary text-xl">—</span> годовых
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-white rounded-sm shadow-sm border border-gray-100 p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-primary mb-4">3. Доход от продажи на рынок</h2>
+                    <p class="text-gray-600 text-sm mb-4">Синим отмечены ожидаемые инициатором уровни.</p>
+                    <div class="overflow-x-auto">
+                        <table class="content-table calc-table-num w-full min-w-[600px]" id="table-sale-income">
+                            <thead>
+                                <tr>
+                                    <th>Стоимость, ₽/кв.м</th>
+                                    <th>0 мес.</th>
+                                    <th>12 мес.</th>
+                                    <th>24 мес.</th>
+                                    <th>36 мес.</th>
+                                    <th>48 мес.</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="bg-white rounded-sm shadow-sm border border-gray-100 p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-primary mb-4">4. Доход от аренды</h2>
+                    <div class="grid md:grid-cols-2 gap-6 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Индексация аренды, % в
+                                год</label>
+                            <input type="number" id="rentIndexation" class="calc-input" min="0" max="50" step="0.5"
+                                value="7">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Арендные каникулы, мес.</label>
+                            <input type="number" id="rentVacation" class="calc-input" min="0" max="12" step="1"
+                                value="2">
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4">Синим отмечена ожидаемая ставка.</p>
+                    <div class="overflow-x-auto">
+                        <table class="content-table calc-table-num w-full min-w-[600px]" id="table-rent-income">
+                            <thead>
+                                <tr>
+                                    <th>Ставка, ₽/кв.м/мес.</th>
+                                    <th>0 мес.</th>
+                                    <th>12 мес.</th>
+                                    <th>24 мес.</th>
+                                    <th>36 мес.</th>
+                                    <th>48 мес.</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="bg-white rounded-sm shadow-sm border border-gray-100 p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-primary mb-4">5. Сценарии расчёта</h2>
+                    <p class="text-gray-600 text-sm mb-4">Срок = 0 — немедленная продажа без аренды.</p>
+                    <div class="overflow-x-auto">
+                        <table class="content-table calc-table-num w-full min-w-[700px]" id="table-scenarios">
+                            <thead>
+                                <tr>
+                                    <th>Параметр</th>
+                                    <th>A</th>
+                                    <th>B</th>
+                                    <th>C</th>
+                                    <th>D</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Срок до продажи, мес.</td>
+                                    <td><input type="number" id="scenario-months-A" class="calc-input-sm" min="0"
+                                            step="12" value="0"></td>
+                                    <td><input type="number" id="scenario-months-B" class="calc-input-sm" min="0"
+                                            step="12" value="12"></td>
+                                    <td><input type="number" id="scenario-months-C" class="calc-input-sm" min="0"
+                                            step="12" value="24"></td>
+                                    <td><input type="number" id="scenario-months-D" class="calc-input-sm" min="0"
+                                            step="12" value="36"></td>
+                                </tr>
+                                <tr>
+                                    <td>Стоимость продажи, ₽/кв.м</td>
+                                    <td><input type="number" id="scenario-price-A" class="calc-input-sm" min="0"
+                                            step="1000" value="80000"></td>
+                                    <td><input type="number" id="scenario-price-B" class="calc-input-sm" min="0"
+                                            step="1000" value="95000"></td>
+                                    <td><input type="number" id="scenario-price-C" class="calc-input-sm" min="0"
+                                            step="1000" value="100000"></td>
+                                    <td><input type="number" id="scenario-price-D" class="calc-input-sm" min="0"
+                                            step="1000" value="105000"></td>
+                                </tr>
+                                <tr>
+                                    <td>Ставка аренды, ₽/кв.м/мес.</td>
+                                    <td><input type="number" id="scenario-rent-A" class="calc-input-sm" min="0"
+                                            step="50" value="900"></td>
+                                    <td><input type="number" id="scenario-rent-B" class="calc-input-sm" min="0"
+                                            step="50" value="900"></td>
+                                    <td><input type="number" id="scenario-rent-C" class="calc-input-sm" min="0"
+                                            step="50" value="900"></td>
+                                    <td><input type="number" id="scenario-rent-D" class="calc-input-sm" min="0"
+                                            step="50" value="900"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="bg-white rounded-sm shadow-sm border border-gray-100 p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-primary mb-4">6. Совокупная доходность по сценариям</h2>
+                    <div class="overflow-x-auto">
+                        <table class="content-table calc-table-num w-full min-w-[600px]" id="table-total-yield">
+                            <thead>
+                                <tr>
+                                    <th>Метрика</th>
+                                    <th>A</th>
+                                    <th>B</th>
+                                    <th>C</th>
+                                    <th>D</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Доход от аренды, ₽</td>
+                                    <td id="out-rent-A">—</td>
+                                    <td id="out-rent-B">—</td>
+                                    <td id="out-rent-C">—</td>
+                                    <td id="out-rent-D">—</td>
+                                </tr>
+                                <tr>
+                                    <td>Доход от продажи, ₽</td>
+                                    <td id="out-sale-A">—</td>
+                                    <td id="out-sale-B">—</td>
+                                    <td id="out-sale-C">—</td>
+                                    <td id="out-sale-D">—</td>
+                                </tr>
+                                <tr class="font-medium">
+                                    <td>С учётом стоимости денег (NPV), % годовых</td>
+                                    <td id="out-yield-npv-A">—</td>
+                                    <td id="out-yield-npv-B">—</td>
+                                    <td id="out-yield-npv-C">—</td>
+                                    <td id="out-yield-npv-D">—</td>
+                                </tr>
+                                <tr>
+                                    <td>Без учёта, % годовых</td>
+                                    <td id="out-yield-simple-A">—</td>
+                                    <td id="out-yield-simple-B">—</td>
+                                    <td id="out-yield-simple-C">—</td>
+                                    <td id="out-yield-simple-D">—</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- @include footer -->
+
+    <script>
+        function toggleCalcInstruction(header) {
+            const section = header.closest('.content-accordion');
+            const content = section.querySelector('.content-accordion-content');
+            section.classList.toggle('collapsed');
+            if (!section.classList.contains('collapsed')) content.style.maxHeight = content.scrollHeight + 'px';
+            else content.style.maxHeight = null;
+        }
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.content-report .content-accordion-content').forEach(el => {
+                if (!el.closest('.content-accordion').classList.contains('collapsed')) {
+                    el.style.maxHeight = el.scrollHeight + 'px';
+                }
+            });
+        });
+        window.addEventListener('resize', () => {
+            document.querySelectorAll('.content-report .content-accordion:not(.collapsed) .content-accordion-content').forEach(el => {
+                el.style.maxHeight = el.scrollHeight + 'px';
+            });
+        });
+    </script>
+    <script src="./fryazino-calculator.js" type="module"></script>
+</body>
+
+</html>

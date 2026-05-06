@@ -6,6 +6,113 @@ import { processMarkdownFile, findProjects } from './build-markdown.js';
 import sharp from 'sharp';
 import { imageOptimizerPlugin } from './vite-image-optimizer.js';
 
+const srcDir = path.join(__dirname, 'src');
+const distDir = path.join(__dirname, 'dist');
+const SITE_BASE = 'https://rede-vest.ru';
+
+const LEGAL_PAGES = [
+  { slug: 'events', md: 'legal/events.md' },
+  { slug: 'privacy', md: 'legal/privacy.md' },
+  { slug: 'community-rules', md: 'legal/community-rules.md' }
+];
+
+function buildLegalCtaBlocks(metadata) {
+  const link = metadata.cta_link;
+  const empty = { cta_hero: '', cta_footer: '' };
+  if (!link || !metadata.cta_button) return empty;
+  const cta_hero = `
+                    <div class="flex justify-center">
+                        <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn btn-lg btn-primary">
+                            ${metadata.cta_button}
+                        </a>
+                    </div>`;
+  const cta_footer = `
+                    <div class="mt-16 text-center">
+                        <div class="bg-surface p-8 rounded-sm border border-gray-100">
+                            <h3 class="text-2xl font-serif font-bold text-primary mb-4">${metadata.cta_heading || ''}</h3>
+                            <p class="text-gray-600 mb-6">${metadata.cta_text || ''}</p>
+                            <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn btn-lg btn-primary">
+                                ${metadata.cta_button}
+                            </a>
+                        </div>
+                    </div>`;
+  return { cta_hero, cta_footer };
+}
+
+function getReportInputs() {
+  const reportsDir = path.join(__dirname, 'src', 'reports');
+  if (!fs.existsSync(reportsDir)) return {};
+  const files = fs.readdirSync(reportsDir).filter((f) => f.endsWith('.html'));
+  return Object.fromEntries(
+    files.map((f) => [path.basename(f, '.html'), path.join(reportsDir, f)])
+  );
+}
+
+function replaceIncludes(html) {
+  return html.replace(/<!-- @include ([^>]+) -->/g, (match, partialPath) => {
+    const partialFile = partialPath.startsWith('partials/')
+      ? path.join(srcDir, partialPath)
+      : path.join(srcDir, 'partials', partialPath.endsWith('.html') ? partialPath : partialPath + '.html');
+    if (fs.existsSync(partialFile)) {
+      return fs.readFileSync(partialFile, 'utf8');
+    }
+    console.warn(`Warning: Partial "${partialPath}" not found at "${partialFile}"`);
+    return match;
+  });
+}
+
+function getBundleAssets(bundle) {
+  return {
+    cssFile: Object.keys(bundle).find((k) => k.endsWith('.css')),
+    jsFile: Object.keys(bundle).find((k) => k.includes('common') && k.endsWith('.js')),
+    faviconFiles: Object.keys(bundle).filter(
+      (k) => (k.includes('favicon') || k.includes('apple-touch-icon')) && (k.endsWith('.png') || k.endsWith('.ico'))
+    )
+  };
+}
+
+function applyHashedLinks(content, assets, prefix) {
+  const { cssFile, jsFile, faviconFiles } = assets;
+  const mainFavicon = faviconFiles?.find((k) => k.includes('favicon') && !k.includes('-16x16') && !k.includes('-32x32') && !k.includes('apple-touch-icon'));
+  const favicon16 = faviconFiles?.find((k) => k.includes('favicon-16x16'));
+  const favicon32 = faviconFiles?.find((k) => k.includes('favicon-32x32'));
+  const appleTouch = faviconFiles?.find((k) => k.includes('apple-touch-icon'));
+
+  if (cssFile) {
+    content = content.replace(/href="\.\.\/input\.css"/g, `href="${prefix}${cssFile}"`);
+    content = content.replace(/href="input\.css"/g, `href="${prefix}${cssFile}"`);
+    content = content.replace(/href="\/input\.css"/g, `href="/${cssFile}"`);
+  }
+  if (jsFile) {
+    content = content.replace(/src="\.\.\/common\.js"/g, `src="${prefix}${jsFile}"`);
+    content = content.replace(/src="common\.js"/g, `src="${prefix}${jsFile}"`);
+    content = content.replace(/src="\/common\.js"/g, `src="/${jsFile}"`);
+  }
+  if (mainFavicon) {
+    content = content.replace(/src="\.\.\/assets\/favicon\.png"/g, `src="${prefix}${mainFavicon}"`);
+    content = content.replace(/src="assets\/favicon\.png"/g, `src="${prefix}${mainFavicon}"`);
+    content = content.replace(/href="\.\.\/assets\/favicon\.png"/g, `href="${prefix}${mainFavicon}"`);
+    content = content.replace(/href="assets\/favicon\.png"/g, `href="${prefix}${mainFavicon}"`);
+    content = content.replace(/href="\/assets\/favicon\.png"/g, `href="/${mainFavicon}"`);
+  }
+  if (favicon16) {
+    content = content.replace(/href="\.\.\/assets\/favicon-16x16\.png"/g, `href="${prefix}${favicon16}"`);
+    content = content.replace(/href="assets\/favicon-16x16\.png"/g, `href="${prefix}${favicon16}"`);
+    content = content.replace(/href="\/assets\/favicon-16x16\.png"/g, `href="/${favicon16}"`);
+  }
+  if (favicon32) {
+    content = content.replace(/href="\.\.\/assets\/favicon-32x32\.png"/g, `href="${prefix}${favicon32}"`);
+    content = content.replace(/href="assets\/favicon-32x32\.png"/g, `href="${prefix}${favicon32}"`);
+    content = content.replace(/href="\/assets\/favicon-32x32\.png"/g, `href="/${favicon32}"`);
+  }
+  if (appleTouch) {
+    content = content.replace(/href="\.\.\/assets\/apple-touch-icon\.png"/g, `href="${prefix}${appleTouch}"`);
+    content = content.replace(/href="assets\/apple-touch-icon\.png"/g, `href="${prefix}${appleTouch}"`);
+    content = content.replace(/href="\/assets\/apple-touch-icon\.png"/g, `href="/${appleTouch}"`);
+  }
+  return content;
+}
+
 export default defineConfig({
   root: 'src',
   build: {
@@ -15,6 +122,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'src/index.html'),
         scheme: resolve(__dirname, 'src/scheme.html'),
+        ...getReportInputs(),
         common: resolve(__dirname, 'src/common.js')
       }
     }
@@ -25,33 +133,10 @@ export default defineConfig({
   },
   plugins: [
     imageOptimizerPlugin(),
-    // Plugin for HTML includes and CSS references
     {
       name: 'html-includes',
-      transformIndexHtml(html, ctx) {
-        // First handle includes
-        let processedHtml = html.replace(
-          /<!-- @include ([^>]+) -->/g,
-          (match, partialPath) => {
-            // Handle both relative paths (partials/) and absolute paths (from src/)
-            let partialFile;
-            if (partialPath.startsWith('partials/')) {
-              partialFile = path.join(__dirname, 'src', partialPath);
-            } else {
-              // Assume it's a partial name, add .html extension
-              partialFile = path.join(__dirname, 'src', 'partials', partialPath.endsWith('.html') ? partialPath : partialPath + '.html');
-            }
-
-            if (fs.existsSync(partialFile)) {
-              return fs.readFileSync(partialFile, 'utf8');
-            }
-            console.warn(`Warning: Partial "${partialPath}" not found at "${partialFile}"`);
-            return match;
-          }
-        );
-
-        // Handle CSS references - will be updated after build
-        return processedHtml;
+      transformIndexHtml(html) {
+        return replaceIncludes(html);
       }
     },
     // Plugin for Markdown projects
@@ -70,9 +155,21 @@ export default defineConfig({
 
         // Watch template dependencies
         this.addWatchFile(path.join(__dirname, 'src', 'templates', 'project.html'));
+        this.addWatchFile(path.join(__dirname, 'src', 'templates', 'legal.html'));
+        for (const lp of LEGAL_PAGES) {
+          this.addWatchFile(path.join(__dirname, 'src', lp.md));
+        }
         this.addWatchFile(path.join(__dirname, 'src', 'input.css'));
         this.addWatchFile(path.join(__dirname, 'src', 'common.js'));
         this.addWatchFile(path.join(__dirname, 'src', 'assets', 'favicon.png'));
+
+        // Watch reports folder
+        const reportsDir = path.join(__dirname, 'src', 'reports');
+        if (fs.existsSync(reportsDir)) {
+          fs.readdirSync(reportsDir).filter((f) => f.endsWith('.html')).forEach((f) => {
+            this.addWatchFile(path.join(reportsDir, f));
+          });
+        }
 
         // Watch all partials
         const partialsDir = path.join(__dirname, 'src', 'partials');
@@ -87,6 +184,14 @@ export default defineConfig({
         }
       },
       configureServer(server) {
+        const srcProjectsDir = path.join(__dirname, 'src', 'projects');
+        const srcLegalDir = path.join(__dirname, 'src', 'legal');
+        const templatesDir = path.join(__dirname, 'src', 'templates');
+
+        // Watch whole trees so new projects/legal pages are picked up without restart
+        if (fs.existsSync(srcProjectsDir)) server.watcher.add(srcProjectsDir);
+        if (fs.existsSync(srcLegalDir)) server.watcher.add(srcLegalDir);
+
         // Watch markdown files and images in dev mode
         const projects = findProjects();
         for (const project of projects) {
@@ -95,16 +200,31 @@ export default defineConfig({
             server.watcher.add(project.imagesPath);
           }
         }
+        for (const lp of LEGAL_PAGES) {
+          const mdPath = path.join(__dirname, 'src', lp.md);
+          if (fs.existsSync(mdPath)) server.watcher.add(mdPath);
+        }
 
-        // Handle markdown file changes in dev mode
-        server.watcher.on('change', async (filePath) => {
-          if (filePath.endsWith('.md') && filePath.includes('/projects/')) {
-            console.log(`Markdown file changed: ${filePath}`);
-            // Force reload of the page by invalidating the module
-            const slug = path.basename(path.dirname(filePath));
-            // Clear any cached processing for this project
-            console.log(`Project ${slug} updated, page will reload on next request`);
+        const triggersMarkdownPageReload = (filePath) => {
+          const fp = path.normalize(filePath);
+          if (fp.endsWith('.md')) {
+            return fp.includes(`${path.sep}projects${path.sep}`) || fp.includes(`${path.sep}legal${path.sep}`);
           }
+          if (fp.endsWith('project.html') || fp.endsWith('legal.html')) {
+            return fp.startsWith(path.normalize(templatesDir));
+          }
+          return false;
+        };
+
+        // Markdown / templates drive HTML via middleware; tell the client to reload so the browser shows rebuilt HTML
+        server.watcher.on('change', (filePath) => {
+          if (!triggersMarkdownPageReload(filePath)) return;
+          if (filePath.endsWith('.md')) {
+            console.log(`Markdown changed, full reload: ${filePath}`);
+          } else {
+            console.log(`Project/legal template changed, full reload: ${filePath}`);
+          }
+          server.ws.send({ type: 'full-reload' });
         });
 
         // Handle project pages in dev mode
@@ -121,33 +241,23 @@ export default defineConfig({
               const templatePath = path.join(__dirname, 'src', 'templates', 'project.html');
               let templateContent = fs.readFileSync(templatePath, 'utf8');
 
-              // Process template includes
-              templateContent = templateContent.replace(
-                /<!-- @include ([^>]+) -->/g,
-                (match, partialPath) => {
-                  // Handle both relative paths (partials/) and absolute paths (from src/)
-                  let partialFile;
-                  if (partialPath.startsWith('partials/')) {
-                    partialFile = path.join(__dirname, 'src', partialPath);
-                  } else {
-                    // Assume it's a partial name, add .html extension
-                    partialFile = path.join(__dirname, 'src', 'partials', partialPath.endsWith('.html') ? partialPath : partialPath + '.html');
-                  }
+              templateContent = replaceIncludes(templateContent);
 
-                  if (fs.existsSync(partialFile)) {
-                    return fs.readFileSync(partialFile, 'utf8');
-                  }
-                  console.warn(`Warning: Partial "${partialPath}" not found at "${partialFile}"`);
-                  return match;
-                }
-              );
-
-              // Replace content
-              templateContent = templateContent.replace(/{{title}}/g, metadata.title || project.slug);
-              templateContent = templateContent.replace('{{content}}', html);
-              templateContent = templateContent.replace(/{{slug}}/g, project.slug);
-              templateContent = templateContent.replace(/{{bot_link}}/g, metadata.bot_link || '');
-              templateContent = templateContent.replace(/{{date}}/g, metadata.date || '');
+              // Replace content using replaceAll for reliability
+              templateContent = templateContent.replaceAll('{{title}}', metadata.title || project.slug);
+              templateContent = templateContent.replaceAll('{{content}}', html);
+              templateContent = templateContent.replaceAll('{{slug}}', project.slug);
+              templateContent = templateContent.replaceAll('{{bot_link}}', metadata.bot_link || '');
+              templateContent = templateContent.replaceAll('{{max_bot_link}}', metadata.max_bot_link || metadata.bot_link || '');
+              templateContent = templateContent.replaceAll('{{date}}', metadata.date || '');
+              templateContent = templateContent.replaceAll('{{hero_badge}}', metadata.hero_badge || 'Инвестиционный проект');
+              templateContent = templateContent.replaceAll('{{cta_button}}', metadata.cta_button || 'Узнать об инвестировании');
+              templateContent = templateContent.replaceAll('{{telegram_cta_label}}', metadata.telegram_cta_label || metadata.cta_button || 'Telegram');
+              templateContent = templateContent.replaceAll('{{max_cta_button}}', metadata.max_cta_button || 'Перейти в MAX');
+              templateContent = templateContent.replaceAll('{{cta_heading}}', metadata.cta_heading || 'Инвестировать в проект');
+              templateContent = templateContent.replaceAll('{{cta_text}}', metadata.cta_text || 'Запросите подробную документацию проекта в Telegram-боте.');
+              templateContent = templateContent.replaceAll('{{cta_choice_text}}', metadata.cta_choice_text ?? 'Получить расчеты доходности можно в ботах — выберите, что вам по кайфу.');
+              templateContent = templateContent.replaceAll('{{telegram_vpn_note}}', metadata.telegram_vpn_note || 'Переход в Telegram-бот работает с VPN.');
 
               // Fix paths for project pages (dev mode)
               templateContent = templateContent.replace(
@@ -188,21 +298,27 @@ export default defineConfig({
 
         // Handle project images in dev mode
         server.middlewares.use('/assets/projects', (req, res, next) => {
-          const urlParts = req.url.split('/');
-          if (urlParts.length >= 4 && urlParts[2] === 'images') {
-            const projectSlug = urlParts[1];
-            const imageName = decodeURIComponent(urlParts[3]); // Decode URL-encoded filenames
+          const pathname = req.url.split('?')[0];
+          const urlParts = pathname.split('/').filter(Boolean);
+          // /lunevo/images/foo.jpg or /lunevo/images/renders/foo.jpg
+          if (urlParts.length >= 3 && urlParts[1] === 'images') {
+            const projectSlug = urlParts[0];
+            const imageRelPath = decodeURIComponent(urlParts.slice(2).join('/'));
+            if (imageRelPath.includes('..')) {
+              next();
+              return;
+            }
 
             // First try to serve optimized images from src/assets/projects/
-            let imagePath = path.join(__dirname, 'src', 'assets', 'projects', projectSlug, 'images', imageName);
+            let imagePath = path.join(__dirname, 'src', 'assets', 'projects', projectSlug, 'images', imageRelPath);
 
             // Fall back to original images in src/projects/
             if (!fs.existsSync(imagePath)) {
-              imagePath = path.join(__dirname, 'src', 'projects', projectSlug, 'images', imageName);
+              imagePath = path.join(__dirname, 'src', 'projects', projectSlug, 'images', imageRelPath);
             }
 
             if (fs.existsSync(imagePath)) {
-              const ext = path.extname(imageName).toLowerCase();
+              const ext = path.extname(imageRelPath).toLowerCase();
               const contentType = ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' :
                 ext === '.png' ? 'image/png' :
                   ext === '.gif' ? 'image/gif' :
@@ -215,6 +331,47 @@ export default defineConfig({
             }
           }
           next();
+        });
+
+        // Handle legal pages in dev mode
+        server.middlewares.use('/legal', async (req, res, next) => {
+          const urlPath =
+            req.url.replace(/^\//, '').split('?')[0].replace(/\.html$/, '') || 'index';
+          const lp = LEGAL_PAGES.find((p) => p.slug === urlPath);
+          if (!lp) {
+            next();
+            return;
+          }
+          const slug = lp.slug;
+          const mdPath = path.join(__dirname, 'src', lp.md);
+          const templatePath = path.join(__dirname, 'src', 'templates', 'legal.html');
+          if (!fs.existsSync(mdPath) || !fs.existsSync(templatePath)) {
+            next();
+            return;
+          }
+          try {
+            const { html, metadata } = await processMarkdownFile(mdPath, slug);
+            const { cta_hero, cta_footer } = buildLegalCtaBlocks(metadata);
+            const canonicalUrl = `${SITE_BASE}/legal/${slug}.html`;
+            let templateContent = fs.readFileSync(templatePath, 'utf8');
+            templateContent = replaceIncludes(templateContent);
+            templateContent = templateContent.replaceAll('{{title}}', metadata.title || slug);
+            templateContent = templateContent.replaceAll('{{description}}', metadata.description || '');
+            templateContent = templateContent.replaceAll('{{hero_badge}}', metadata.hero_badge || 'Документ');
+            templateContent = templateContent.replaceAll('{{canonical_url}}', canonicalUrl);
+            templateContent = templateContent.replaceAll('{{content}}', html);
+            templateContent = templateContent.replaceAll('{{cta_hero}}', cta_hero);
+            templateContent = templateContent.replaceAll('{{cta_footer}}', cta_footer);
+            templateContent = templateContent.replace(/href="\.\.\/assets\//g, 'href="/assets/');
+            templateContent = templateContent.replace(/href="\.\.\/input\.css"/g, 'href="/input.css"');
+            templateContent = templateContent.replace(/src="common\.js/g, 'src="/common.js');
+            res.setHeader('Content-Type', 'text/html');
+            res.end(templateContent);
+          } catch (error) {
+            console.error(`Error processing legal/${slug}:`, error.message);
+            res.statusCode = 500;
+            res.end('Internal Server Error');
+          }
         });
       },
       async generateBundle() {
@@ -229,33 +386,23 @@ export default defineConfig({
             const templatePath = path.join(__dirname, 'src', 'templates', 'project.html');
             let templateContent = fs.readFileSync(templatePath, 'utf8');
 
-            // Process template includes
-            templateContent = templateContent.replace(
-              /<!-- @include ([^>]+) -->/g,
-              (match, partialPath) => {
-                // Handle both relative paths (partials/) and absolute paths (from src/)
-                let partialFile;
-                if (partialPath.startsWith('partials/')) {
-                  partialFile = path.join(__dirname, 'src', partialPath);
-                } else {
-                  // Assume it's a partial name, add .html extension
-                  partialFile = path.join(__dirname, 'src', 'partials', partialPath.endsWith('.html') ? partialPath : partialPath + '.html');
-                }
+            templateContent = replaceIncludes(templateContent);
 
-                if (fs.existsSync(partialFile)) {
-                  return fs.readFileSync(partialFile, 'utf8');
-                }
-                console.warn(`Warning: Partial "${partialPath}" not found at "${partialFile}"`);
-                return match;
-              }
-            );
-
-            // Replace content
-            templateContent = templateContent.replace(/{{title}}/g, metadata.title || project.slug);
-            templateContent = templateContent.replace('{{content}}', html);
-            templateContent = templateContent.replace(/{{slug}}/g, project.slug);
-            templateContent = templateContent.replace(/{{bot_link}}/g, metadata.bot_link || '');
-            templateContent = templateContent.replace(/{{date}}/g, metadata.date || '');
+            // Replace content using replaceAll for reliability
+            templateContent = templateContent.replaceAll('{{title}}', metadata.title || project.slug);
+            templateContent = templateContent.replaceAll('{{content}}', html);
+            templateContent = templateContent.replaceAll('{{slug}}', project.slug);
+            templateContent = templateContent.replaceAll('{{bot_link}}', metadata.bot_link || '');
+            templateContent = templateContent.replaceAll('{{max_bot_link}}', metadata.max_bot_link || metadata.bot_link || '');
+            templateContent = templateContent.replaceAll('{{date}}', metadata.date || '');
+            templateContent = templateContent.replaceAll('{{hero_badge}}', metadata.hero_badge || 'Инвестиционный проект');
+            templateContent = templateContent.replaceAll('{{cta_button}}', metadata.cta_button || 'Узнать об инвестировании');
+            templateContent = templateContent.replaceAll('{{telegram_cta_label}}', metadata.telegram_cta_label || metadata.cta_button || 'Telegram');
+            templateContent = templateContent.replaceAll('{{max_cta_button}}', metadata.max_cta_button || 'Перейти в MAX');
+            templateContent = templateContent.replaceAll('{{cta_heading}}', metadata.cta_heading || 'Инвестировать в проект');
+            templateContent = templateContent.replaceAll('{{cta_text}}', metadata.cta_text || 'Запросите подробную документацию проекта в Telegram-боте.');
+            templateContent = templateContent.replaceAll('{{cta_choice_text}}', metadata.cta_choice_text ?? 'Получить расчеты доходности можно в ботах — выберите, что вам по кайфу.');
+            templateContent = templateContent.replaceAll('{{telegram_vpn_note}}', metadata.telegram_vpn_note || 'Переход в Telegram-бот работает с VPN.');
 
             // Fix paths for project pages
             templateContent = templateContent.replace(
@@ -299,6 +446,40 @@ export default defineConfig({
             console.error(`Error processing project ${project.slug}:`, error.message);
           }
         }
+
+        // Process legal pages
+        const legalTemplatePath = path.join(__dirname, 'src', 'templates', 'legal.html');
+        if (fs.existsSync(legalTemplatePath)) {
+          for (const lp of LEGAL_PAGES) {
+            const mdPath = path.join(__dirname, 'src', lp.md);
+            if (!fs.existsSync(mdPath)) continue;
+            try {
+              const { html, metadata } = await processMarkdownFile(mdPath, lp.slug);
+              const { cta_hero, cta_footer } = buildLegalCtaBlocks(metadata);
+              const canonicalUrl = `${SITE_BASE}/legal/${lp.slug}.html`;
+              let templateContent = fs.readFileSync(legalTemplatePath, 'utf8');
+              templateContent = replaceIncludes(templateContent);
+              templateContent = templateContent.replaceAll('{{title}}', metadata.title || lp.slug);
+              templateContent = templateContent.replaceAll('{{description}}', metadata.description || '');
+              templateContent = templateContent.replaceAll('{{hero_badge}}', metadata.hero_badge || 'Документ');
+              templateContent = templateContent.replaceAll('{{canonical_url}}', canonicalUrl);
+              templateContent = templateContent.replaceAll('{{content}}', html);
+              templateContent = templateContent.replaceAll('{{cta_hero}}', cta_hero);
+              templateContent = templateContent.replaceAll('{{cta_footer}}', cta_footer);
+              templateContent = templateContent.replace(/href="index\.html/g, 'href="../index.html');
+              templateContent = templateContent.replace(/href="scheme\.html/g, 'href="../scheme.html');
+              templateContent = templateContent.replace(/src="assets\//g, 'src="../assets/');
+              templateContent = templateContent.replace(/src="common\.js/g, 'src="../common.js');
+              this.emitFile({
+                type: 'asset',
+                fileName: `legal/${lp.slug}.html`,
+                source: templateContent
+              });
+            } catch (error) {
+              console.error(`Error processing legal/${lp.slug}:`, error.message);
+            }
+          }
+        }
       }
     },
     // Plugin for favicon generation
@@ -336,135 +517,60 @@ export default defineConfig({
         }
       }
     },
-    // Plugin to update CSS and JS links in project pages after hashing
     {
-      name: 'update-project-css-js-links',
+      name: 'update-hashed-links',
       async writeBundle(options, bundle) {
-        const projectsDir = path.join(options.dir || path.join(__dirname, 'dist'), 'projects');
-        if (!fs.existsSync(projectsDir)) return;
+        const dir = options.dir || distDir;
+        const assets = getBundleAssets(bundle);
 
-        const projectFiles = fs.readdirSync(projectsDir).filter(file => file.endsWith('.html'));
-
-        for (const projectFile of projectFiles) {
-          const filePath = path.join(projectsDir, projectFile);
-          let content = fs.readFileSync(filePath, 'utf8');
-
-          // Update CSS links
-          const cssFile = Object.keys(bundle).find(key => key.endsWith('.css'));
-          if (cssFile) {
-            content = content.replace(/href="\.\.\/input\.css"/g, `href="../${cssFile}"`);
-            content = content.replace(/href="\/input\.css"/g, `href="/${cssFile}"`);
+        // Project pages (dist/projects/*.html) use ../ prefix
+        const projectsDir = path.join(dir, 'projects');
+        if (fs.existsSync(projectsDir)) {
+          for (const f of fs.readdirSync(projectsDir).filter((file) => file.endsWith('.html'))) {
+            const filePath = path.join(projectsDir, f);
+            let content = fs.readFileSync(filePath, 'utf8');
+            fs.writeFileSync(filePath, applyHashedLinks(content, assets, '../'));
           }
+        }
 
-          // Update JS links
-          const jsFile = Object.keys(bundle).find(key => key.includes('common') && key.endsWith('.js'));
-          if (jsFile) {
-            content = content.replace(/src="\.\.\/common\.js"/g, `src="../${jsFile}"`);
-            content = content.replace(/src="\/common\.js"/g, `src="/${jsFile}"`);
+        // Report pages (dist/reports/*.html) use / prefix
+        const reportsDir = path.join(dir, 'reports');
+        if (fs.existsSync(reportsDir)) {
+          for (const f of fs.readdirSync(reportsDir).filter((file) => file.endsWith('.html'))) {
+            const filePath = path.join(reportsDir, f);
+            let content = fs.readFileSync(filePath, 'utf8');
+            fs.writeFileSync(filePath, applyHashedLinks(content, assets, '/'));
           }
+        }
 
-          // Update favicon links
-          const faviconFiles = Object.keys(bundle).filter(key =>
-            (key.includes('favicon') || key.includes('apple-touch-icon')) &&
-            (key.endsWith('.png') || key.endsWith('.ico'))
-          );
-
-          const mainFavicon = faviconFiles.find(key =>
-            key.includes('favicon') &&
-            !key.includes('-16x16') &&
-            !key.includes('-32x32') &&
-            !key.includes('apple-touch-icon')
-          );
-
-          if (mainFavicon) {
-            content = content.replace(/src="\.\.\/assets\/favicon\.png"/g, `src="../${mainFavicon}"`);
-            content = content.replace(/src="\/assets\/favicon\.png"/g, `src="/${mainFavicon}"`);
-            content = content.replace(/href="\.\.\/assets\/favicon\.png"/g, `href="../${mainFavicon}"`);
-            content = content.replace(/href="\/assets\/favicon\.png"/g, `href="/${mainFavicon}"`);
+        // Legal pages (dist/legal/*.html) use ../ prefix
+        const legalDir = path.join(dir, 'legal');
+        if (fs.existsSync(legalDir)) {
+          for (const f of fs.readdirSync(legalDir).filter((file) => file.endsWith('.html'))) {
+            const filePath = path.join(legalDir, f);
+            let content = fs.readFileSync(filePath, 'utf8');
+            fs.writeFileSync(filePath, applyHashedLinks(content, assets, '../'));
           }
+        }
 
-          const favicon16 = faviconFiles.find(key => key.includes('favicon-16x16'));
-          if (favicon16) {
-            content = content.replace(/href="\.\.\/assets\/favicon-16x16\.png"/g, `href="../${favicon16}"`);
-            content = content.replace(/href="\/assets\/favicon-16x16\.png"/g, `href="/${favicon16}"`);
+        // Root HTML files (index, scheme) use same-dir prefix
+        for (const name of ['index.html', 'scheme.html']) {
+          const filePath = path.join(dir, name);
+          if (fs.existsSync(filePath)) {
+            let content = fs.readFileSync(filePath, 'utf8');
+            fs.writeFileSync(filePath, applyHashedLinks(content, assets, ''));
           }
-
-          const favicon32 = faviconFiles.find(key => key.includes('favicon-32x32'));
-          if (favicon32) {
-            content = content.replace(/href="\.\.\/assets\/favicon-32x32\.png"/g, `href="../${favicon32}"`);
-            content = content.replace(/href="\/assets\/favicon-32x32\.png"/g, `href="/${favicon32}"`);
-          }
-
-          const appleTouch = faviconFiles.find(key => key.includes('apple-touch-icon'));
-          if (appleTouch) {
-            content = content.replace(/href="\.\.\/assets\/apple-touch-icon\.png"/g, `href="../${appleTouch}"`);
-            content = content.replace(/href="\/assets\/apple-touch-icon\.png"/g, `href="/${appleTouch}"`);
-          }
-
-          fs.writeFileSync(filePath, content);
         }
       }
     },
-    // Plugin to update JS links in main index.html after hashing
     {
-      name: 'update-main-js-links',
-      async writeBundle(options, bundle) {
-        const indexPath = path.join(options.dir || path.join(__dirname, 'dist'), 'index.html');
-        if (!fs.existsSync(indexPath)) return;
+      name: 'sitemap-robots',
+      async generateBundle() {
+        const robots = `User-agent: *
+Disallow: /
+`;
 
-        let content = fs.readFileSync(indexPath, 'utf8');
-
-        // Update common.js reference
-        const jsFile = Object.keys(bundle).find(key => key.includes('common') && key.endsWith('.js'));
-        if (jsFile) {
-          content = content.replace(/src="common\.js"/g, `src="${jsFile}"`);
-          content = content.replace(/src="\/common\.js"/g, `src="/${jsFile}"`);
-        }
-
-        // Update favicon references
-        const faviconFiles = Object.keys(bundle).filter(key =>
-          (key.includes('favicon') || key.includes('apple-touch-icon')) &&
-          (key.endsWith('.png') || key.endsWith('.ico'))
-        );
-
-        // Update preload link - find the main favicon (not size-specific ones)
-        const mainFavicon = faviconFiles.find(key =>
-          key.includes('favicon') &&
-          !key.includes('-16x16') &&
-          !key.includes('-32x32') &&
-          !key.includes('apple-touch-icon')
-        );
-        if (mainFavicon) {
-          content = content.replace(/href="assets\/favicon\.png"/g, `href="${mainFavicon}"`);
-          content = content.replace(/href="\/assets\/favicon\.png"/g, `href="/${mainFavicon}"`);
-        }
-
-        // Update icon links
-        const favicon16 = faviconFiles.find(key => key.includes('favicon-16x16'));
-        if (favicon16) {
-          content = content.replace(/href="assets\/favicon-16x16\.png"/g, `href="${favicon16}"`);
-          content = content.replace(/href="\/assets\/favicon-16x16\.png"/g, `href="/${favicon16}"`);
-        }
-
-        const favicon32 = faviconFiles.find(key => key.includes('favicon-32x32'));
-        if (favicon32) {
-          content = content.replace(/href="assets\/favicon-32x32\.png"/g, `href="${favicon32}"`);
-          content = content.replace(/href="\/assets\/favicon-32x32\.png"/g, `href="/${favicon32}"`);
-        }
-
-        const appleTouch = faviconFiles.find(key => key.includes('apple-touch-icon'));
-        if (appleTouch) {
-          content = content.replace(/href="assets\/apple-touch-icon\.png"/g, `href="${appleTouch}"`);
-          content = content.replace(/href="\/assets\/apple-touch-icon\.png"/g, `href="/${appleTouch}"`);
-        }
-
-        // Update img src references for favicons in header
-        if (mainFavicon) {
-          content = content.replace(/src="assets\/favicon\.png"/g, `src="${mainFavicon}"`);
-          content = content.replace(/src="\/assets\/favicon\.png"/g, `src="/${mainFavicon}"`);
-        }
-
-        fs.writeFileSync(indexPath, content);
+        this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robots });
       }
     }
   ]

@@ -8,11 +8,11 @@ function testMarkedWithHTML() {
   // Test case similar to what happens in the processing
   const testContent = `Some text here.
 
-<div class="notion-columns"><div class="notion-column">Content</div></div>
+<div class="content-columns"><div class="content-column">Content</div></div>
 
 ## Преимущества для инвестора
 
-<div class="notion-callout notion-callout-success">
+<div class="content-callout content-callout-success">
 **Bold text**
 </div>
 

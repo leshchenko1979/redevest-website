@@ -41,5 +41,11 @@ __pycache__/
 src/assets/[!.]*
 src/projects/**/images/[!.]*
 # But keep source images
-!src/assets/*.{jpg,jpeg,png,gif}
-!src/projects/**/images/*.{jpg,jpeg,png,gif}
+!src/assets/*.jpg
+!src/assets/*.jpeg
+!src/assets/*.png
+!src/assets/*.gif
+!src/projects/**/images/*.jpg
+!src/projects/**/images/*.jpeg
+!src/projects/**/images/*.png
+!src/projects/**/images/*.gif

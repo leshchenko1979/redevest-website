@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -28,22 +28,22 @@
    * .btn-sm  - маленький (px-6 py-4 text-base) - для компактных кнопок
    *
    * ВАРИАНТЫ СТИЛЕЙ (выберите один):
-   * .btn-primary    - синяя кнопка с белым текстом
-   * .btn-secondary  - белая кнопка с рамкой
-   * .btn-outline    - белая с синей рамкой (hover на синий фон)
+   * .btn-primary    - акцентная кнопка с фирменным градиентом
+   * .btn-secondary  - ghost-кнопка без фона и рамки + стрелка
+   * .btn-outline    - glass/tertiary кнопка для поверхностей и изображений
    *
    * МОДИФИКАТОРЫ ШИРИНЫ (опционально):
    * .btn-full       - кнопка на всю ширину контейнера
    *
    * СПЕЦИАЛЬНЫЕ ВАРИАНТЫ (альтернатива комбинациям выше):
-   * .btn-accent-bold    - желтая кнопка с жирным текстом (для партнеров)
+   * .btn-accent-bold    - glass/tertiary кнопка для dark-секций
    *
    * ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
    *
    * Основная кнопка:     <a class="btn btn-lg btn-primary">Смотреть проекты</a>
    * Кнопка в карточке:   <a class="btn btn-full btn-sm btn-primary">Получить презентацию</a>
    * Ссылка на схему:     <a class="btn btn-md btn-outline">Подробная схема</a>
-   * Специальная кнопка:  <a class="btn-accent-bold">Вступить в клуб</a>
+   * Специальная кнопка:  <a class="btn btn-lg btn-accent-bold">Вступить в клуб</a>
    *
    * ===========================================
    */
@@ -68,15 +68,29 @@
 
   /* Button variants */
   .btn-primary {
-    @apply text-white bg-primary hover:bg-secondary shadow-lg hover:shadow-xl hover:-translate-y-0.5;
+    @apply text-white shadow-ambient-xl hover:shadow-ambient-xl-hover hover:-translate-y-0.5;
+    background: linear-gradient(135deg, #a83900 0%, #ff6b2b 100%);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #962f00 0%, #f55d1f 100%);
   }
 
   .btn-secondary {
-    @apply text-primary bg-white border border-gray-200 hover:border-primary/50 hover:bg-gray-50;
+    @apply text-secondary bg-transparent uppercase tracking-wide text-sm hover:text-primary inline-flex items-center gap-2;
+  }
+
+  .btn-secondary::after {
+    content: '→';
+    @apply transition-transform duration-200;
+  }
+
+  .btn-secondary:hover::after {
+    transform: translateX(2px);
   }
 
   .btn-outline {
-    @apply text-primary bg-white border border-primary hover:bg-primary hover:text-white shadow-md hover:shadow-lg hover:-translate-y-0.5;
+    @apply text-primary bg-surface/60 backdrop-blur-sm hover:bg-surface hover:text-primary shadow-ambient-md hover:shadow-ambient-lg hover:-translate-y-0.5;
   }
 
   /* Button width modifiers */
@@ -86,12 +100,13 @@
 
   /* Special button variants */
   .btn-accent-bold {
-    @apply inline-flex items-center justify-center rounded-sm transition-all px-8 py-4 text-base font-bold text-primary bg-accent hover:bg-white shadow-lg hover:shadow-accent/50 hover:-translate-y-0.5;
+    @apply font-semibold text-white bg-white/10 backdrop-blur-[20px] hover:bg-white/20 shadow-ambient-xl hover:shadow-ambient-xl-hover hover:-translate-y-0.5;
   }
 
   /* Navigation */
   .nav-container {
-    @apply bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50;
+    @apply bg-white/80 backdrop-blur-[20px] sticky top-0 z-50;
+    box-shadow: 0 8px 32px rgba(21, 28, 39, 0.06);
   }
 
   .nav-content {
@@ -103,25 +118,34 @@
   }
 
   .nav-link {
-    @apply text-sm font-medium text-gray-600 hover:text-primary transition-colors uppercase tracking-wide;
+    @apply text-sm font-medium text-gray-700 hover:text-primary transition-colors duration-200 uppercase tracking-wide;
   }
 
   .nav-btn {
-    @apply inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-white bg-primary hover:bg-secondary rounded-sm transition-colors duration-200;
+    @apply inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-white rounded-sm transition-all duration-200 shadow-ambient-xl hover:shadow-ambient-xl-hover;
+    background: linear-gradient(135deg, #a83900 0%, #ff6b2b 100%);
   }
 
-  /* Cards */
+  .nav-btn:hover {
+    background: linear-gradient(135deg, #962f00 0%, #f55d1f 100%);
+  }
+
+  /* Cards — базовый класс и варианты */
+
+  .card-base {
+    @apply bg-surface rounded-sm shadow-ambient-lg hover:shadow-ambient-card-hover transition-all;
+  }
 
   .card-section {
-    @apply bg-white p-8 rounded-sm shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow;
+    @apply card-base p-8 text-center;
   }
 
   .card-info {
-    @apply bg-blue-50 border-l-4 border-primary p-8 md:p-10 rounded-r-sm;
+    @apply bg-blue-50 p-8 md:p-10 rounded-sm;
   }
 
   .card-faq {
-    @apply bg-white rounded-sm border border-gray-200 overflow-hidden;
+    @apply bg-white rounded-sm overflow-hidden shadow-ambient-sm;
   }
 
   .card-faq-summary {
@@ -169,7 +193,8 @@
    * Эффект: Создает левостороннее выравнивание текста с отступами и границей
    */
   .faq-content {
-    @apply p-6 border-t border-gray-200 text-gray-600 font-light leading-relaxed text-left;
+    @apply p-6 text-gray-600 font-light leading-relaxed text-left;
+    background: linear-gradient(to bottom, rgba(240, 243, 255, 0.45), rgba(240, 243, 255, 0.12));
   }
 
   /*
@@ -205,9 +230,13 @@
     @apply text-sm text-gray-600 leading-relaxed;
   }
 
-  /* Sections */
-  .section-main {
+  /* Sections — общая база вертикальных отступов */
+  .section-padding {
     @apply py-20 md:py-24;
+  }
+
+  .section-main {
+    @apply section-padding;
   }
 
   /*
@@ -218,7 +247,7 @@
    * Эффект: Создает секцию с белым фоном, вертикальными отступами и нижней границей
    */
   .section-white {
-    @apply py-20 bg-white border-b border-gray-100;
+    @apply section-padding bg-white;
   }
 
   /*
@@ -229,7 +258,7 @@
    * Эффект: Создает секцию с серым фоном, вертикальными отступами и нижней границей
    */
   .section-surface {
-    @apply py-20 bg-surface border-b border-gray-100;
+    @apply section-padding bg-surface;
   }
 
   /*
@@ -240,7 +269,7 @@
    * Эффект: Создает секцию с белым фоном и вертикальными отступами без границы
    */
   .section-final {
-    @apply py-20 bg-white;
+    @apply section-padding bg-white;
   }
 
   /*
@@ -337,29 +366,15 @@
   }
 
   .footer-bottom {
-    @apply border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500;
+    @apply pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500;
   }
-
-  /* Typography */
-
-  /* Layout */
-
-
-  /* Layout utilities */
 
   .container {
     @apply max-w-7xl mx-auto;
   }
 
-  /* Hero section */
-
-  /* Callout box */
-
-  /* Pill Tags */
-
-  /* Hero Pattern */
   .hero-pattern {
-    background-image: radial-gradient(#1e40af05 1px, transparent 1px);
+    background-image: radial-gradient(#0f172a08 1px, transparent 1px);
     background-size: 24px 24px;
   }
 
@@ -379,32 +394,6 @@
   .mobile-menu-panel.active {
     @apply translate-x-0;
   }
-
-  /* Section containers */
-  .section-container {
-    @apply container mx-auto px-4;
-  }
-
-  /* Modern Cards */
-
-  /* Feature items */
-
-  /* Statistics */
-
-  /* Portfolio items */
-
-  /* Content Navigation */
-  .nav-link {
-    @apply text-gray-700 hover:text-primary transition-colors duration-200 font-medium;
-  }
-
-  /* Testimonials */
-
-  /* Contact form */
-
-  /* Footer Components */
-
-  /* Utility classes */
 
   /*
    * Стиль для фото людей (аватары, контактные фото)
@@ -427,7 +416,7 @@
 
   /* Project image overlay */
   .project-image-overlay {
-    @apply absolute bottom-4 right-4 md:bottom-4 md:right-4 bg-white/95 backdrop-blur-md rounded-lg shadow-xl border border-white/20 flex items-center justify-center p-3;
+    @apply absolute bottom-4 right-4 md:bottom-4 md:right-4 bg-white/80 backdrop-blur-[20px] rounded-lg shadow-ambient-xl flex items-center justify-center p-3;
   }
 
   .project-yield-text {
@@ -443,7 +432,7 @@
    * Эффект: Создает вертикально центрированную карточку с белым фоном, границей, hover эффектом тени и групповыми анимациями
    */
   .project-card {
-    @apply flex flex-col items-center p-6 bg-white border border-gray-100 rounded-sm hover:shadow-md transition-all;
+    @apply card-base flex flex-col items-center p-6;
   }
 
   .project-card:hover span:first-child {
@@ -459,7 +448,7 @@
    * Эффект: Создает карточку с номером, заголовком и hover эффектом для популярных материалов
    */
   .top-post-card {
-    @apply flex items-center p-4 bg-white border border-gray-100 rounded-sm hover:shadow-md hover:border-accent/50 transition-all duration-200;
+    @apply card-base flex items-center p-4 duration-200;
   }
 
   .top-post-number {
@@ -516,7 +505,7 @@
    * Эффект: Создает белую карточку с тенью, hover эффектами и анимацией
    */
   .lifecycle-card {
-    @apply relative z-10 bg-white p-6 rounded-sm border border-gray-100 shadow-sm hover:shadow-md hover:border-primary transition-all duration-300;
+    @apply card-base relative z-10 p-6 duration-300;
   }
 
   .lifecycle-card-number {
@@ -532,14 +521,13 @@
   }
 
   /*
-   * Стиль для предупреждающих блоков в scheme.html
-   * Контекст: Блоки с предупреждениями и важной информацией
-   * Когда применять: Для выделения важных замечаний в карточках
+   * warning-block — компактный callout в стиле info
+   * Контекст: Блоки с предупреждениями в карточках scheme.html
    * Пример: <div class="warning-block">...</div>
-   * Эффект: Создает блок с голубым фоном и акцентным текстом
+   * Эффект: Компактный голубой блок (content-callout-info без иконки)
    */
   .warning-block {
-    @apply bg-blue-50 p-3 rounded-sm text-xs text-primary font-medium;
+    @apply content-callout content-callout-info content-callout-inline font-medium;
   }
 
   /*
@@ -550,7 +538,7 @@
    * Эффект: Создает контейнер с белым фоном и отступами для диаграмм
    */
   .mermaid-container {
-    @apply bg-white p-8 rounded-sm shadow-sm border border-gray-100 overflow-hidden;
+    @apply bg-white p-8 rounded-sm shadow-ambient-lg overflow-hidden;
   }
 
   .mermaid-scroll {
@@ -596,212 +584,655 @@
 
   /*
    * ===========================================
-   * NOTION-STYLE COMPONENTS
+   * CONTENT SYSTEM (content-*)
    * ===========================================
    *
-   * Стили для элементов в стиле Notion, используемые в markdown-контенте проектов
-   * Применяются к HTML, сгенерированному из remark-custom-blocks
+   * Единая система стилей для контента: страницы проектов (markdown) и отчёты о встречах (HTML).
+   * Описание классов — см. комментарии ниже. Маппинг для ИИ при правке HTML бота — .cursor/rules/content-class-mapping.mdc
+   *
+   * content-typography    — типографика статей (h1-h3, p, ul, ol, a, img)
+   * content-columns      — сетка колонок для markdown [[columns]]
+   * content-column       — колонка внутри content-columns
+   * content-callout      — цветные блоки: info, success, warning, error, accent, primary
+   * content-toggle      — раскрывающийся блок (details/summary) для markdown
+   * content-table       — таблицы в контенте
+   * content-table-container — обёртка для горизонтального скролла таблицы
+   * content-report      — обёртка страницы отчёта о встрече
+   * content-container   — центрированный контейнер с max-width
+   * content-report-header, content-header-pre, content-header-title, content-header-sub, content-meta, content-materials
+   * content-accordion   — collapsible секция отчёта (div + JS)
+   * content-accordion-header, content-accordion-icon, content-accordion-title, content-accordion-toggle, content-accordion-content
+   * content-quote       — цитата с автором
+   * content-checklist   — чек-лист с пунктами
    */
 
   /*
-   * Стиль базовой типографики Notion
-   * Контекст: Основной контент статей проектов
-   * Когда применять: К контейнерам с текстом из markdown
-   * Пример: <article class="notion-typography">...</article>
-   * Эффект: Создает читаемую типографику в стиле Notion с оптимальными отступами и размерами
+   * content-typography
+   * Контекст: Основной контент статей проектов и отчётов
+   * Когда применять: К article или div с текстом из markdown/HTML
+   * Пример: <article class="content-typography">...</article>
+   * Эффект: Читаемая типографика с оптимальными отступами и размерами
    */
-  .notion-typography {
+  .content-typography {
     @apply text-gray-700 leading-relaxed;
   }
 
-  .notion-typography h1 {
-    @apply text-3xl font-serif font-bold text-primary mt-8 mb-4 first:mt-0;
+  .content-typography h1 {
+    @apply text-3xl font-serif font-bold text-primary mt-8 mb-4 first:mt-0 leading-[1.3];
   }
 
-  .notion-typography h2 {
-    @apply text-2xl font-serif font-bold text-primary mt-6 mb-3;
+  .content-typography h2 {
+    @apply text-2xl font-serif font-bold text-primary mt-12 mb-3 leading-[1.3];
   }
 
-  .notion-typography h3 {
+  .content-typography h3 {
     @apply text-xl font-serif font-semibold text-primary mt-5 mb-2;
   }
 
-  .notion-typography p {
-    @apply mb-4;
+  .content-typography p {
+    @apply mb-4 tracking-[0.02em];
   }
 
-  .notion-typography ul,
-  .notion-typography ol {
+  .content-typography ul,
+  .content-typography ol {
     @apply mb-4 ml-6;
   }
 
-  .notion-typography ul {
+  .content-typography ul {
     list-style-type: disc;
   }
 
-  .notion-typography ol {
+  .content-typography ol {
     list-style-type: decimal;
   }
 
-  .notion-typography li {
+  .content-typography li {
     @apply mb-1;
   }
 
-  .notion-typography a {
+  .content-typography a {
     @apply text-accent hover:text-accent/80 underline;
   }
 
-  .notion-typography img {
+  .content-typography img {
     @apply max-w-full h-auto rounded-sm shadow-sm my-4;
   }
 
   /*
-   * Стиль контейнера колонок Notion
+   * content-columns / content-column
    * Контекст: Разделение контента на колонки в markdown
-   * Когда применять: К div с классом notion-columns, сгенерированному remark-custom-blocks
-   * Пример: <div class="notion-columns">...</div>
-   * Эффект: Создает гибкую сетку колонок с адаптивностью
+   * Пример: <div class="content-columns"><div class="content-column">...</div></div>
    */
-  .notion-columns {
+  .content-columns {
     @apply grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6 my-6;
   }
 
-  /*
-   * Стиль отдельной колонки Notion
-   * Контекст: Элементы внутри контейнера колонок
-   * Когда применять: К div с классом notion-column внутри notion-columns
-   * Пример: <div class="notion-column">...</div>
-   * Эффект: Добавляет минимальные отступы для читаемости без визуального разделения
-   */
-  .notion-column {
+  .content-column {
     @apply px-2 md:px-6;
   }
 
   /*
-   * Стиль callout блоков Notion (цветные блоки с иконками)
-   * Контекст: Выделение важной информации в markdown-контенте
-   * Когда применять: К div с классом notion-callout, сгенерированному remark-custom-blocks
-   * Пример: <div class="notion-callout notion-callout-info">...</div>
-   * Эффект: Создает цветной блок с отступами и иконкой для привлечения внимания
+   * content-callout (модификаторы: info, success, warning, error, accent, primary)
+   * Контекст: Выделение важной информации
+   * Пример: <div class="content-callout content-callout-info">...</div>
    */
-  .notion-callout {
-    @apply flex items-start p-6 my-6 rounded-sm border-l-4 bg-surface border;
+  .content-callout {
+    @apply p-6 my-6 rounded-lg bg-surface shadow-ambient-sm text-[1.0625rem] leading-relaxed;
+    @apply flex flex-col justify-center;
   }
 
-  .notion-callout::before {
-    content: '💡';
-    @apply text-2xl flex-shrink-0 mr-4;
+  .content-callout> :first-child {
+    @apply mt-0;
   }
 
-  .notion-callout-info {
-    @apply border-blue-500 bg-blue-50;
+  .content-callout> :last-child {
+    @apply mb-0;
   }
 
-  .notion-callout-info::before {
-    content: '💡';
+  .content-callout-info {
+    @apply bg-slate-50/90;
   }
 
-  .notion-callout-success {
-    @apply border-green-500 bg-green-50;
+  .content-callout-success {
+    @apply bg-emerald-50/70;
   }
 
-  .notion-callout-success::before {
-    content: '✅';
+  .content-callout-warning {
+    @apply bg-amber-50/70;
   }
 
-  .notion-callout-warning {
-    @apply border-yellow-500 bg-yellow-50;
+  .content-callout-error {
+    @apply bg-rose-50/70;
   }
 
-  .notion-callout-warning::before {
-    content: '⚠️';
+  .content-callout-accent {
+    @apply bg-gradient-to-r from-amber-50/85 to-orange-50/70;
   }
 
-  .notion-callout-error {
-    @apply border-red-500 bg-red-50;
+  .content-callout-primary {
+    @apply bg-gradient-to-r from-slate-100/90 to-blue-50/80;
   }
 
-  .notion-callout-error::before {
-    content: '❌';
+  /* Компактный вариант callout без иконки (для warning-block и аналогичных) */
+  .content-callout-inline {
+    @apply p-3 my-3 text-xs flex items-center;
+  }
+
+  .content-callout-inline::before {
+    content: none;
   }
 
   /*
-   * Стиль toggle блоков Notion (раскрывающиеся блоки)
-   * Контекст: Скрытие/показ дополнительной информации в markdown
-   * Когда применять: К details с классом notion-toggle, сгенерированному remark-custom-blocks
-   * Пример: <details class="notion-toggle"><summary>...</summary>...</details>
-   * Эффект: Создает интерактивный элемент с плавным сворачиванием/разворачиванием
+   * content-toggle
+   * Контекст: Раскрывающийся блок в markdown
+   * Пример: details.content-toggle > summary + .content-toggle-panel > .content-toggle-inner
+   * Анимация высоты: max-height + overflow:hidden на панели; логика в common.js (initContentToggleDetails)
    */
-  .notion-toggle {
-    @apply border border-gray-200 rounded-sm my-4 bg-surface;
+  .content-toggle {
+    @apply rounded-sm my-4 bg-surface shadow-ambient-sm;
   }
 
-  .notion-toggle summary {
-    @apply cursor-pointer p-4 font-semibold text-primary hover:bg-gray-50 transition-colors;
+  .content-toggle summary {
+    @apply cursor-pointer p-4 font-semibold text-primary bg-white/70 hover:bg-slate-50/90 transition-colors;
     list-style: none;
   }
 
-  .notion-toggle summary::marker {
+  .content-toggle summary::marker {
     display: none;
   }
 
-  .notion-toggle summary::before {
-    content: '▶️';
-    @apply mr-2 transition-transform duration-200;
+  .content-toggle summary::before {
+    content: '▶';
+    display: inline-block;
+    @apply mr-2 text-sm text-primary transition-transform duration-300 ease-out;
   }
 
-  .notion-toggle[open] summary::before {
-    content: '▼';
+  .content-toggle[open] summary::before {
+    transform: rotate(90deg);
   }
 
-  .notion-toggle>div {
-    @apply p-4 pt-0 border-t border-gray-200;
+  .content-toggle-panel {
+    width: 100%;
+    overflow: hidden;
+    transition: max-height 0.35s ease-out;
+  }
+
+  .content-toggle-inner {
+    width: 100%;
+    box-sizing: border-box;
+    @apply px-4 py-4;
+  }
+
+  /* Иначе mb-4 у последнего p из .content-typography ломает симметрию с py-4 */
+  .content-typography .content-toggle-inner> :last-child {
+    @apply mb-0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .content-toggle-panel {
+      transition-duration: 0.01ms;
+    }
+
+    .content-toggle summary::before {
+      transition-duration: 0.01ms;
+    }
   }
 
   /*
-   * Стиль таблиц Notion
-   * Контекст: Таблицы в markdown-контенте проектов
-   * Когда применять: К table элементам, сгенерированным remark-gfm
-   * Пример: <table class="notion-table">...</table>
-   * Эффект: Создает современную таблицу с границами, отступами и hover эффектами
+   * content-gallery (carousel)
+   * Контекст: [[gallery]] — горизонтальная прокрутка + кнопки
    */
-  .notion-table {
-    @apply w-full border-collapse border-2 border-gray-500 rounded-sm my-6 overflow-hidden text-sm shadow-sm;
+  .content-typography .content-gallery--carousel {
+    @apply relative my-8 max-w-full;
   }
 
-  /* Responsive table scrolling on mobile */
+  .content-typography .content-gallery-scroller {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* mandatory + JS scrollLeft/lerp ломали прокрутку; snap делаем в JS после жеста */
+    scroll-snap-type: none;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.35rem;
+    scrollbar-width: thin;
+    cursor: grab;
+    touch-action: pan-y;
+  }
+
+  .content-typography .content-gallery-scroller.content-gallery-scroller--dragging {
+    cursor: grabbing;
+    scroll-behavior: auto;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .content-typography .content-gallery-scroller.content-gallery-scroller--smooth-lerp {
+    scroll-behavior: auto;
+  }
+
+  .content-typography .content-gallery-scroller.content-gallery-scroller--momentum {
+    scroll-behavior: auto;
+  }
+
+  /*
+   * marked склеивает подряд идущие ![img] в один <p> с несколькими <picture>.
+   * display:contents убирает <p> из раскладки — flex-элементами становятся сами picture.
+   */
+  .content-typography .content-gallery-scroller>p {
+    display: contents;
+    @apply mb-0;
+  }
+
+  /*
+   * Единая высота слайдов, ширина по пропорциям картинки (без обрезки по высоте).
+   */
+  .content-typography .content-gallery-scroller picture {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    height: clamp(14rem, 48vw, 24rem);
+    @apply rounded-sm shadow-sm my-0 block overflow-hidden;
+  }
+
+  @media (min-width: 768px) {
+    .content-typography .content-gallery-scroller picture {
+      height: clamp(16rem, 40vh, 28rem);
+    }
+  }
+
+  .content-typography .content-gallery-scroller picture img {
+    @apply my-0 block h-full w-auto max-w-none;
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
+
+  .content-typography .content-gallery-controls {
+    @apply flex justify-center items-center gap-6 mt-4;
+  }
+
+  .content-typography .content-gallery-btn {
+    @apply w-11 h-11 shrink-0 rounded-full bg-white text-2xl font-light leading-none text-primary shadow-ambient-xl flex items-center justify-center transition-colors hover:bg-primary hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-accent;
+  }
+
+  /*
+   * content-project-passport
+   * Контекст: Выделенный блок "Паспорт проекта" в markdown
+   * Пример: <section class="content-project-passport">...</section>
+   */
+  .content-typography .content-project-passport {
+    @apply relative my-8 p-6 md:p-8 rounded-xl bg-gradient-to-br from-slate-50 via-white to-blue-50 shadow-ambient-lg overflow-hidden;
+  }
+
+  .content-typography .content-project-passport::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(140deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.02) 100%);
+  }
+
+  .content-typography .content-project-passport::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(80% 60% at 100% 0%, rgba(180, 83, 9, 0.08), transparent 60%);
+  }
+
+  .content-typography .content-project-passport> :last-child {
+    @apply mb-0;
+  }
+
+  .content-typography .content-project-passport ul,
+  .content-typography .content-project-passport ol {
+    @apply mb-0;
+  }
+
+  .content-typography .content-project-passport h2 {
+    @apply mt-0 mb-5;
+  }
+
+  .content-typography .content-project-passport ul {
+    @apply grid md:grid-cols-2 gap-x-8 gap-y-3 ml-0;
+    list-style: none;
+  }
+
+  .content-typography .content-project-passport li {
+    @apply m-0 p-3 rounded-md bg-white/70 text-[1.0625rem] leading-relaxed;
+  }
+
+  .content-typography .content-project-passport li:nth-child(even) {
+    @apply bg-slate-50/85;
+  }
+
+  /*
+   * Финальный CTA-блок на страницах проектов.
+   * Усиленный glass-слой + мягкая глубина без жестких границ.
+   */
+  .project-cta-glass {
+    @apply relative p-8 md:p-10 rounded-sm shadow-ambient-xl overflow-hidden;
+    background:
+      linear-gradient(135deg, rgba(250, 249, 248, 0.8) 0%, rgba(244, 243, 242, 0.88) 55%, rgba(255, 255, 255, 0.92) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+
+  .project-cta-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(90% 60% at 100% 0%, rgba(15, 23, 42, 0.06), transparent 62%);
+  }
+
+  .project-cta-glass::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0));
+  }
+
+  .project-cta-glass>* {
+    position: relative;
+    z-index: 1;
+  }
+
+  /*
+   * content-iframe-container
+   * Контекст: Встраивание 3D-туров и др. через [[iframe | URL]]
+   */
+  .content-typography .content-iframe-container {
+    @apply relative w-full my-8 rounded-sm overflow-hidden shadow-ambient-md bg-gray-100;
+    aspect-ratio: 16 / 9;
+    max-height: min(80vh, 720px);
+  }
+
+  .content-typography .content-iframe-container iframe {
+    @apply absolute inset-0 w-full h-full border-0;
+  }
+
+  /*
+   * content-table / content-table-container
+   * Контекст: Таблицы в markdown-контенте
+   * Пример: <div class="content-table-container"><table class="content-table">...</table></div>
+   */
+  .content-table {
+    @apply w-full border-collapse rounded-sm my-6 overflow-hidden text-sm shadow-sm;
+    background: rgba(255, 255, 255, 0.9);
+  }
+
   @media (max-width: 768px) {
-    .notion-table {
+    .content-table {
       @apply block max-w-none;
       min-width: fit-content;
-      /* Allow table to be as wide as its content needs */
       width: auto;
-      /* Let table size itself based on content */
     }
 
-    /* Container for table scrolling - prevents overflow beyond page width */
-    .notion-table-container {
-      @apply overflow-x-auto w-full;
-      max-width: 100%;
-      /* Ensure container doesn't exceed page width */
+    .content-table-container {
+      @apply overflow-x-auto w-full max-w-full;
       white-space: normal;
-      /* Allow text wrapping in description columns */
       word-wrap: break-word;
-      /* Break long words if necessary */
     }
-
   }
 
-  .notion-table th {
-    @apply bg-gray-100 border border-gray-300 px-4 py-3 text-left font-semibold text-primary;
+  .content-table th {
+    @apply bg-gray-100 px-4 py-3 text-left font-semibold text-primary;
   }
 
-  .notion-table td {
-    @apply border border-gray-300 px-4 py-3 text-left;
+  .content-table td {
+    @apply px-4 py-3 text-left;
   }
 
-  .notion-table tr th:first-child,
-  .notion-table tr td:first-child {
+  .content-table tbody tr:nth-child(odd) {
+    @apply bg-white;
+  }
+
+  .content-table tbody tr:nth-child(even) {
+    @apply bg-slate-50/80;
+  }
+
+  .content-table tr th:first-child,
+  .content-table tr td:first-child {
     @apply bg-gray-100;
   }
+
+  .calc-input {
+    @apply w-full max-w-xs rounded-sm px-3 py-2 text-gray-800;
+    outline: 1px solid rgba(220, 193, 177, 0.15);
+  }
+
+  .calc-input:focus {
+    outline: 1px solid rgba(220, 193, 177, 0.45);
+  }
+
+  .calc-input-sm {
+    @apply w-full rounded-sm px-2 py-1 text-sm text-gray-800 text-right;
+    outline: 1px solid rgba(220, 193, 177, 0.15);
+  }
+
+  .calc-input-sm:focus {
+    outline: 1px solid rgba(220, 193, 177, 0.45);
+  }
+
+  .calc-table-num td,
+  .calc-table-num th:not(:first-child) {
+    @apply text-right;
+  }
+
+  .calc-instruction-list {
+    @apply list-outside pl-6;
+  }
+
+  .calc-instruction-list li {
+    @apply pl-1;
+  }
+
+  .calc-instruction-list ol {
+    @apply list-outside pl-6 mt-2 mb-4 list-[lower-alpha];
+  }
+
+  /*
+   * content-report — обёртка страницы отчёта о встрече
+   * Контекст: reports/*.html
+   * Пример: <div class="content-report"><div class="content-container">...</div></div>
+   */
+  .content-report {
+    @apply font-sans bg-surface text-slate-500 leading-relaxed font-normal py-6 px-4;
+  }
+
+  .content-report strong {
+    @apply text-primary font-bold;
+  }
+
+  .content-report .content-container {
+    @apply max-w-[760px] mx-auto;
+  }
+
+  .content-report .content-report-header {
+    @apply bg-white rounded-lg p-10 mb-8 shadow-sm text-center;
+    background-image: linear-gradient(180deg, rgba(168, 57, 0, 0.18) 0%, rgba(168, 57, 0, 0) 16%);
+  }
+
+  .content-report .content-header-pre {
+    @apply text-accent uppercase text-[13px] font-bold tracking-wider mb-3;
+  }
+
+  .content-report .content-header-title {
+    @apply text-3xl leading-tight text-primary font-bold mb-4;
+  }
+
+  .content-report .content-header-sub {
+    @apply text-lg text-slate-500 font-normal;
+  }
+
+  .content-report .content-meta {
+    @apply mt-4 text-sm text-slate-500;
+  }
+
+  .content-report .content-materials {
+    @apply mt-6 flex flex-wrap gap-3 justify-center;
+  }
+
+  .content-report .content-materials a {
+    @apply inline-flex items-center gap-2 no-underline;
+  }
+
+  .content-report p {
+    @apply mb-4;
+  }
+
+  .content-report ul,
+  .content-report ol {
+    @apply mb-6 pl-6;
+  }
+
+  .content-report li {
+    @apply mb-2;
+  }
+
+  /*
+   * content-accordion — collapsible секция (div + JS, не details)
+   * Контекст: Секции отчётов с заголовком и раскрывающимся содержимым
+   * Пример: <section class="content-accordion"><div class="content-accordion-header" onclick="...">...</div><div class="content-accordion-content">...</div></section>
+   */
+  .content-report .content-accordion {
+    @apply bg-white rounded-lg mb-5 shadow-sm overflow-hidden transition-transform duration-200;
+  }
+
+  .content-report .content-accordion:hover {
+    @apply -translate-y-0.5;
+  }
+
+  .content-report .content-accordion-header {
+    @apply p-6 flex items-center cursor-pointer;
+  }
+
+  .content-report .content-accordion.collapsed .content-accordion-header {
+    @apply border-b-0;
+  }
+
+  .content-report .content-accordion-icon {
+    @apply w-11 h-11 bg-slate-100 text-primary rounded-xl flex items-center justify-center text-[22px] mr-4 flex-shrink-0;
+  }
+
+  .content-report .content-accordion-title {
+    @apply text-xl font-bold text-primary flex-1 m-0;
+  }
+
+  .content-report .content-accordion-toggle {
+    @apply w-6 h-6 flex items-center justify-center text-slate-500 transition-transform duration-300;
+  }
+
+  .content-report .content-accordion.collapsed .content-accordion-toggle {
+    @apply -rotate-90;
+  }
+
+  .content-report .content-accordion-content {
+    @apply px-6 pb-8 text-slate-500 text-base overflow-hidden transition-[max-height] duration-300 ease-out;
+  }
+
+  .content-report .content-accordion.collapsed .content-accordion-content {
+    max-height: 0 !important;
+    padding-bottom: 0;
+  }
+
+  /* content-quote */
+  .content-report .content-quote {
+    @apply text-lg italic text-primary pl-5 my-8 rounded-sm;
+    background: linear-gradient(90deg, rgba(250, 204, 21, 0.2) 0%, rgba(250, 204, 21, 0.04) 25%, rgba(250, 204, 21, 0) 70%);
+  }
+
+  .content-report .content-quote-author {
+    @apply text-sm text-slate-500 not-italic mt-2 font-medium;
+  }
+
+  /*
+   * content-checklist
+   * Контекст: Чек-лист в отчётах о встречах
+   */
+  .content-report .content-checklist {
+    @apply bg-white p-8 rounded-lg mt-10 shadow-sm;
+  }
+
+  .content-report .content-checklist-title {
+    @apply text-2xl font-bold text-primary mb-2;
+  }
+
+  .content-report .content-checklist-desc {
+    @apply text-sm mb-6;
+  }
+
+  .content-report .content-checklist-group-title {
+    @apply text-xs uppercase tracking-wider text-accent font-bold my-6 mb-3;
+  }
+
+  .content-report .content-checklist-item {
+    @apply flex gap-4 py-3;
+    background: linear-gradient(180deg, rgba(148, 163, 184, 0.08) 0%, rgba(148, 163, 184, 0) 100%);
+  }
+
+  .content-report .content-checklist-item:last-child {
+    @apply mb-0;
+  }
+
+  .content-report .content-checklist-checkbox {
+    @apply w-[22px] h-[22px] rounded-md flex-shrink-0 mt-0.5 relative transition-all duration-200 bg-slate-200;
+  }
+
+  .content-report .content-checklist-item.checked .content-checklist-checkbox {
+    @apply bg-primary;
+  }
+
+  .content-report .content-checklist-item.checked .content-checklist-checkbox::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .content-report .content-checklist-text strong {
+    @apply block text-[15px] text-primary transition-colors duration-200;
+  }
+
+  .content-report .content-checklist-item.checked .content-checklist-text strong {
+    @apply text-slate-500 line-through;
+  }
+
+  .content-report .content-checklist-text span {
+    @apply text-[13px] text-slate-500;
+  }
+
+  @media (max-width: 600px) {
+    .content-report .content-report-header {
+      @apply p-6 text-left;
+    }
+
+    .content-report .content-header-title {
+      @apply text-2xl;
+    }
+
+    .content-report .content-accordion-header {
+      @apply p-4;
+    }
+
+    .content-report .content-accordion-icon {
+      @apply w-9 h-9 text-lg mr-3;
+    }
+
+    .content-report .content-accordion-content {
+      @apply px-4 pb-6;
+    }
+  }
+
 }

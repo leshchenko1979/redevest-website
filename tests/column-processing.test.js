@@ -40,8 +40,8 @@ Some other content`;
   }
 
   // Check if columns are properly formed
-  const hasProperColumns = result.includes('<div class="notion-columns">') &&
-    result.includes('<div class="notion-column">');
+  const hasProperColumns = result.includes('<div class="content-columns">') &&
+    result.includes('<div class="content-column">');
 
   if (!hasProperColumns) {
     console.error('❌ Test FAILED: Columns are not properly formed');

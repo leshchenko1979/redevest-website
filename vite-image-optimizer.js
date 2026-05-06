@@ -36,7 +36,7 @@ function ensureDirectoryExists(dirPath) {
 
 /**
  * Copies a cached file to the output location or emits it to Vite bundle
- * In dev mode, optimized files are served via middleware - originals only copied on failure
+ * In dev mode, files are served from cache/originals only - no writes to src
  */
 function copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile, isOriginalFallback = false) {
   // Handle original file fallback (when optimization fails)
@@ -49,11 +49,9 @@ function copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile, i
     }
 
     if (isDev) {
-      // In dev mode, copy original to src/assets so Vite can serve it
-      const devOutputPath = path.join(distDir, relativeOutputPath);
-      ensureDirectoryExists(path.dirname(devOutputPath));
-      fs.copyFileSync(originalPath, devOutputPath);
-      return true;
+      // Never write fallback files into src during development.
+      // Let Vite serve originals directly when optimized variants are unavailable.
+      return false;
     } else {
       // In production, emit original file to bundle
       if (emitFile) {
@@ -148,7 +146,14 @@ async function generateAvifVersion(inputPath, cacheDir, relativeDir, baseName, i
  */
 async function processImageFile(file, srcDir, distDir, cacheDir, isDev, emitFile) {
   const inputPath = path.join(process.cwd(), file);
-  const relativePath = path.relative(srcDir, inputPath);
+  const relativePathRaw = path.relative(srcDir, inputPath);
+
+  // Ensure all project images are under assets/projects/ in the output/cache
+  let relativePath = relativePathRaw;
+  if (relativePathRaw.startsWith('projects' + path.sep)) {
+    relativePath = path.join('assets', relativePathRaw);
+  }
+
   const relativeDir = path.dirname(relativePath);
   const cacheFileDir = path.join(cacheDir, relativeDir);
   const baseName = path.basename(file, path.extname(file));
@@ -232,7 +237,7 @@ async function generateResponsiveVersions(inputPath, cacheDir, distDir, relative
       if (needsRegeneration(inputPath, cachePath)) {
         await sharp(inputPath)
           .resize(size, null, { withoutEnlargement: true, fit: 'inside' })
-          [format.method](format.options)
+        [format.method](format.options)
           .toFile(cachePath);
         console.log(`✨ Generated responsive ${format.ext.toUpperCase()} (${size}w): ${relativeOutputPath}`);
         copyToOutput(cachePath, relativeOutputPath, isDev, distDir, emitFile);
@@ -272,7 +277,7 @@ function findFiles(dir, patterns) {
  */
 async function optimizeImages(isDev, emitFile = null) {
   const srcDir = path.join(process.cwd(), 'src');
-  const distDir = isDev ? srcDir : path.join(process.cwd(), 'dist');
+  const distDir = path.join(process.cwd(), 'dist');
   const cacheDir = path.join(process.cwd(), CACHE_DIR);
 
   ensureDirectoryExists(cacheDir);
@@ -303,7 +308,10 @@ async function optimizeImages(isDev, emitFile = null) {
   for (const heroImage of heroImages) {
     const fullHeroPath = path.join(process.cwd(), heroImage);
     if (fs.existsSync(fullHeroPath)) {
-      const relativePath = path.relative(srcDir, fullHeroPath);
+      let relativePath = path.relative(srcDir, fullHeroPath);
+      if (relativePath.startsWith('projects' + path.sep)) {
+        relativePath = path.join('assets', relativePath);
+      }
       const relativeDir = path.dirname(relativePath);
       const cacheHeroDir = path.join(cacheDir, relativeDir);
       const baseName = path.basename(heroImage, path.extname(heroImage));
@@ -315,7 +323,10 @@ async function optimizeImages(isDev, emitFile = null) {
   // Large project images responsive versions
   for (const projectImage of largeProjectImages) {
     const fullPath = path.join(process.cwd(), projectImage);
-    const relativePath = path.relative(srcDir, fullPath);
+    let relativePath = path.relative(srcDir, fullPath);
+    if (relativePath.startsWith('projects' + path.sep)) {
+      relativePath = path.join('assets', relativePath);
+    }
     const relativeDir = path.dirname(relativePath);
     const cacheProjectDir = path.join(cacheDir, relativeDir);
     const baseName = path.basename(projectImage, path.extname(projectImage));

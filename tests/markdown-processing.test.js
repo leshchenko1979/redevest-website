@@ -37,16 +37,7 @@ Content 1
 Content 2
 [[/columns]]`;
 
-      const expected = `<div class="notion-columns"><div class="notion-column">Content 1</div><div class="notion-column">Content 2</div></div>`;
-
-      const result = processCustomBlocks(input);
-      expect(result.trim()).toBe(expected);
-    });
-
-    test('should process columns correctly (old syntax)', () => {
-      const input = `[[columns]] | [[column]] | | Content 1 | [[column]] | | Content 2`;
-
-      const expected = `<div class="notion-columns"><div class="notion-column">Content 1</div><div class="notion-column">Content 2</div></div>`;
+      const expected = `<div class="content-columns"><div class="content-column"><p>Content 1</p></div><div class="content-column"><p>Content 2</p></div></div>`;
 
       const result = processCustomBlocks(input);
       expect(result.trim()).toBe(expected);
@@ -54,14 +45,12 @@ Content 2
 
     test('should process callout blocks correctly', () => {
       const input = `[[callout | info]]
-| This is an info callout`;
-
-      const expected = `<div class="notion-callout notion-callout-info">
 This is an info callout
-</div>`;
+[[/callout]]`;
 
       const result = processCustomBlocks(input);
-      expect(result).toBe(expected);
+      expect(result).toContain('content-callout-info');
+      expect(result).toContain('This is an info callout');
     });
 
     test('should process toggle blocks correctly', () => {
@@ -69,16 +58,53 @@ This is an info callout
 | Content line 1
 | Content line 2`;
 
-      const expected = `<details class="notion-toggle">
+      const expected = `<details class="content-toggle">
 <summary>Test Title</summary>
-<div>
-Content line 1
-Content line 2
+<div class="content-toggle-panel">
+<div class="content-toggle-inner">
+<p>Content line 1<br>Content line 2</p>
+</div>
 </div>
 </details>`;
 
       const result = processCustomBlocks(input);
-      expect(result).toBe(expected);
+      expect(result.trim()).toBe(expected);
+    });
+
+    test('should process gallery blocks', () => {
+      const input = `[[gallery]]
+![A](images/a.png)
+![B](images/b.png)
+[[/gallery]]`;
+      const result = processCustomBlocks(input);
+      expect(result).toContain('content-gallery--carousel');
+      expect(result).toContain('content-gallery-scroller');
+      expect(result).toContain('content-gallery-prev');
+      expect(result).toContain('images/a.png');
+      expect(result).toContain('images/b.png');
+    });
+
+    test('should process project passport blocks', () => {
+      const input = `[[project-passport]]
+**Локация:** Химки
+[[/project-passport]]`;
+      const result = processCustomBlocks(input);
+      expect(result).toContain('content-project-passport');
+      expect(result).toContain('Локация');
+    });
+
+    test('should process iframe blocks with https URL', () => {
+      const input = '[[iframe | https://example.com/embed]]';
+      const result = processCustomBlocks(input);
+      expect(result).toContain('content-iframe-container');
+      expect(result).toContain('https://example.com/embed');
+    });
+
+    test('should skip iframe with non-http URL', () => {
+      const input = '[[iframe | javascript:alert(1)]]';
+      const result = processCustomBlocks(input);
+      expect(result).not.toContain('iframe');
+      expect(result).toBe('');
     });
   });
 

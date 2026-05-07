@@ -68,12 +68,26 @@
 
   /* Button variants */
   .btn-primary {
-    @apply text-white shadow-ambient-xl hover:shadow-ambient-xl-hover hover:-translate-y-0.5;
+    @apply text-white shadow-ambient-xl hover:shadow-ambient-xl-hover hover:-translate-y-0.5 duration-200 ease-out;
+    /*
+     * Do not tween background-image (gradient) or translateY: interpolating either while
+     * logos sit in <img> rasterises SVG unevenly (~1–2 px vertical swell mid-transition).
+     * Gradient snaps; lift snaps; shadow still tweens smoothly.
+     */
+    transition-property: box-shadow;
     background: linear-gradient(135deg, #a83900 0%, #ff6b2b 100%);
   }
 
   .btn-primary:hover {
     background: linear-gradient(135deg, #962f00 0%, #f55d1f 100%);
+  }
+
+  /*
+   * Logos use <img>: don't promote extra layers next to tweening transform (was causing swell).
+   */
+  .btn-primary img,
+  .btn-accent-bold img {
+    @apply shrink-0 block;
   }
 
   .btn-secondary {
@@ -90,7 +104,9 @@
   }
 
   .btn-outline {
-    @apply text-primary bg-surface/60 backdrop-blur-sm hover:bg-surface hover:text-primary shadow-ambient-md hover:shadow-ambient-lg hover:-translate-y-0.5;
+    @apply text-primary bg-surface/60 backdrop-blur-sm hover:bg-surface hover:text-primary shadow-ambient-md hover:shadow-ambient-lg hover:-translate-y-0.5 duration-200 ease-out;
+    /* @apply не поддерживает arbitrary transition с запятыми */
+    transition-property: background-color, color, box-shadow, transform;
   }
 
   /* Button width modifiers */
@@ -100,7 +116,8 @@
 
   /* Special button variants */
   .btn-accent-bold {
-    @apply font-semibold text-white bg-white/10 backdrop-blur-[20px] hover:bg-white/20 shadow-ambient-xl hover:shadow-ambient-xl-hover hover:-translate-y-0.5;
+    @apply font-semibold text-white bg-white/10 backdrop-blur-[20px] hover:bg-white/20 shadow-ambient-xl hover:shadow-ambient-xl-hover hover:-translate-y-0.5 duration-200 ease-out;
+    transition-property: box-shadow;
   }
 
   /* Navigation */
@@ -123,6 +140,7 @@
 
   .nav-btn {
     @apply inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-white rounded-sm transition-all duration-200 shadow-ambient-xl hover:shadow-ambient-xl-hover;
+    transition-property: box-shadow;
     background: linear-gradient(135deg, #a83900 0%, #ff6b2b 100%);
   }
 

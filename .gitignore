@@ -44,6 +44,7 @@ src/projects/**/images/[!.]*
 !src/assets/*.jpg
 !src/assets/*.jpeg
 !src/assets/*.png
+!src/assets/*.svg
 !src/assets/*.gif
 !src/projects/**/images/*.jpg
 !src/projects/**/images/*.jpeg

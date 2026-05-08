@@ -1,14 +1,16 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'path';
 import fs from 'fs';
 import path from 'path';
 import { processMarkdownFile, findProjects } from './build-markdown.js';
 import sharp from 'sharp';
 import { imageOptimizerPlugin } from './vite-image-optimizer.js';
+import { renderProjectPageHtml, renderLegalPageHtml } from './vite-build-pages.js';
 
 const srcDir = path.join(__dirname, 'src');
 const distDir = path.join(__dirname, 'dist');
 const SITE_BASE = 'https://rede-vest.ru';
+/** Referenced only from emitted project HTML, not imported — must be copied into dist/assets */
+const MONO_LOGO_SVGS = ['telegram-logo-mono.svg', 'max-logo-mono.svg'];
 
 const LEGAL_PAGES = [
   { slug: 'events', md: 'legal/events.md' },
@@ -61,10 +63,38 @@ function replaceIncludes(html) {
   });
 }
 
-function getBundleAssets(bundle) {
+function getBundleAssets(bundle, onError) {
+  const entries = Object.entries(bundle);
+  const chunks = entries
+    .map(([fileName, output]) => ({ fileName, output }))
+    .filter(({ output }) => output.type === 'chunk');
+  const assets = entries
+    .map(([fileName, output]) => ({ fileName, output }))
+    .filter(({ output }) => output.type === 'asset');
+
+  const commonByName = chunks.find(({ output }) => output.name === 'common');
+  const commonChunk = commonByName || chunks.find(({ output }) => {
+    if (!output.isEntry || !output.facadeModuleId) return false;
+    const normalized = path.normalize(output.facadeModuleId);
+    return normalized.endsWith(`${path.sep}common.js`) || normalized.endsWith(`${path.sep}src${path.sep}common.js`);
+  });
+
+  if (!commonChunk) {
+    const candidates = chunks.map(({ fileName, output }) => `${fileName} (name=${output.name || 'n/a'})`).join(', ');
+    onError(`Could not determine common JS chunk. Candidates: ${candidates || 'none'}`);
+  }
+
+  const cssCandidates = assets.filter(({ fileName }) => fileName.endsWith('.css')).map(({ fileName }) => fileName);
+  if (cssCandidates.length === 0) {
+    onError('Could not determine CSS asset: no .css files emitted.');
+  }
+  if (cssCandidates.length > 1) {
+    onError(`Could not determine CSS asset: multiple .css files emitted: ${cssCandidates.join(', ')}`);
+  }
+
   return {
-    cssFile: Object.keys(bundle).find((k) => k.endsWith('.css')),
-    jsFile: Object.keys(bundle).find((k) => k.includes('common') && k.endsWith('.js')),
+    cssFile: cssCandidates[0],
+    jsFile: commonChunk.fileName,
     faviconFiles: Object.keys(bundle).filter(
       (k) => (k.includes('favicon') || k.includes('apple-touch-icon')) && (k.endsWith('.png') || k.endsWith('.ico'))
     )
@@ -120,10 +150,10 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'src/index.html'),
-        scheme: resolve(__dirname, 'src/scheme.html'),
+        main: path.resolve(__dirname, 'src/index.html'),
+        scheme: path.resolve(__dirname, 'src/scheme.html'),
         ...getReportInputs(),
-        common: resolve(__dirname, 'src/common.js')
+        common: path.resolve(__dirname, 'src/common.js')
       }
     }
   },
@@ -162,6 +192,12 @@ export default defineConfig({
         this.addWatchFile(path.join(__dirname, 'src', 'input.css'));
         this.addWatchFile(path.join(__dirname, 'src', 'common.js'));
         this.addWatchFile(path.join(__dirname, 'src', 'assets', 'favicon.png'));
+        for (const name of MONO_LOGO_SVGS) {
+          const logoPath = path.join(__dirname, 'src', 'assets', name);
+          if (fs.existsSync(logoPath)) {
+            this.addWatchFile(logoPath);
+          }
+        }
 
         // Watch reports folder
         const reportsDir = path.join(__dirname, 'src', 'reports');
@@ -243,44 +279,7 @@ export default defineConfig({
 
               templateContent = replaceIncludes(templateContent);
 
-              // Replace content using replaceAll for reliability
-              templateContent = templateContent.replaceAll('{{title}}', metadata.title || project.slug);
-              templateContent = templateContent.replaceAll('{{content}}', html);
-              templateContent = templateContent.replaceAll('{{slug}}', project.slug);
-              templateContent = templateContent.replaceAll('{{bot_link}}', metadata.bot_link || '');
-              templateContent = templateContent.replaceAll('{{max_bot_link}}', metadata.max_bot_link || metadata.bot_link || '');
-              templateContent = templateContent.replaceAll('{{date}}', metadata.date || '');
-              templateContent = templateContent.replaceAll('{{hero_badge}}', metadata.hero_badge || 'Инвестиционный проект');
-              templateContent = templateContent.replaceAll('{{cta_button}}', metadata.cta_button || 'Узнать об инвестировании');
-              templateContent = templateContent.replaceAll('{{telegram_cta_label}}', metadata.telegram_cta_label || metadata.cta_button || 'Telegram');
-              templateContent = templateContent.replaceAll('{{max_cta_button}}', metadata.max_cta_button || 'Перейти в MAX');
-              templateContent = templateContent.replaceAll('{{cta_heading}}', metadata.cta_heading || 'Инвестировать в проект');
-              templateContent = templateContent.replaceAll('{{cta_text}}', metadata.cta_text || 'Запросите подробную документацию проекта в Telegram-боте.');
-              templateContent = templateContent.replaceAll('{{cta_choice_text}}', metadata.cta_choice_text ?? 'Получить расчеты доходности можно в ботах — выберите, что вам по кайфу.');
-              templateContent = templateContent.replaceAll('{{telegram_vpn_note}}', metadata.telegram_vpn_note || 'Переход в Telegram-бот работает с VPN.');
-
-              // Fix paths for project pages (dev mode)
-              templateContent = templateContent.replace(
-                /src="assets\//g,
-                'src="/assets/'
-              );
-              templateContent = templateContent.replace(
-                /src="common\.js/g,
-                'src="/common.js'
-              );
-
-              // Add cache control meta tags
-              const cacheControlMeta = `
-              <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-              <meta http-equiv="Pragma" content="no-cache">
-              <meta http-equiv="Expires" content="0">
-`;
-              if (!templateContent.includes('http-equiv="Cache-Control"')) {
-                templateContent = templateContent.replace(
-                  /(<meta charset="UTF-8">)/,
-                  `$1${cacheControlMeta}`
-                );
-              }
+              templateContent = renderProjectPageHtml(templateContent, metadata, html, project.slug, 'dev');
 
               res.setHeader('Content-Type', 'text/html');
               res.end(templateContent);
@@ -352,19 +351,17 @@ export default defineConfig({
           try {
             const { html, metadata } = await processMarkdownFile(mdPath, slug);
             const { cta_hero, cta_footer } = buildLegalCtaBlocks(metadata);
-            const canonicalUrl = `${SITE_BASE}/legal/${slug}.html`;
             let templateContent = fs.readFileSync(templatePath, 'utf8');
             templateContent = replaceIncludes(templateContent);
-            templateContent = templateContent.replaceAll('{{title}}', metadata.title || slug);
-            templateContent = templateContent.replaceAll('{{description}}', metadata.description || '');
-            templateContent = templateContent.replaceAll('{{hero_badge}}', metadata.hero_badge || 'Документ');
-            templateContent = templateContent.replaceAll('{{canonical_url}}', canonicalUrl);
-            templateContent = templateContent.replaceAll('{{content}}', html);
-            templateContent = templateContent.replaceAll('{{cta_hero}}', cta_hero);
-            templateContent = templateContent.replaceAll('{{cta_footer}}', cta_footer);
-            templateContent = templateContent.replace(/href="\.\.\/assets\//g, 'href="/assets/');
-            templateContent = templateContent.replace(/href="\.\.\/input\.css"/g, 'href="/input.css"');
-            templateContent = templateContent.replace(/src="common\.js/g, 'src="/common.js');
+            templateContent = renderLegalPageHtml(
+              templateContent,
+              metadata,
+              html,
+              slug,
+              SITE_BASE,
+              { cta_hero, cta_footer },
+              'dev'
+            );
             res.setHeader('Content-Type', 'text/html');
             res.end(templateContent);
           } catch (error) {
@@ -375,6 +372,8 @@ export default defineConfig({
         });
       },
       async generateBundle() {
+        const generationErrors = [];
+
         // Process and generate project pages for build
         const projects = findProjects();
 
@@ -388,52 +387,7 @@ export default defineConfig({
 
             templateContent = replaceIncludes(templateContent);
 
-            // Replace content using replaceAll for reliability
-            templateContent = templateContent.replaceAll('{{title}}', metadata.title || project.slug);
-            templateContent = templateContent.replaceAll('{{content}}', html);
-            templateContent = templateContent.replaceAll('{{slug}}', project.slug);
-            templateContent = templateContent.replaceAll('{{bot_link}}', metadata.bot_link || '');
-            templateContent = templateContent.replaceAll('{{max_bot_link}}', metadata.max_bot_link || metadata.bot_link || '');
-            templateContent = templateContent.replaceAll('{{date}}', metadata.date || '');
-            templateContent = templateContent.replaceAll('{{hero_badge}}', metadata.hero_badge || 'Инвестиционный проект');
-            templateContent = templateContent.replaceAll('{{cta_button}}', metadata.cta_button || 'Узнать об инвестировании');
-            templateContent = templateContent.replaceAll('{{telegram_cta_label}}', metadata.telegram_cta_label || metadata.cta_button || 'Telegram');
-            templateContent = templateContent.replaceAll('{{max_cta_button}}', metadata.max_cta_button || 'Перейти в MAX');
-            templateContent = templateContent.replaceAll('{{cta_heading}}', metadata.cta_heading || 'Инвестировать в проект');
-            templateContent = templateContent.replaceAll('{{cta_text}}', metadata.cta_text || 'Запросите подробную документацию проекта в Telegram-боте.');
-            templateContent = templateContent.replaceAll('{{cta_choice_text}}', metadata.cta_choice_text ?? 'Получить расчеты доходности можно в ботах — выберите, что вам по кайфу.');
-            templateContent = templateContent.replaceAll('{{telegram_vpn_note}}', metadata.telegram_vpn_note || 'Переход в Telegram-бот работает с VPN.');
-
-            // Fix paths for project pages
-            templateContent = templateContent.replace(
-              /href="index\.html/g,
-              'href="../index.html'
-            );
-            templateContent = templateContent.replace(
-              /href="scheme\.html/g,
-              'href="../scheme.html'
-            );
-            templateContent = templateContent.replace(
-              /src="assets\//g,
-              'src="../assets/'
-            );
-            templateContent = templateContent.replace(
-              /src="common\.js/g,
-              'src="../common.js'
-            );
-
-            // Add cache control meta tags
-            const cacheControlMeta = `
-            <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-            <meta http-equiv="Pragma" content="no-cache">
-            <meta http-equiv="Expires" content="0">
-`;
-            if (!templateContent.includes('http-equiv="Cache-Control"')) {
-              templateContent = templateContent.replace(
-                /(<meta charset="UTF-8">)/,
-                `$1${cacheControlMeta}`
-              );
-            }
+            templateContent = renderProjectPageHtml(templateContent, metadata, html, project.slug, 'build');
 
             // Emit project page
             this.emitFile({
@@ -443,7 +397,7 @@ export default defineConfig({
             });
 
           } catch (error) {
-            console.error(`Error processing project ${project.slug}:`, error.message);
+            generationErrors.push(`project ${project.slug}: ${error.message}`);
           }
         }
 
@@ -456,29 +410,30 @@ export default defineConfig({
             try {
               const { html, metadata } = await processMarkdownFile(mdPath, lp.slug);
               const { cta_hero, cta_footer } = buildLegalCtaBlocks(metadata);
-              const canonicalUrl = `${SITE_BASE}/legal/${lp.slug}.html`;
               let templateContent = fs.readFileSync(legalTemplatePath, 'utf8');
               templateContent = replaceIncludes(templateContent);
-              templateContent = templateContent.replaceAll('{{title}}', metadata.title || lp.slug);
-              templateContent = templateContent.replaceAll('{{description}}', metadata.description || '');
-              templateContent = templateContent.replaceAll('{{hero_badge}}', metadata.hero_badge || 'Документ');
-              templateContent = templateContent.replaceAll('{{canonical_url}}', canonicalUrl);
-              templateContent = templateContent.replaceAll('{{content}}', html);
-              templateContent = templateContent.replaceAll('{{cta_hero}}', cta_hero);
-              templateContent = templateContent.replaceAll('{{cta_footer}}', cta_footer);
-              templateContent = templateContent.replace(/href="index\.html/g, 'href="../index.html');
-              templateContent = templateContent.replace(/href="scheme\.html/g, 'href="../scheme.html');
-              templateContent = templateContent.replace(/src="assets\//g, 'src="../assets/');
-              templateContent = templateContent.replace(/src="common\.js/g, 'src="../common.js');
+              templateContent = renderLegalPageHtml(
+                templateContent,
+                metadata,
+                html,
+                lp.slug,
+                SITE_BASE,
+                { cta_hero, cta_footer },
+                'build'
+              );
               this.emitFile({
                 type: 'asset',
                 fileName: `legal/${lp.slug}.html`,
                 source: templateContent
               });
             } catch (error) {
-              console.error(`Error processing legal/${lp.slug}:`, error.message);
+              generationErrors.push(`legal ${lp.slug}: ${error.message}`);
             }
           }
+        }
+
+        if (generationErrors.length > 0) {
+          this.error(`Failed to generate markdown pages:\n${generationErrors.join('\n')}`);
         }
       }
     },
@@ -512,8 +467,25 @@ export default defineConfig({
 
             console.log('Favicons generated successfully');
           } catch (error) {
-            console.log('Error generating favicons:', error.message);
+            this.error(`Error generating favicons: ${error.message}`);
           }
+        }
+      }
+    },
+    {
+      name: 'emit-mono-logos',
+      generateBundle() {
+        for (const name of MONO_LOGO_SVGS) {
+          const abs = path.join(__dirname, 'src', 'assets', name);
+          if (!fs.existsSync(abs)) {
+            console.warn(`emit-mono-logos: missing ${abs}`);
+            continue;
+          }
+          this.emitFile({
+            type: 'asset',
+            fileName: `assets/${name}`,
+            source: fs.readFileSync(abs)
+          });
         }
       }
     },
@@ -521,7 +493,7 @@ export default defineConfig({
       name: 'update-hashed-links',
       async writeBundle(options, bundle) {
         const dir = options.dir || distDir;
-        const assets = getBundleAssets(bundle);
+        const assets = getBundleAssets(bundle, (message) => this.error(message));
 
         // Project pages (dist/projects/*.html) use ../ prefix
         const projectsDir = path.join(dir, 'projects');
@@ -564,7 +536,7 @@ export default defineConfig({
       }
     },
     {
-      name: 'sitemap-robots',
+      name: 'emit-robots-txt',
       async generateBundle() {
         const robots = `User-agent: *
 Disallow: /

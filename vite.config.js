@@ -487,10 +487,6 @@ export default defineConfig({
       name: 'favicon-generator',
       async generateBundle() {
         const sourceFavicon = path.join(__dirname, 'src', 'assets', 'favicon.png');
-        const sourceMessengerIcons = [
-          { from: path.join(__dirname, 'src', 'assets', 'telegram-logo-mono.svg'), to: 'assets/telegram-logo-mono.svg' },
-          { from: path.join(__dirname, 'src', 'assets', 'max-logo-mono.svg'), to: 'assets/max-logo-mono.svg' }
-        ];
 
         if (fs.existsSync(sourceFavicon)) {
           try {
@@ -518,15 +514,6 @@ export default defineConfig({
           } catch (error) {
             console.log('Error generating favicons:', error.message);
           }
-        }
-
-        for (const icon of sourceMessengerIcons) {
-          if (!fs.existsSync(icon.from)) continue;
-          this.emitFile({
-            type: 'asset',
-            fileName: icon.to,
-            source: fs.readFileSync(icon.from)
-          });
         }
       }
     },

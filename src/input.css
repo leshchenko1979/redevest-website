@@ -1105,13 +1105,21 @@
     @apply mb-4;
   }
 
-  .content-report ul,
+  /* preflight снимает list-style — явно возвращаем маркеры в отчётах */
+  .content-report ul {
+    @apply mb-6 pl-6 list-outside list-disc;
+  }
+
   .content-report ol {
-    @apply mb-6 pl-6;
+    @apply mb-6 pl-6 list-outside list-decimal;
   }
 
   .content-report li {
-    @apply mb-2;
+    @apply mb-2 pl-1;
+  }
+
+  .content-report li::marker {
+    @apply text-slate-500;
   }
 
   /*
@@ -1162,12 +1170,12 @@
 
   /* content-quote */
   .content-report .content-quote {
-    @apply text-lg italic text-primary pl-5 my-8 rounded-sm;
+    @apply text-lg italic text-primary px-5 py-5 my-8 rounded-sm;
     background: linear-gradient(90deg, rgba(250, 204, 21, 0.2) 0%, rgba(250, 204, 21, 0.04) 25%, rgba(250, 204, 21, 0) 70%);
   }
 
   .content-report .content-quote-author {
-    @apply text-sm text-slate-500 not-italic mt-2 font-medium;
+    @apply text-sm text-slate-500 not-italic mt-4 font-medium;
   }
 
   /*
@@ -1191,7 +1199,7 @@
   }
 
   .content-report .content-checklist-item {
-    @apply flex gap-4 py-3;
+    @apply flex gap-4 py-3 px-5 sm:px-6;
     background: linear-gradient(180deg, rgba(148, 163, 184, 0.08) 0%, rgba(148, 163, 184, 0) 100%);
   }
 

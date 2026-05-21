@@ -1,7 +1,7 @@
 ---
 title: "Фрязино: Доля в готовом ГАБ с доходностью до 20,4%*"
 slug: "fryazino"
-bot_link: "https://t.me/FlippingInvestBot?start=dl-1764070124237"
+bot_link: "tg://resolve?domain=FlippingInvestBot&start=dl-1764070124237"
 cta_button: "Получить расчет доходности"
 telegram_cta_label: "Telegram"
 max_cta_button: "MAX"
@@ -131,4 +131,4 @@ cta_text: "Подберем конкретные доли, подготовим 
 
 *Все показатели доходности на странице, включая ориентир «до 20,4% годовых», являются предварительными и требуют пересчета под конкретный лот, бюджет и срок удержания.*
 
-[Получить пакет документов в боте](https://t.me/FlippingInvestBot?start=dl-1764070124237)
+[Получить пакет документов в боте](tg://resolve?domain=FlippingInvestBot&start=dl-1764070124237)

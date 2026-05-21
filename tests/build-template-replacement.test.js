@@ -69,7 +69,7 @@ function testTemplateReplacement() {
 </body>
 </html>`;
 
-  const metadata = { title: 'Лубёнки', bot_link: 'https://t.me/FlippingInvestBot?start=c1731502858283-ds' };
+  const metadata = { title: 'Лубёнки', bot_link: 'tg://resolve?domain=FlippingInvestBot&start=c1731502858283-ds' };
   const projectSlug = 'lubenki';
   const content = '<p>Project content</p>';
 

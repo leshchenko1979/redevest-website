@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const matter = require('gray-matter').default || require('gray-matter');
 const marked = require('marked');
+const { tmeToTg } = require('./telegram-links');
 
 /**
  * Обрабатывает кастомные блоки в markdown перед конвертацией
@@ -329,7 +330,26 @@ function enhanceHtmlContent(html) {
   enhanced = enhanced.replace(/<table>/g, '<div class="content-table-container"><table class="content-table">');
   enhanced = enhanced.replace(/<\/table>/g, '</table></div>');
 
+  enhanced = enhanced.replace(/href="(https?:\/\/t\.me\/[^"]+)"/gi, (match, url) => {
+    return `href="${tmeToTg(url)}"`;
+  });
+
   return enhanced;
+}
+
+/**
+ * Normalizes Telegram URLs in frontmatter metadata.
+ * @param {Object} metadata
+ * @returns {Object}
+ */
+function normalizeTelegramMetadata(metadata) {
+  const normalized = { ...metadata };
+  for (const key of ['bot_link', 'cta_link']) {
+    if (normalized[key]) {
+      normalized[key] = tmeToTg(normalized[key]);
+    }
+  }
+  return normalized;
 }
 
 /**
@@ -346,6 +366,7 @@ async function processMarkdownFile(filePath, projectSlug) {
     // Read and parse file
     const fileContent = fs.readFileSync(filePath, 'utf8');
     const { data: metadata, content } = matter(fileContent);
+    const normalizedMetadata = normalizeTelegramMetadata(metadata || {});
 
     // Process custom blocks and convert to HTML
     const processedContent = processCustomBlocks(content);
@@ -359,7 +380,7 @@ async function processMarkdownFile(filePath, projectSlug) {
 
     return {
       html: finalHtml,
-      metadata: metadata || {}
+      metadata: normalizedMetadata
     };
 
   } catch (error) {

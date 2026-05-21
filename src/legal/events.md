@@ -2,7 +2,7 @@
 title: "Условия участия в мероприятиях"
 description: "Публичная оферта на мероприятия Редевест"
 hero_badge: "Оферта"
-cta_link: "https://t.me/FlippingInvestBot?start=dl-1761210629436"
+cta_link: "tg://resolve?domain=FlippingInvestBot&start=dl-1761210629436"
 cta_heading: "Хотите участвовать?"
 cta_text: "Запишитесь на мероприятия через Telegram-бот — получите актуальное расписание и условия участия."
 cta_button: "Записаться на мероприятия"

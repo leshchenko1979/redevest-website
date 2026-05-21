@@ -1,3 +1,5 @@
+import { tmeToTg } from './telegram-links.js';
+
 const PROJECT_DEFAULTS = {
   hero_badge: 'Инвестиционный проект',
   cta_button: 'Узнать об инвестировании',
@@ -30,7 +32,7 @@ export function renderProjectPageHtml(templateContent, metadata, html, slug, mod
   rendered = rendered.replaceAll('{{title}}', metadata.title || slug);
   rendered = rendered.replaceAll('{{content}}', html);
   rendered = rendered.replaceAll('{{slug}}', slug);
-  rendered = rendered.replaceAll('{{bot_link}}', metadata.bot_link || '');
+  rendered = rendered.replaceAll('{{bot_link}}', tmeToTg(metadata.bot_link || ''));
   rendered = rendered.replaceAll('{{max_bot_link}}', metadata.max_bot_link || metadata.bot_link || '');
   rendered = rendered.replaceAll('{{date}}', metadata.date || '');
   rendered = rendered.replaceAll('{{hero_badge}}', metadata.hero_badge || PROJECT_DEFAULTS.hero_badge);

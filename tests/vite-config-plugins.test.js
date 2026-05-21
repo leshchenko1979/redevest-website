@@ -58,7 +58,7 @@ describe('Vite Config Plugins', () => {
                     <a href="index.html#projects" class="nav-link">Проекты</a>
                     <a href="index.html#progress" class="nav-link">Прозрачность</a>
                     <a href="index.html#partners" class="nav-link">Партнерам</a>
-                    <a href="https://t.me/flipping_invest" class="nav-btn">Telegram-канал</a>
+                    <a href="tg://resolve?domain=flipping_invest" class="nav-btn">Telegram-канал</a>
                 </div>
             </div>
         </div>
@@ -85,7 +85,7 @@ describe('Vite Config Plugins', () => {
                 <a href="index.html#partners" class="block text-2xl font-sans text-primary" onclick="toggleMobileMenu()">Партнерам</a>
             </nav>
             <div class="pt-8 border-t border-gray-100">
-                <a href="https://t.me/flipping_invest" class="w-full flex items-center justify-center px-6 py-4 text-base font-medium text-white bg-primary hover:bg-secondary rounded-sm transition-colors">
+                <a href="tg://resolve?domain=flipping_invest" class="w-full flex items-center justify-center px-6 py-4 text-base font-medium text-white bg-primary hover:bg-secondary rounded-sm transition-colors">
                     Telegram-канал
                 </a>
             </div>

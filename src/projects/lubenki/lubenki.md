@@ -1,7 +1,7 @@
 ---
 title: "Лубёнки. Строительство коттеджного поселка."
 slug: "lubenki"
-bot_link: "https://t.me/FlippingInvestBot?start=c1731502858283-ds"
+bot_link: "tg://resolve?domain=FlippingInvestBot&start=c1731502858283-ds"
 max_bot_link: "https://max.ru/id773671678516_bot?start=c1774863935528-ds"
 telegram_cta_label: "Telegram"
 max_cta_button: "MAX"
@@ -125,4 +125,4 @@ cta_text: "Получите документацию и условия в удо
 
 ## Ход работ
 
-Следите за ходом реализации проекта в открытом Telegram-канале: [КП «Лубёнки»](https://t.me/lubenki_redevest)
+Следите за ходом реализации проекта в открытом Telegram-канале: [КП «Лубёнки»](tg://resolve?domain=lubenki_redevest)

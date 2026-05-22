@@ -1023,7 +1023,7 @@
   .calc-basic-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 2rem;
   }
 
   @media (min-width: 36rem) {
@@ -1034,7 +1034,13 @@
   }
 
   .calc-basic-col {
-    @apply flex flex-col min-w-0;
+    @apply flex flex-col min-w-0 gap-3;
+  }
+
+  @media (min-width: 36rem) {
+    .calc-basic-col {
+      gap: 0;
+    }
   }
 
   .calc-basic-col .calc-input {
@@ -1123,8 +1129,40 @@
   }
 
   .calc-doli-section {
-    @apply rounded-xl p-6 mb-8;
+    @apply rounded-xl p-4 mb-8;
     background: #ffffff;
+  }
+
+  @media (min-width: 36rem) {
+    .calc-doli-section {
+      @apply p-6;
+    }
+  }
+
+  .calc-doli-page .calc-input {
+    @apply w-full max-w-none rounded-md px-4 py-3 text-base;
+    min-height: 2.75rem;
+    color: #1a1c1c;
+    background: #ffffff;
+    outline: 1px solid rgba(220, 193, 177, 0.15);
+  }
+
+  .calc-doli-page .calc-input:focus {
+    outline: 1px solid rgba(220, 193, 177, 0.45);
+  }
+
+  .calc-doli-page .calc-basic-col .calc-doli-label {
+    @apply mb-2;
+  }
+
+  @media (max-width: 35.999rem) {
+    .calc-doli-page .calc-basic-col .calc-doli-label {
+      @apply text-base;
+    }
+
+    .calc-basic-derived dd {
+      @apply text-base;
+    }
   }
 
   .calc-doli-heading {

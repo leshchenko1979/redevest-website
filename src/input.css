@@ -1230,17 +1230,23 @@
   }
 
   .scenario-metrics-row-full dt {
+    @apply text-sm;
     font-weight: 500;
     color: rgba(168, 57, 0, 0.85);
   }
 
   .scenario-metrics-row-full dd {
-    @apply text-lg font-semibold;
+    @apply text-base font-semibold;
   }
 
   .scenario-metrics-row-full .scenario-metrics-pct {
+    @apply text-2xl;
     color: #a83900;
     font-weight: 600;
+  }
+
+  .scenario-metrics-row-full .scenario-metrics-yield-head {
+    @apply text-2xl;
   }
 
   .scenario-metrics-method-hint {
@@ -1272,10 +1278,6 @@
     color: rgba(86, 67, 55, 0.72);
     white-space: nowrap;
     line-height: inherit;
-  }
-
-  .scenario-metrics-row-full .scenario-metrics-income {
-    @apply text-lg;
   }
 
   /*

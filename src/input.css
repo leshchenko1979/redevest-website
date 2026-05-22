@@ -1020,8 +1020,44 @@
     @apply bg-gray-100;
   }
 
+  .calc-basic-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 36rem) {
+    .calc-basic-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem 1.5rem;
+    }
+  }
+
+  .calc-basic-col {
+    @apply flex flex-col min-w-0;
+  }
+
+  .calc-basic-col .calc-input {
+    @apply w-full max-w-none;
+  }
+
+  .calc-basic-derived {
+    @apply m-0 mt-4 p-4 rounded-xl text-sm;
+    background: #f4f3f2;
+  }
+
+  .calc-basic-derived dt {
+    @apply m-0;
+  }
+
+  .calc-basic-derived dd {
+    @apply m-0 mt-1;
+  }
+
   .calc-input {
-    @apply w-full max-w-xs rounded-sm px-3 py-2 text-gray-800;
+    @apply w-full max-w-xs rounded-md px-3 py-2;
+    color: #1a1c1c;
+    background: #ffffff;
     outline: 1px solid rgba(220, 193, 177, 0.15);
   }
 
@@ -1053,6 +1089,193 @@
 
   .calc-instruction-list ol {
     @apply list-outside pl-6 mt-2 mb-4 list-[lower-alpha];
+  }
+
+  .scenario-picker-block {
+    @apply mx-auto w-full max-w-[480px];
+  }
+
+  .scenario-picker-wrap {
+    @apply w-full;
+  }
+
+  .scenario-picker-canvas {
+    @apply block w-full rounded-xl;
+    aspect-ratio: 1;
+    touch-action: none;
+    cursor: crosshair;
+  }
+
+  /* Калькулятор долей Фрязино — scope под website/DESIGN.md */
+  .calc-doli-page {
+    color: rgba(86, 67, 55, 0.88);
+  }
+
+  .calc-doli-page .content-report-header {
+    @apply rounded-xl shadow-none;
+    background: #ffffff;
+  }
+
+  .calc-doli-page .content-header-title {
+    @apply font-serif;
+    line-height: 1.35;
+    color: #1a1c1c;
+  }
+
+  .calc-doli-section {
+    @apply rounded-xl p-6 mb-8;
+    background: #ffffff;
+  }
+
+  .calc-doli-heading {
+    @apply font-serif text-xl font-semibold mb-4 m-0;
+    line-height: 1.35;
+    color: #1a1c1c;
+  }
+
+  .calc-doli-subheading {
+    @apply font-serif text-base font-semibold mb-2;
+    line-height: 1.35;
+    color: #1a1c1c;
+  }
+
+  .calc-doli-label {
+    @apply block text-sm font-medium mb-1;
+    color: rgba(86, 67, 55, 0.85);
+  }
+
+  .calc-doli-lead {
+    @apply text-sm;
+    color: rgba(86, 67, 55, 0.78);
+  }
+
+  .calc-doli-dt {
+    color: rgba(86, 67, 55, 0.72);
+  }
+
+  .calc-doli-page .content-accordion {
+    @apply rounded-xl shadow-none;
+    background: #ffffff;
+  }
+
+  .calc-doli-page .content-accordion-icon {
+    background: #f4f3f2;
+    color: #a83900;
+  }
+
+  .calc-doli-page .content-accordion-title.calc-doli-heading {
+    color: #1a1c1c;
+  }
+
+  .calc-doli-page .content-table {
+    @apply shadow-none;
+  }
+
+  .calc-doli-page .content-table tr th:first-child,
+  .calc-doli-page .content-table tr td:first-child {
+    background: #f4f3f2;
+  }
+
+  .calc-doli-page .calc-table-expected {
+    background: rgba(168, 57, 0, 0.1);
+    color: #a83900;
+    font-weight: 500;
+  }
+
+  .calc-doli-page .scenario-metrics {
+    @apply p-4 rounded-xl;
+    background: #f4f3f2;
+  }
+
+  .calc-doli-disclaimer {
+    @apply mt-8 mb-4 p-4 rounded-xl;
+    background: #f4f3f2;
+  }
+
+  .calc-doli-disclaimer-title {
+    @apply text-sm font-semibold mb-2 font-serif;
+    color: #1a1c1c;
+  }
+
+  .calc-doli-disclaimer-text {
+    @apply text-xs leading-relaxed;
+    color: rgba(86, 67, 55, 0.78);
+  }
+
+  .scenario-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem 1.5rem;
+    @apply text-sm mt-4 w-full;
+  }
+
+  .scenario-metrics-row {
+    @apply flex flex-col gap-1 py-2;
+  }
+
+  .scenario-metrics-row-full {
+    grid-column: 1 / -1;
+    @apply mt-3 pt-4 px-3 pb-3 rounded-xl;
+    background: #f4f3f2;
+  }
+
+  .scenario-metrics-row dt {
+    @apply text-xs text-right;
+    color: rgba(86, 67, 55, 0.72);
+  }
+
+  .scenario-metrics-row dd {
+    @apply tabular-nums font-medium text-base text-right w-full;
+    color: #1a1c1c;
+  }
+
+  .scenario-metrics-row-full dt {
+    font-weight: 500;
+    color: rgba(168, 57, 0, 0.85);
+  }
+
+  .scenario-metrics-row-full dd {
+    @apply text-lg font-semibold;
+  }
+
+  .scenario-metrics-row-full .scenario-metrics-pct {
+    color: #a83900;
+    font-weight: 600;
+  }
+
+  .scenario-metrics-method-hint {
+    @apply block text-[10px] font-normal leading-snug mt-0.5;
+    color: rgba(86, 67, 55, 0.6);
+  }
+
+  .scenario-metrics-yield-line {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: baseline;
+    gap: 0.125rem 0.25rem;
+    max-width: 100%;
+    line-height: 1.25;
+  }
+
+  .scenario-metrics-yield-head {
+    white-space: nowrap;
+  }
+
+  .scenario-metrics-pct {
+    @apply font-medium;
+    color: #1a1c1c;
+  }
+
+  .scenario-metrics-income {
+    @apply text-sm font-normal;
+    color: rgba(86, 67, 55, 0.72);
+    white-space: nowrap;
+    line-height: inherit;
+  }
+
+  .scenario-metrics-row-full .scenario-metrics-income {
+    @apply text-lg;
   }
 
   /*

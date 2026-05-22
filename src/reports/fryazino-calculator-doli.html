@@ -65,7 +65,7 @@
                         </div>
                         <div class="calc-basic-col">
                             <label class="calc-doli-label" for="purchaseDate">Дата покупки</label>
-                            <input type="date" id="purchaseDate" class="calc-input" value="2026-05-20">
+                            <input type="date" id="purchaseDate" class="calc-input">
                             <dl class="calc-basic-derived">
                                 <dt class="calc-doli-dt">Текущий срок владения</dt>
                                 <dd class="font-medium tabular-nums"><span id="out-ownershipMonths">—</span> мес.</dd>
@@ -75,8 +75,7 @@
                 </section>
 
                 <section class="content-accordion collapsed mb-8">
-                    <div class="content-accordion-header"
-                        onclick="toggleCalcInstruction(this)">
+                    <div class="content-accordion-header" onclick="toggleCalcInstruction(this)">
                         <h2 class="content-accordion-title calc-doli-heading mb-0 flex-1">2. Справочные таблицы
                         </h2>
                         <div class="content-accordion-toggle"><svg width="24" height="24" viewBox="0 0 24 24"
@@ -132,28 +131,28 @@
                                 aria-label="Выбор срока до продажи от 6 месяцев и цены продажи. Перетащите маркер по полю."></canvas>
                         </div>
                         <dl class="scenario-metrics mt-4">
-                        <div class="scenario-metrics-row">
-                            <dt>Цена продажи</dt>
-                            <dd id="out-picker-price" class="tabular-nums">—</dd>
-                        </div>
-                        <div class="scenario-metrics-row">
-                            <dt>Срок до продажи</dt>
-                            <dd id="out-picker-term" class="tabular-nums">—</dd>
-                        </div>
-                        <div class="scenario-metrics-row">
-                            <dt>Доходность аренды</dt>
-                            <dd id="out-picker-rent" class="tabular-nums">—</dd>
-                        </div>
-                        <div class="scenario-metrics-row">
-                            <dt>Доходность продажи</dt>
-                            <dd id="out-picker-sale" class="tabular-nums">—</dd>
-                        </div>
-                        <div class="scenario-metrics-row scenario-metrics-row-full">
-                            <dt>Общая доходность, % годовых
-                                <span class="scenario-metrics-method-hint">сумма доходностей аренды и продажи</span>
-                            </dt>
-                            <dd id="out-picker-yield-total" class="tabular-nums font-semibold">—</dd>
-                        </div>
+                            <div class="scenario-metrics-row">
+                                <dt>Цена продажи</dt>
+                                <dd id="out-picker-price" class="tabular-nums">—</dd>
+                            </div>
+                            <div class="scenario-metrics-row">
+                                <dt>Срок до продажи</dt>
+                                <dd id="out-picker-term" class="tabular-nums">—</dd>
+                            </div>
+                            <div class="scenario-metrics-row">
+                                <dt>Доходность аренды</dt>
+                                <dd id="out-picker-rent" class="tabular-nums">—</dd>
+                            </div>
+                            <div class="scenario-metrics-row">
+                                <dt>Доходность продажи</dt>
+                                <dd id="out-picker-sale" class="tabular-nums">—</dd>
+                            </div>
+                            <div class="scenario-metrics-row scenario-metrics-row-full">
+                                <dt>Общая доходность, % годовых
+                                    <span class="scenario-metrics-method-hint">сумма доходностей аренды и продажи</span>
+                                </dt>
+                                <dd id="out-picker-yield-total" class="tabular-nums font-semibold">—</dd>
+                            </div>
                         </dl>
                     </div>
                 </section>

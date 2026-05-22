@@ -43,8 +43,8 @@ const DEFAULT_PICKER = { months: 24, price: 100000 };
 const PICKER_PAD_LEFT = 56;
 const PICKER_PAD_TOP = 14;
 const PICKER_PAD_BOTTOM = 48;
-const PICKER_YEAR_TICKS = [12, 24, 36, 48, 60];
-const PICKER_YEAR_LABELS = ["1 г.", "2 г.", "3 г.", "4 г.", "5 г."];
+const PICKER_YEAR_TICKS = [24, 36, 48, 60];
+const PICKER_YEAR_LABELS = ["2 г.", "3 г.", "4 г.", "5 г."];
 const PICKER_AXIS_LABEL_NEAR = 16;
 const PICKER_HEATMAP_COLOR_MAX = 0.4;
 
@@ -86,13 +86,30 @@ function fmtYieldWithIncomeHtml(y, income) {
   return `<span class="scenario-metrics-yield-line"><span class="scenario-metrics-yield-head"><span class="scenario-metrics-pct">${pct}</span> /</span><span class="scenario-metrics-income">${mln}</span></span>`;
 }
 
+const PICKER_HEATMAP_RGB_LOW = [244, 243, 242];
+const PICKER_HEATMAP_RGB_MID = [232, 240, 250];
+const PICKER_HEATMAP_RGB_HIGH = [200, 230, 212];
+
+function lerpHeatmapRgb(a, b, u) {
+  return [
+    Math.round(a[0] + (b[0] - a[0]) * u),
+    Math.round(a[1] + (b[1] - a[1]) * u),
+    Math.round(a[2] + (b[2] - a[2]) * u),
+  ];
+}
+
 function yieldToBgColor(y, maxY = PICKER_HEATMAP_COLOR_MAX) {
   if (y == null || isNaN(y) || !Number.isFinite(y)) return "transparent";
   const t = Math.max(0, Math.min(1, y / maxY));
-  const r = Math.round(254 - t * 34);
-  const g = Math.round(226 + t * 26);
-  const b = Math.round(226 + t * 5);
-  return `rgb(${r}, ${g}, ${b})`;
+  const rgb =
+    t <= 0.5
+      ? lerpHeatmapRgb(PICKER_HEATMAP_RGB_LOW, PICKER_HEATMAP_RGB_MID, t * 2)
+      : lerpHeatmapRgb(
+        PICKER_HEATMAP_RGB_MID,
+        PICKER_HEATMAP_RGB_HIGH,
+        (t - 0.5) * 2
+      );
+  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
 }
 
 function yieldToFillStyle(y, maxY = PICKER_HEATMAP_COLOR_MAX) {
@@ -118,8 +135,9 @@ function getState() {
   const purchaseDate = new Date(document.getElementById("purchaseDate").value);
   const shareSqm = WAREHOUSE_AREA * sharePct;
   const pricePerSqm = purchaseCost / shareSqm;
-  const ownershipMonths =
+  const ownershipMonthsRaw =
     ((Date.now() - purchaseDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)) * 12;
+  const ownershipMonths = Math.max(0, Math.round(ownershipMonthsRaw));
 
   return {
     sharePct,
@@ -298,7 +316,7 @@ function drawInitiatorTrend(ctx, layout) {
     });
   }
 
-  ctx.fillStyle = `rgba(${DESIGN_BRAND_RGB}, 0.12)`;
+  ctx.fillStyle = `rgba(${DESIGN_BRAND_RGB}, 0.10)`;
   ctx.beginPath();
   samples.forEach((s, i) => {
     if (i === 0) ctx.moveTo(s.x, s.yHigh);
@@ -310,7 +328,7 @@ function drawInitiatorTrend(ctx, layout) {
   ctx.closePath();
   ctx.fill();
 
-  ctx.strokeStyle = `rgba(${DESIGN_BRAND_RGB}, 0.55)`;
+  ctx.strokeStyle = `rgba(${DESIGN_BRAND_RGB}, 0.45)`;
   ctx.lineWidth = 2;
   ctx.beginPath();
   samples.forEach((s, i) => {
@@ -411,18 +429,28 @@ function drawPicker(canvas, state) {
   const yearLabelY = axisBottom + 8;
   const { months, price } = pickerState.selected;
   const onYearTick = PICKER_YEAR_TICKS.includes(months);
-  const hideYearIdx = onYearTick ? -1 : nearestYearTickIndex(months);
+  const atMinMonths = months === PICKER_MONTHS_MIN;
+  const hideYearIdx = onYearTick || atMinMonths ? -1 : nearestYearTickIndex(months);
 
-  ctx.textAlign = "center";
   ctx.textBaseline = "top";
+  ctx.textAlign = "left";
+  ctx.fillStyle = atMinMonths ? DESIGN_PRIMARY : DESIGN_AXIS_MUTED;
+  ctx.font = atMinMonths
+    ? "bold 11px Inter, system-ui, sans-serif"
+    : "10px Inter, system-ui, sans-serif";
+  ctx.fillText(
+    formatMonthsAxisLabel(PICKER_MONTHS_MIN),
+    layout.plotX,
+    yearLabelY
+  );
+
   PICKER_YEAR_TICKS.forEach((m, i) => {
-    if (!onYearTick && i === hideYearIdx) return;
+    if (!onYearTick && !atMinMonths && i === hideYearIdx) return;
     const x = monthsToPlotX(m, layout);
     const isSel = onYearTick && months === m;
     const last = i === PICKER_YEAR_TICKS.length - 1;
-    ctx.textAlign = i === 0 ? "left" : last ? "right" : "center";
-    const labelX =
-      i === 0 ? layout.plotX : last ? layout.plotX + layout.plotW : x;
+    ctx.textAlign = last ? "right" : "center";
+    const labelX = last ? layout.plotX + layout.plotW : x;
     ctx.fillStyle = isSel ? DESIGN_PRIMARY : DESIGN_AXIS_MUTED;
     ctx.font = isSel
       ? "bold 11px Inter, system-ui, sans-serif"
@@ -453,7 +481,7 @@ function drawPicker(canvas, state) {
   const { yTotalNpv } = calcScenarioMetrics(state, months, price);
   const markerFill = yieldToFillStyle(yTotalNpv);
 
-  ctx.strokeStyle = `rgba(${DESIGN_BRAND_RGB}, 0.45)`;
+  ctx.strokeStyle = `rgba(${DESIGN_BRAND_RGB}, 0.4)`;
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(sx, sy);
@@ -468,7 +496,7 @@ function drawPicker(canvas, state) {
   ctx.lineTo(sx, sy);
   ctx.stroke();
 
-  if (!onYearTick) {
+  if (!onYearTick && !atMinMonths) {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     drawPickerLabelBg(
@@ -531,7 +559,9 @@ function selectPoint(state, months, price) {
 function render(state) {
   document.getElementById("out-shareSqm").textContent = fmtNum(state.shareSqm);
   document.getElementById("out-pricePerSqm").textContent = fmtNum(state.pricePerSqm);
-  document.getElementById("out-ownershipMonths").textContent = state.ownershipMonths.toFixed(2);
+  document.getElementById("out-ownershipMonths").textContent = fmtNum(
+    state.ownershipMonths
+  );
 
   const saleTbody = document.querySelector("#table-sale-income tbody");
   saleTbody.innerHTML = SALE_PRICES.map((price) => {
@@ -606,7 +636,18 @@ function initPicker() {
   ro.observe(canvas.parentElement);
 }
 
+function todayIsoDate() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 function init() {
+  const purchaseDateEl = document.getElementById("purchaseDate");
+  if (purchaseDateEl) purchaseDateEl.value = todayIsoDate();
+
   const update = () => render(getState());
 
   document.querySelectorAll(INPUT_SELECTOR).forEach((el) => {

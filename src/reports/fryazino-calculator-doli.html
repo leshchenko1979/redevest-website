@@ -26,7 +26,7 @@
                     <div class="content-header-pre">Проект Фрязино · склад №3</div>
                     <h1 class="content-header-title">Калькулятор доходности</h1>
                     <div class="content-header-sub">
-                        Аренда до даты продажи доли и доход от перепродажи по выбранному сценарию.
+                        Доходность по доле при разных сроках и ценах выхода.
                     </div>
                     <div class="mt-6 flex flex-wrap gap-4 justify-center">
                         <a href="https://docs.google.com/spreadsheets/d/1hJQo8EOT7g05OBowiO81WVDbs3N3t6nhk8Rpv567lvY/edit?gid=1914096405#gid=1914096405"
@@ -113,9 +113,11 @@
 
                 <section class="calc-doli-section">
                     <h2 class="calc-doli-heading">3. Сценарии и доходность</h2>
-                    <p class="calc-doli-lead mb-4">Переместите маркер по полю, чтобы рассчитать доходность при
-                        разных сроках и стоимости продажи склада — блок метрик обновится. Линия и полоса на графике —
-                        ожидаемый рост цены по мнению инициатора (±10&nbsp;000&nbsp;₽/кв.м).
+                    <p class="calc-doli-lead mb-4">Доходность по доле — аренда до продажи и результат выхода. Сильнее
+                        всего на итог влияют срок и цена продажи склада; оба зависят от рынка, который заранее не
+                        предсказать. Ниже расчёт для разных вариантов: перетащите маркер по полю — обновятся срок, цена
+                        и доходность. Линия и полоса на графике — ожидаемый рост цены по оценке инициатора проекта
+                        (±10&nbsp;000&nbsp;₽/кв.м).
                     </p>
                     <div class="scenario-picker-block">
                         <div id="scenario-picker" class="scenario-picker-wrap">
@@ -149,14 +151,26 @@
                     </div>
                 </section>
 
-                <section class="calc-doli-disclaimer">
-                    <h2 class="calc-doli-disclaimer-title">Важно</h2>
-                    <p class="calc-doli-disclaimer-text">
-                        Расчёт носит ориентировочный характер и не является офертой или обещанием дохода. Доходность
-                        зависит от цены входа, срока и цены выхода, арендного потока и не гарантируется. Общая
-                        доходность в блоке метрик — сумма доходностей аренды и продажи. Линия и полоса на графике
-                        отражают ожидаемый рост цены по мнению инициатора проекта.
-                    </p>
+                <section class="calc-doli-bot-cta">
+                    <div class="project-cta-glass text-center">
+                        <h2 class="calc-doli-heading mb-6">Вернуться в бота</h2>
+                        <div class="grid w-full max-w-2xl mx-auto grid-cols-1 sm:grid-cols-2 gap-3">
+                            <a href="tg://resolve?domain=FlippingInvestBot&amp;start=dl-1764070124237" target="_blank"
+                                rel="noopener noreferrer"
+                                class="btn btn-lg btn-primary w-full inline-flex items-center justify-center gap-2">
+                                <img src="../assets/telegram-logo-mono.svg" alt=""
+                                    class="h-7 w-7 shrink-0 object-contain" aria-hidden="true">
+                                <span>Telegram</span>
+                            </a>
+                            <a href="https://max.ru/id773671678516_bot?start=dl-1764070124237" target="_blank"
+                                rel="noopener noreferrer"
+                                class="btn btn-lg btn-primary w-full inline-flex items-center justify-center gap-2">
+                                <img src="../assets/max-logo-mono.svg" alt="" class="h-6 w-6 shrink-0 object-contain"
+                                    aria-hidden="true">
+                                <span>MAX</span>
+                            </a>
+                        </div>
+                    </div>
                 </section>
             </div>
         </div>

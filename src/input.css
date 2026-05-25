@@ -1239,6 +1239,20 @@
     background: #f4f3f2;
   }
 
+  .calc-doli-bot-cta {
+    @apply mb-0;
+  }
+
+  .calc-doli-bot-cta .project-cta-glass {
+    @apply p-6;
+  }
+
+  @media (min-width: 36rem) {
+    .calc-doli-bot-cta .project-cta-glass {
+      @apply p-8;
+    }
+  }
+
   .calc-doli-disclaimer {
     @apply mt-8 mb-4 p-4 rounded-xl;
     background: #f4f3f2;

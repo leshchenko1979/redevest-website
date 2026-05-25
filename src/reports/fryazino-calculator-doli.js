@@ -350,77 +350,53 @@ function nearestYearTickIndex(months) {
   return bestIdx;
 }
 
-function catmullRom(p0, p1, p2, p3, t) {
-  const t2 = t * t;
-  const t3 = t2 * t;
-  return (
-    0.5 *
-    (2 * p1 +
-      (-p0 + p2) * t +
-      (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
-      (-p0 + 3 * p1 - 3 * p2 + p3) * t3)
-  );
-}
-
 function priceOnInitiatorTrend(months) {
-  const pts = INITIATOR_PRICE_TREND;
-  if (months <= pts[0].months) {
-    const [a, b] = pts;
-    const slope = (b.price - a.price) / (b.months - a.months);
-    return a.price + slope * (months - a.months);
-  }
-  const last = pts[pts.length - 1];
-  if (months >= last.months) {
-    const a = pts[pts.length - 2];
-    const slope = (last.price - a.price) / (last.months - a.months);
-    return last.price + slope * (months - last.months);
-  }
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    if (months >= p1.months && months <= p2.months) {
-      const p0 = pts[Math.max(0, i - 1)];
-      const p3 = pts[Math.min(pts.length - 1, i + 2)];
-      const t = (months - p1.months) / (p2.months - p1.months);
-      return catmullRom(p0.price, p1.price, p2.price, p3.price, t);
-    }
-  }
-  return pts[0].price;
+  const first = INITIATOR_PRICE_TREND[0];
+  const last = INITIATOR_PRICE_TREND[INITIATOR_PRICE_TREND.length - 1];
+  const slope = (last.price - first.price) / (last.months - first.months);
+  return first.price + slope * (months - first.months);
 }
 
 function drawInitiatorTrend(ctx, layout) {
-  const samples = [];
-  for (let m = PICKER_MONTHS_MIN; m <= PICKER_MONTHS_MAX; m++) {
-    const center = priceOnInitiatorTrend(m);
-    const high = Math.min(PICKER_PRICE_MAX, center + INITIATOR_TREND_BAND);
-    const low = Math.max(PICKER_PRICE_MIN, center - INITIATOR_TREND_BAND);
-    samples.push({
-      x: monthsToPlotX(m, layout),
-      yHigh: priceToPlotY(high, layout),
-      yLow: priceToPlotY(low, layout),
-      yMid: priceToPlotY(center, layout),
-    });
-  }
+  const m0 = PICKER_MONTHS_MIN;
+  const m1 = PICKER_MONTHS_MAX;
+  const mid0 = priceOnInitiatorTrend(m0);
+  const mid1 = priceOnInitiatorTrend(m1);
+  const x0 = monthsToPlotX(m0, layout);
+  const x1 = monthsToPlotX(m1, layout);
+  const yMid0 = priceToPlotY(mid0, layout);
+  const yMid1 = priceToPlotY(mid1, layout);
+  const yHigh0 = priceToPlotY(
+    Math.min(PICKER_PRICE_MAX, mid0 + INITIATOR_TREND_BAND),
+    layout
+  );
+  const yHigh1 = priceToPlotY(
+    Math.min(PICKER_PRICE_MAX, mid1 + INITIATOR_TREND_BAND),
+    layout
+  );
+  const yLow0 = priceToPlotY(
+    Math.max(PICKER_PRICE_MIN, mid0 - INITIATOR_TREND_BAND),
+    layout
+  );
+  const yLow1 = priceToPlotY(
+    Math.max(PICKER_PRICE_MIN, mid1 - INITIATOR_TREND_BAND),
+    layout
+  );
 
   ctx.fillStyle = `rgba(${DESIGN_BRAND_RGB}, 0.10)`;
   ctx.beginPath();
-  samples.forEach((s, i) => {
-    if (i === 0) ctx.moveTo(s.x, s.yHigh);
-    else ctx.lineTo(s.x, s.yHigh);
-  });
-  for (let i = samples.length - 1; i >= 0; i--) {
-    ctx.lineTo(samples[i].x, samples[i].yLow);
-  }
+  ctx.moveTo(x0, yHigh0);
+  ctx.lineTo(x1, yHigh1);
+  ctx.lineTo(x1, yLow1);
+  ctx.lineTo(x0, yLow0);
   ctx.closePath();
   ctx.fill();
 
   ctx.strokeStyle = `rgba(${DESIGN_BRAND_RGB}, 0.45)`;
   ctx.lineWidth = 2;
   ctx.beginPath();
-  samples.forEach((s, i) => {
-    if (i === 0) ctx.moveTo(s.x, s.yMid);
-    else ctx.lineTo(s.x, s.yMid);
-  });
+  ctx.moveTo(x0, yMid0);
+  ctx.lineTo(x1, yMid1);
   ctx.stroke();
 }
 

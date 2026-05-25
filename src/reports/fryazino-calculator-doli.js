@@ -55,7 +55,16 @@ const DESIGN_AXIS_MUTED = "rgba(86, 67, 55, 0.55)";
 const DESIGN_SURFACE_LOW = "#f4f3f2";
 const DESIGN_BRAND_RGB = "168, 57, 0";
 
-const INPUT_SELECTOR = "#sharePct, #purchaseCost, #purchaseDate";
+const INPUT_SELECTOR = "#sharePct, #purchaseCost";
+
+/** Ключи query string для шаринга расчёта */
+const URL_KEYS = {
+  date: "data",
+  share: "dolya",
+  cost: "summa",
+  price: "cena",
+  months: "srok",
+};
 
 const pickerState = {
   selected: { ...DEFAULT_PICKER },
@@ -129,24 +138,99 @@ function getNetRent(rate) {
   return NET_RENT_BY_RATE[lo] + t * (NET_RENT_BY_RATE[hi] - NET_RENT_BY_RATE[lo]);
 }
 
+function todayIsoDate() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function parseSharePctInput() {
+  const raw = parseFloat(document.getElementById("sharePct").value);
+  if (!Number.isFinite(raw) || raw <= 0) return 0.05;
+  return Math.min(100, Math.max(0.1, raw)) / 100;
+}
+
+function parsePurchaseCostInput() {
+  const raw = parseFloat(document.getElementById("purchaseCost").value);
+  if (!Number.isFinite(raw) || raw <= 0) return 5_330_000;
+  return raw;
+}
+
 function getState() {
-  const sharePct = parseFloat(document.getElementById("sharePct").value) / 100;
-  const purchaseCost = parseFloat(document.getElementById("purchaseCost").value);
-  const purchaseDate = new Date(document.getElementById("purchaseDate").value);
+  const sharePct = parseSharePctInput();
+  const purchaseCost = parsePurchaseCostInput();
   const shareSqm = WAREHOUSE_AREA * sharePct;
-  const pricePerSqm = purchaseCost / shareSqm;
-  const ownershipMonthsRaw =
-    ((Date.now() - purchaseDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)) * 12;
-  const ownershipMonths = Math.max(0, Math.round(ownershipMonthsRaw));
+  const pricePerSqm = shareSqm > 0 ? purchaseCost / shareSqm : 0;
+  // Дата покупки в расчётах всегда «сегодня» — срок владения до продажи = срок на графике
+  const ownershipMonths = 0;
 
   return {
     sharePct,
     purchaseCost,
-    purchaseDate: document.getElementById("purchaseDate").value,
+    purchaseDate: todayIsoDate(),
     shareSqm,
     pricePerSqm,
     ownershipMonths,
   };
+}
+
+function readUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+
+  const shareRaw = params.get(URL_KEYS.share);
+  if (shareRaw != null && shareRaw !== "") {
+    const share = parseFloat(String(shareRaw).replace(",", "."));
+    if (Number.isFinite(share) && share > 0 && share <= 100) {
+      document.getElementById("sharePct").value = String(share);
+    }
+  }
+
+  const costRaw = params.get(URL_KEYS.cost);
+  if (costRaw != null && costRaw !== "") {
+    const cost = parseFloat(String(costRaw).replace(/\s/g, "").replace(",", "."));
+    if (Number.isFinite(cost) && cost > 0) {
+      document.getElementById("purchaseCost").value = String(Math.round(cost));
+    }
+  }
+
+  const priceRaw = params.get(URL_KEYS.price);
+  const monthsRaw = params.get(URL_KEYS.months);
+  let picker = { ...DEFAULT_PICKER };
+  if (priceRaw != null && priceRaw !== "") {
+    const price = parseFloat(String(priceRaw).replace(/\s/g, "").replace(",", "."));
+    if (Number.isFinite(price)) picker.price = price;
+  }
+  if (monthsRaw != null && monthsRaw !== "") {
+    const months = parseFloat(String(monthsRaw).replace(",", "."));
+    if (Number.isFinite(months)) picker.months = months;
+  }
+  pickerState.selected = clampPicker(picker.months, picker.price);
+}
+
+function syncUrlFromState(state) {
+  const params = new URLSearchParams();
+  const sharePct = state.sharePct * 100;
+  if (Number.isFinite(sharePct)) {
+    params.set(URL_KEYS.share, String(Number(sharePct.toFixed(1))));
+  }
+  if (Number.isFinite(state.purchaseCost) && state.purchaseCost > 0) {
+    params.set(URL_KEYS.cost, String(Math.round(state.purchaseCost)));
+  }
+  params.set(URL_KEYS.date, state.purchaseDate);
+  const { months, price } = pickerState.selected;
+  params.set(URL_KEYS.months, String(months));
+  params.set(URL_KEYS.price, String(price));
+
+  const query = params.toString();
+  const next = query
+    ? `${window.location.pathname}?${query}`
+    : window.location.pathname;
+  const current = `${window.location.pathname}${window.location.search}`;
+  if (next !== current) {
+    window.history.replaceState(null, "", next);
+  }
 }
 
 function calcSaleIncome(pricePerSqm, salePricePerSqm, shareSqm) {
@@ -201,7 +285,9 @@ function calcScenarioMetrics(state, monthsToSale, salePricePerSqm) {
   const yRentNpv = calcYieldNPV(rentIncome, monthsToSale, state.purchaseCost, totalMonths);
   const ySaleNpv = calcYieldSimple(saleIncome, state.purchaseCost, totalMonths);
   const yTotalNpv =
-    yRentNpv != null && ySaleNpv != null ? yRentNpv + ySaleNpv : null;
+    yRentNpv != null || ySaleNpv != null
+      ? (yRentNpv ?? 0) + (ySaleNpv ?? 0)
+      : null;
   const totalIncome = rentIncome + saleIncome;
 
   return {
@@ -552,6 +638,7 @@ function selectPoint(state, months, price) {
     price: pickerState.selected.price,
     ...m,
   });
+  syncUrlFromState(state);
   const canvas = document.getElementById("scenario-picker-canvas");
   if (canvas) drawPicker(canvas, state);
 }
@@ -559,9 +646,7 @@ function selectPoint(state, months, price) {
 function render(state) {
   document.getElementById("out-shareSqm").textContent = fmtNum(state.shareSqm);
   document.getElementById("out-pricePerSqm").textContent = fmtNum(state.pricePerSqm);
-  document.getElementById("out-ownershipMonths").textContent = fmtNum(
-    state.ownershipMonths
-  );
+  syncUrlFromState(state);
 
   const saleTbody = document.querySelector("#table-sale-income tbody");
   saleTbody.innerHTML = SALE_PRICES.map((price) => {
@@ -624,8 +709,11 @@ function initPicker() {
     }
   });
 
-  canvas.addEventListener("pointercancel", () => {
+  canvas.addEventListener("pointercancel", (e) => {
     pickerState.dragging = false;
+    if (canvas.hasPointerCapture(e.pointerId)) {
+      canvas.releasePointerCapture(e.pointerId);
+    }
   });
 
   const ro = new ResizeObserver(() => {
@@ -636,17 +724,8 @@ function initPicker() {
   ro.observe(canvas.parentElement);
 }
 
-function todayIsoDate() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
 function init() {
-  const purchaseDateEl = document.getElementById("purchaseDate");
-  if (purchaseDateEl) purchaseDateEl.value = todayIsoDate();
+  readUrlParams();
 
   const update = () => render(getState());
 

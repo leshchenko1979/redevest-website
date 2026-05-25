@@ -1,8 +1,8 @@
 ---
 title: "Фрязино: доля в арендном складе B+"
 slug: "fryazino"
-bot_link: "tg://resolve?domain=FlippingInvestBot&start=dl-1764070124237"
-max_bot_link: "https://max.ru/id773671678516_bot?start=dl-1764070124237"
+bot_link: "tg://resolve?domain=FlippingInvestBot&start=c1763038570194-ds"
+max_bot_link: "https://max.ru/id773671678516_bot?start=c1779444329296-ds"
 cta_choice_text: "Склад B+ сдан в аренду, 29&nbsp;км от МКАД, 1&nbsp;257&nbsp;кв.&nbsp;м."
 hero_badge: "Склад B+ / В аренде"
 cta_heading: "Материалы и расчёт по объекту в боте"

@@ -46,6 +46,7 @@ const PICKER_PAD_BOTTOM = 48;
 const PICKER_YEAR_TICKS = [24, 36, 48, 60];
 const PICKER_YEAR_LABELS = ["2 г.", "3 г.", "4 г.", "5 г."];
 const PICKER_AXIS_LABEL_NEAR = 16;
+const PICKER_PRICE_UNIT_LABEL = "₽/кв.\u00a0м";
 const PICKER_HEATMAP_COLOR_MAX = 0.4;
 
 /** Палитра website/DESIGN.md (primary, warm neutrals) */
@@ -417,6 +418,37 @@ function drawPickerLabelBg(ctx, text, x, y, align) {
   ctx.fillText(text, x, y);
 }
 
+function drawYAxisRayPriceLabel(ctx, price, y, layout) {
+  const anchorRight = layout.plotX - 6;
+  const priceText = fmtNum(price);
+  const pad = 3;
+  const priceLineH = 14;
+  const unitLineH = 12;
+  const lineGap = 1;
+
+  ctx.font = "bold 11px Inter, system-ui, sans-serif";
+  const priceW = ctx.measureText(priceText).width;
+  ctx.font = "10px Inter, system-ui, sans-serif";
+  const unitW = ctx.measureText(PICKER_PRICE_UNIT_LABEL).width;
+  ctx.font = "bold 11px Inter, system-ui, sans-serif";
+  const minPriceW = ctx.measureText(fmtNum(PICKER_PRICE_MAX)).width;
+  const blockW = Math.max(priceW, unitW, minPriceW) + pad * 2;
+  const blockH = priceLineH + lineGap + unitLineH;
+  const left = anchorRight - blockW;
+  const top = y - blockH / 2;
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.94)";
+  ctx.fillRect(left, top, blockW, blockH);
+
+  ctx.textAlign = "right";
+  ctx.textBaseline = "top";
+  ctx.fillStyle = DESIGN_PRIMARY;
+  ctx.font = "bold 11px Inter, system-ui, sans-serif";
+  ctx.fillText(priceText, anchorRight - pad, top + 2);
+  ctx.font = "10px Inter, system-ui, sans-serif";
+  ctx.fillText(PICKER_PRICE_UNIT_LABEL, anchorRight - pad, top + 2 + priceLineH + lineGap);
+}
+
 function canvasToPicker(clientX, clientY, canvas) {
   const rect = canvas.getBoundingClientRect();
   const layout = getPlotLayout(pickerState.canvasSize);
@@ -570,9 +602,7 @@ function drawPicker(canvas, state) {
     );
   }
 
-  ctx.textAlign = "right";
-  ctx.textBaseline = "middle";
-  drawPickerLabelBg(ctx, fmtNum(price), layout.plotX - 8, sy, "right");
+  drawYAxisRayPriceLabel(ctx, price, sy, layout);
 
   ctx.beginPath();
   ctx.arc(sx, sy, 11, 0, Math.PI * 2);

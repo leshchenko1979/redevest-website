@@ -304,7 +304,13 @@ async function optimizeImages(isDev, emitFile = null) {
   }
 
   // Hero images responsive versions
-  const heroImages = ['src/assets/founder.png', 'src/assets/golubitskaya.jpg', 'src/assets/lubenki_new.jpg', 'src/assets/lunevo_new.jpg'];
+  const heroImages = [
+    'src/assets/founder.png',
+    'src/assets/golubitskaya.jpg',
+    'src/assets/lubenki_new.jpg',
+    'src/assets/lunevo_new.jpg',
+    'src/assets/fryazino.jpg'
+  ];
   for (const heroImage of heroImages) {
     const fullHeroPath = path.join(process.cwd(), heroImage);
     if (fs.existsSync(fullHeroPath)) {

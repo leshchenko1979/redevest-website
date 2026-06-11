@@ -1,5 +1,5 @@
 ---
-title: "Отель «Ахтари» — Приморско-Ахтарск"
+title: "Отель «Ахтари»"
 slug: "akhtari"
 bot_link: "tg://resolve?domain=FlippingInvestBot&start=akhtari"
 max_bot_link: ""

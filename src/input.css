@@ -731,6 +731,11 @@
     @apply bg-gradient-to-r from-slate-100/90 to-blue-50/80;
   }
 
+  /* Дисклеймер — тонкий серый блок, мелкий текст, editorial fine-print */
+  .content-callout-disclaimer {
+    @apply bg-stone-100/60 text-stone-500 text-sm tracking-wide;
+  }
+
   /* Компактный вариант callout без иконки (для warning-block и аналогичных) */
   .content-callout-inline {
     @apply p-3 my-3 text-xs flex items-center;

@@ -11,6 +11,7 @@ module.exports = {
         'content-callout-error',
         'content-callout-accent',
         'content-callout-primary',
+        'content-callout-disclaimer',
         'content-callout-inline',
         'content-table',
         'content-table-container',

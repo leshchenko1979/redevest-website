@@ -611,7 +611,7 @@
    * content-typography    — типографика статей (h1-h3, p, ul, ol, a, img)
    * content-columns      — сетка колонок для markdown [[columns]]
    * content-column       — колонка внутри content-columns
-   * content-callout      — цветные блоки: info, success, warning, error, accent, primary
+   * content-callout      — цветные блоки: info, success, warning, error, accent, primary, disclaimer
    * content-toggle      — раскрывающийся блок (details/summary) для markdown
    * content-table       — таблицы в контенте
    * content-table-container — обёртка для горизонтального скролла таблицы
@@ -690,7 +690,7 @@
   }
 
   /*
-   * content-callout (модификаторы: info, success, warning, error, accent, primary)
+   * content-callout (модификаторы: info, success, warning, error, accent, primary, disclaimer)
    * Контекст: Выделение важной информации
    * Пример: <div class="content-callout content-callout-info">...</div>
    */
